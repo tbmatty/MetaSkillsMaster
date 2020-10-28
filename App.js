@@ -11,11 +11,9 @@ import Login from "./Screens/Login.js";
 import Profile from "./Screens/Profile.js";
 import * as firebase from "firebase";
 import firestore from "@firebase/firestore";
+import SplashScreen from './Screens/SplashScreen.js';
 
-this.state = {
-    isLoading:true,
 
-}
 
 
 const firebaseConfig = {
@@ -50,6 +48,36 @@ firebase.initializeApp(firebaseConfig);
       </Stack.Navigator> */}
 
 
+// function SplashScreen({ navigation }) {
+
+//   var signedOut;
+
+//   firebase.auth().onAuthStateChanged((user) => {
+//     console.log(user);
+//     if (!user) {
+//       // this.setState({ user });
+//       signedOut = true;
+//       navigation.navigate("Login");
+//     } else {
+//       // this.setState({ user: null });
+//       signedOut = false;
+//       navigation.navigate("Home");
+//     }
+//     console.log(signedOut);
+//   });
+
+
+
+//   return (
+//     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+//       <Text>Loading</Text>
+//     </View>
+//   );
+// }
+
+
+
+
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
@@ -57,7 +85,6 @@ function MyTabs() {
     <Tab.Navigator>
       <Tab.Screen name="Home" component={Home} options={{ title: 'Reflect!' }} />
       <Tab.Screen name="Skills" component={Skills} options={{ title: "Skills" }} />
-      <Tab.Screen name="SignUp" component={SignUp} options={{ title: 'Sign Up!' }} />
       <Tab.Screen name="Profile" component={Profile} options={{ title: 'Profile' }} />
 
     </Tab.Navigator>
@@ -70,42 +97,24 @@ const Stack = createStackNavigator();
 
 function App() {
 
-  var signedOut;
 
-  firebase.auth().onAuthStateChanged((user) => {
-    console.log(user);
-    if (!user) {
-      // this.setState({ user });
-      signedOut = true;
 
-    } else {
-      // this.setState({ user: null });
-      signedOut = false;
+  // if (1==1) {
+  //   // We haven't finished checking for the token yet
+  //   // return <SplashScreen />;
+  //   return <SplashScreen />;
+  // }
 
-    }
-    console.log(signedOut);
-  });
-
-  if (state.isLoading) {
-    // We haven't finished checking for the token yet
-   // return <SplashScreen />;
-      console.log("HAHAHAHAHAHAHAHAHA");
-  }
-  
   return (
     <NavigationContainer>
-      {signedOut ? (
-        // No token found, user isn't signed in
-        <Stack.Navigator>
-          <Stack.Screen name="Login" component={Login} options={{ title: 'Login', }} />
-          <Stack.Screen name="SignUp" component={SignUp} options={{ title: 'Sign Up!', }} />
-          <Stack.Screen name="Home" component={MyTabs} />
-        </Stack.Navigator>
-
-      ) : (
-          // User is signed in
-          <MyTabs />
-        )}
+      <Stack.Navigator>
+        <Stack.Screen name="SplashScreen" component={SplashScreen} />
+        <Stack.Screen name="Login" component={Login} options={{ title: 'Login', }} />
+        <Stack.Screen name="SignUp" component={SignUp} options={{ title: 'Sign Up!', }} />
+        <Stack.Screen name="Home" component={MyTabs} />
+        
+      </Stack.Navigator>
+      {/* <MyTabs /> */}
     </NavigationContainer>
   );
 }
