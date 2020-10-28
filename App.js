@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createAppContainer } from "@react-navigation/native"
@@ -9,9 +9,11 @@ import Skills from "./Screens/Skills.js";
 import SignUp from "./Screens/SignUp.js";
 import Login from "./Screens/Login.js";
 import Profile from "./Screens/Profile.js";
+import Stats from "./Screens/Stats.js";
 import * as firebase from "firebase";
 import firestore from "@firebase/firestore";
 import SplashScreen from './Screens/SplashScreen.js';
+import test from './Screens/test.js';
 
 
 
@@ -75,21 +77,36 @@ firebase.initializeApp(firebaseConfig);
 //   );
 // }
 
-
+function LogoTitle() {
+  return (
+    <Image
+      style={{ width: 50, height: 50, }}
+      source={require('./pictures/logo.png')}
+    />
+  );
+}
 
 
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={Home} options={{ title: 'Reflect!' }} />
-      <Tab.Screen name="Skills" component={Skills} options={{ title: "Skills" }} />
-      <Tab.Screen name="Profile" component={Profile} options={{ title: 'Profile' }} />
-
-    </Tab.Navigator>
+      <Tab.Navigator>
+        <Tab.Screen name="Reflect" component={Home} options={{ title: 'Reflect!', headerLeft: 'none' }} />
+        <Tab.Screen name="Skills" component={Skills} options={{ title: "Skills" }} />
+        <Tab.Screen name="Stats" component={Stats} options={{ title: 'Stats' }} />
+        <Tab.Screen name="Profile" component={Profile} options={{ title: 'Profile' }} />
+      </Tab.Navigator>
   );
 }
+
+const Stack_Two = createStackNavigator();
+
+
+
+
+
+
 
 
 const Stack = createStackNavigator();
@@ -111,10 +128,11 @@ function App() {
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="Login" component={Login} options={{ title: 'Login', }} />
         <Stack.Screen name="SignUp" component={SignUp} options={{ title: 'Sign Up!', }} />
-        <Stack.Screen name="Home" component={MyTabs} />
-        
+        <Stack.Screen name="Home" component={MyTabs} options={{title: 'MetaSkillsMaster' }} />
+        <Stack.Screen name="test" component={test} options={{title: 'wawaweewa'}}/>
+        {/* <MyTabs /> */}
       </Stack.Navigator>
-      {/* <MyTabs /> */}
+
     </NavigationContainer>
   );
 }

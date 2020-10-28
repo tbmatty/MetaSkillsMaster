@@ -12,6 +12,25 @@ export default class Home extends Component {
         }
     }
 
+
+
+    //General workflow for file upload
+    handleUpload = async () => {
+        var storage = firebase.storage();
+        var storageRef = storage.ref();
+        var testRef = storageRef.child('test/test.txt');
+        var testMessage = 'testing123';
+        testRef.putString(testMessage).then(function(snapshot){
+            console.log("U CANT EVEN FINISH IT");
+        });
+    }
+
+
+
+
+
+
+
     handleBillyBob = async () => {
         let getVal = await firebase.firestore().collection("Users").doc("billybob").get().then(doc => {
             let billybob = doc.data().Name;
@@ -30,11 +49,8 @@ export default class Home extends Component {
         return (
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <Text>Home Screen</Text>
-                <Button title="Go to Skills" onPress={() => { this.props.navigation.navigate('Skills', { parameterPass: 'anything you want here', }); }} />
-                <Button title="Go to Sign Up" onPress={() => this.props.navigation.navigate('SignUp')} />
-                <Button title="Go to Sign In" onPress={() => this.props.navigation.navigate('Login')} />
-                <Button title="BILLY BOB !" onPress={this.handleBillyBob} />
-                <Text>{this.state.billybob}</Text>
+                <Button title="Record a Reflection!" onPress = {this.handleUpload}/>
+                <Button title="test" onPress={ () => this.props.navigation.navigate("test")}/>
             </View>
         );
     };

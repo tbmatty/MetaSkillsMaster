@@ -16,7 +16,7 @@ export default class Login extends Component {
     handleSignIn = () =>{
         firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
         console.log(firebase.auth().currentUser);
-        this.props.navigation.navigate('Home');
+        //this.props.navigation.navigate('Home');
     }
 
     // signUpPress = () =>{
