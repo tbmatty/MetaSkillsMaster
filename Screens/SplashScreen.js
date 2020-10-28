@@ -22,7 +22,7 @@ export default class SplashScreen extends Component {
 
 
         firebase.auth().onAuthStateChanged((user) => {
-            console.log(user);
+            // console.log(user);
             if (!user) {
                 // this.setState({ user });
                 //signedOut = true;
@@ -36,6 +36,20 @@ export default class SplashScreen extends Component {
                 );
                 //this.props.navigation.navigate("Login");
             } else {
+
+                const usersRef = firebase.firestore().collection('Users').doc(user.uid)
+                usersRef.get()
+                    .then((docSnapshot) => {
+                        if (!docSnapshot.exists) {
+                            console.log("HELLO")
+                            usersRef.set({
+                                email: user.email
+                            }) // create the document
+                        }else{
+                            console.log("HEY")
+                        }
+                    });
+
                 this.props.navigation.dispatch(
                     CommonActions.reset({
                         index: 1,

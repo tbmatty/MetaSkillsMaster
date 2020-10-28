@@ -16,18 +16,9 @@ export default class Login extends Component {
     handleSignIn = () =>{
         firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
         console.log(firebase.auth().currentUser);
-        //this.props.navigation.navigate('Home');
     }
 
-    // signUpPress = () =>{
-    //     if(this.state.password==this.state.password2 && this.state.password!=""){
-    //         this.handleSignUp();
-    //     }else{
-    //         //Handle incorrect passwords
-    //         console.log("Passwords dont match");
-    //     }
-    // }
-
+    
 
     render() {
         return (
@@ -45,8 +36,8 @@ export default class Login extends Component {
                     onChangeText={password => this.setState({password})}
                     value={this.state.password}
                 />
-                <Button title="Sign Up" onPress={this.handleSignIn} />
-                <Button title="Go to Home" onPress={() => console.log(firebase.auth().currentUser)} />
+                <Button title="Login" onPress={this.handleSignIn} />
+                <Button title="Sign Up!" onPress={() => this.props.navigation.navigate('SignUp')} />
 
             </View>
         );
