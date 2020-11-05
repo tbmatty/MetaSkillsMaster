@@ -29,17 +29,37 @@ export default class RecordReflection extends Component {
 
 
     handleSubmit = () => {
-        console.log(this.state.skillSelection)
-        // var date = format(new Date(), "dd-MM-yyyy");
-        // var uid = firebase.auth().currentUser.uid;
-        // console.log(date);
-        // let setVal = firebase.firestore().collection("Recordings").doc(uid).collection("Recordings").doc(JSON.stringify(date)).set({
-        //     textEntry: this.state.textEntry,
-        // })
+        // console.log(this.state.skillSelection)
+        var array = []
+        for(items in this.state.skillSelection){
+            array.push(items)
+        }
+        var date = format(new Date(), "dd-MM-yyyy");
+        var uid = firebase.auth().currentUser.uid;
+        console.log(date);
+        let setVal = firebase.firestore().collection("Recordings").doc(uid).collection("Recordings").doc(JSON.stringify(date)).set({
+            textEntry: this.state.textEntry,
+            categories: array,
+            date: JSON.stringify(date)
+        })
     }
 
     handleItemPress = (item) =>{
         console.log(item)
+
+        const copyDict = {... this.state.items}
+        delete copyDict[item.id]
+
+        for(i=0; i<this.state.skillSelection.length;i++){
+            if(item.id == this.state.skillSelection[i][0]){
+                console.log("hello")
+                alert("You have already included this ")
+                return
+            }
+        }
+
+
+
         var check = this.state.skillSelection[0][0]
         if(check=="-1"){
             console.log("only once")
@@ -114,13 +134,13 @@ export default class RecordReflection extends Component {
                             underlineColorAndroid="transparent"
                         //To remove the underline from the android input
                         />
-                        <ScrollView style={styles.container}>
+                        <ScrollView style={styles.getsmall} horizontal={true}>
                             {this.state.skillSelection.map((item) => (
-                                <Text>{item[1]}</Text>
+                                <Text>{item[1]}   </Text>
                             ))
                             }
                         </ScrollView>
-                        <TextInput
+                        <TextInput style={styles.container}
                             style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
                             placeholder="Enter your reflections here"
                             onChangeText={textEntry => this.setState({ textEntry })}
@@ -145,6 +165,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'white',
         padding: 10,
+    },
+    getsmall: {
+        flex: 0.5,
+
     },
     titleText: {
         padding: 8,
