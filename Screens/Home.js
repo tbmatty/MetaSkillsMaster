@@ -26,11 +26,6 @@ export default class Home extends Component {
     }
 
 
-
-
-
-
-
     handleBillyBob = async () => {
         let getVal = await firebase.firestore().collection("Users").doc("billybob").get().then(doc => {
             let billybob = doc.data().Name;
@@ -48,9 +43,7 @@ export default class Home extends Component {
     render() {
         return (
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Text>Home Screen</Text>
-                <Button title="Record a Reflection!" onPress = {this.handleUpload}/>
-                <Button title="test" onPress={ () => this.props.navigation.navigate("test")}/>
+                <Button title="Record a Reflection!" onPress = {() => this.props.navigation.navigate("RecordReflection")}/>
             </View>
         );
     };

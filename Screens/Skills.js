@@ -12,9 +12,9 @@ export default class Skills extends Component {
 render(){
     return(
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Button title="Self-Management" onPress={() => this.props.navigation.navigate('Home')} />
-            <Button title="Social Awareness" onPress={() => this.props.navigation.setOptions({title:"HAHA"})} />
-            <Button title="Innovation" onPress={() => this.props.navigation.setOptions({title:"HAHA"})} />
+            <Button title="Self-Management" onPress={() => this.props.navigation.navigate('SelfManagement')} />
+            <Button title="Social Awareness" onPress={() => this.props.navigation.navigate('SocialAwareness')} />
+            <Button title="Innovation" onPress={() => this.props.navigation.navigate('Innovation')} />
 
         </View>
     );

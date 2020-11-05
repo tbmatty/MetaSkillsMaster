@@ -14,9 +14,11 @@ import * as firebase from "firebase";
 import firestore from "@firebase/firestore";
 import SplashScreen from './Screens/SplashScreen.js';
 import test from './Screens/test.js';
-
-
-
+import RecordReflection from './Screens/RecordReflection.js';
+import SelfManagement from './Screens/SelfManagement.js';
+import SocialAwareness from './Screens/SocialAwareness.js';
+import Innovation from './Screens/Innovation.js';
+import SkillsData from "./Screens/SkillsData.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDwn_LuSa2_c2yfNFLrF4bSUo8nKWPqlXQ",
@@ -130,6 +132,11 @@ function App() {
         <Stack.Screen name="SignUp" component={SignUp} options={{ title: 'Sign Up!', }} />
         <Stack.Screen name="Home" component={MyTabs} options={{title: 'MetaSkillsMaster' }} />
         <Stack.Screen name="test" component={test} options={{title: 'wawaweewa'}}/>
+        <Stack.Screen name="RecordReflection" component={RecordReflection} options={{title: 'Record a reflection!'}}/>
+        <Stack.Screen name="SelfManagement" component={SelfManagement} options={{title: 'Self Management'}}/>
+        <Stack.Screen name="SocialAwareness" component={SocialAwareness} options={{title: 'Social Awareness'}}/>
+        <Stack.Screen name="Innovation" component={Innovation} options={{title: 'Innovation'}}/>
+
         {/* <MyTabs /> */}
       </Stack.Navigator>
 
