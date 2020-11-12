@@ -12,7 +12,7 @@ import { Entypo, AntDesign } from '@expo/vector-icons';
 
 // NEEDS:
 //      -Clean Up (Move submit to header top right, save icon)
-//      -Playback of Recording (Halfway)
+//      -Slider bar for playback
 //      -CSS (Improvements always available, currently bearable)
 
 
@@ -145,6 +145,7 @@ export default class RecordReflection extends Component {
     }
 
     handleRecordingPress = async () => {
+        console.log("Registering")
         if (this.state.isRecording === false) {
             this.setState({
                 isRecording: true,
@@ -162,14 +163,7 @@ export default class RecordReflection extends Component {
 
     requestio = async () => {
         var huh = await Audio.requestPermissionsAsync();
-        var heh = await Audio.getPermissionsAsync()
-        console.log("huh")
-        console.log(huh)
-        console.log("heh")
-        console.log(heh)
-        console.log("hoh")
         var hoh = await this.recording.getStatusAsync()
-        console.log(hoh)
         try {
             await this.recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
             await this.recording.startAsync();
@@ -289,11 +283,11 @@ export default class RecordReflection extends Component {
                     </ScrollView>
 
 
-                    <Entypo name="mic" size={72} color={this.state.micColour} style={{ alignSelf: 'center' }} onPress={this.handleRecordingPress} />
+                    <Entypo name="mic" size={72} color={this.state.micColour} style={{ alignSelf: 'center' }} onPress={()=>this.handleRecordingPress()} />
                     <View>
                         <Text style={{ alignSelf: 'center' }}>{hours} : {minutes} : {seconds} : {centiseconds}</Text>
                     </View>
-                    {this.state.isPlaybackAvailable ? <AntDesign name={this.state.playPause} size={32} color="black" style={{ alignSelf: 'center' }} onPress={this.playRecording} /> : null}
+                    {this.state.isPlaybackAvailable ? <AntDesign name={this.state.playPause} size={32} color="black" style={{ alignSelf: 'center' }} onPress={()=>this.playRecording()} /> : null}
 
 
                     <TextInput

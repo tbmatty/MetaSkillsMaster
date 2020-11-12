@@ -18,6 +18,9 @@ import RecordReflection from './Screens/RecordReflection.js';
 import SelfManagement from './Screens/SelfManagement.js';
 import SocialAwareness from './Screens/SocialAwareness.js';
 import Innovation from './Screens/Innovation.js';
+import Reflections from './Screens/Reflections.js';
+import MonthSelector from './Screens/MonthSelector.js';
+import Reflection from './Screens/Reflection.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDwn_LuSa2_c2yfNFLrF4bSUo8nKWPqlXQ",
@@ -104,13 +107,12 @@ function MyTabs() {
       <Tab.Navigator>
         <Tab.Screen name="Reflect" component={Home} options={{ title: 'Reflect!', headerLeft: 'none' }} />
         <Tab.Screen name="Skills" component={Skills} options={{ title: "Skills" }} />
+        <Tab.Screen name="MonthSelector" component={MonthSelector} options={{ title: 'Reflections' }} />
         <Tab.Screen name="Stats" component={Stats} options={{ title: 'Stats' }} />
-        <Tab.Screen name="Profile" component={Profile} options={{ title: 'Profile' }} />
       </Tab.Navigator>
   );
 }
 
-const Stack_Two = createStackNavigator();
 
 
 
@@ -144,7 +146,8 @@ function App() {
         <Stack.Screen name="SelfManagement" component={SelfManagement} options={{title: 'Self Management'}}/>
         <Stack.Screen name="SocialAwareness" component={SocialAwareness} options={{title: 'Social Intelligence', headerStyle: {backgroundColor: '#FF5D60',}, headerTitleStyle: {color: 'white'}}}/>
         <Stack.Screen name="Innovation" component={Innovation} options={{title: 'Innovation' }}/>
-
+        <Stack.Screen name="Reflections" component={Reflections} options={{title: 'Reflections'}}/>
+        <Stack.Screen name="Reflection" component={Reflection} options={{title: 'Reflection'}}/>
         {/* <MyTabs /> */}
       </Stack.Navigator>
 
