@@ -11,9 +11,9 @@ import { Entypo, AntDesign } from '@expo/vector-icons';
 
 
 // NEEDS:
-//      -Clean Up
-//      -Playback of Recording
-//      -CSS
+//      -Clean Up (Move submit to header top right, save icon)
+//      -Playback of Recording (Halfway)
+//      -CSS (Improvements always available, currently bearable)
 
 
 export default class RecordReflection extends Component {
@@ -191,26 +191,31 @@ export default class RecordReflection extends Component {
 
     stopRecording = async () => {
         await this.recording.stopAndUnloadAsync()
-        this.setState({ timerOn: false });
+        this.setState({ timerOn: false, recordingURI: this.recording.getURI() });
         clearInterval(this.timer);
         var hah = await this.recording.getStatusAsync()
         console.log(hah);
     }
 
     playRecording = async () => {
-        
-        try {
-            uri = this.state.recordingURI
-            await this.recording.loadAsync();
-            await this.recording.playAsync();
-            // Your sound is playing!
+        console.log("called")
+        console.log(typeof (this.state.recordingURI))
+        const playbackObject = await Audio.Sound.createAsync(
+            { uri: this.state.recordingURI },
+            { shouldPlay: true }
+          );
+        // try {
+        //     await this.recroding.loadAsync(this.state.recordingURI, initialStatus = {}, downloadFirst = true)
+        //     await this.recording.playAsync();
+        //     console.log("should be playing")
+        //     // Your sound is playing!
 
-            // Don't forget to unload the sound from memory
-            // when you are done using the Sound object
-            await this.recording.unloadAsync();
-        } catch (error) {
-            // An error occurred!
-        }
+        //     // Don't forget to unload the sound from memory
+        //     // when you are done using the Sound object
+        //     await this.recording.unloadAsync();
+        // } catch (error) {
+        //     // An error occurred!
+        // }
     }
 
 
