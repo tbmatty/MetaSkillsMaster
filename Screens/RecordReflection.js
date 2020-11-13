@@ -1,6 +1,6 @@
 import React, { Component, useState } from 'react';
 import { render } from 'react-dom';
-import { View, Text, Button, SafeAreaView, StyleSheet, ScrollView, List, AsyncStorage } from 'react-native';
+import { View, Text, Button, SafeAreaView, StyleSheet, ScrollView, List, AsyncStorage, TouchableOpacity } from 'react-native';
 import * as firebase from "firebase";
 import { TextInput } from 'react-native-gesture-handler';
 import { format } from 'date-fns';
@@ -8,7 +8,7 @@ import SearchableDropdown from 'react-native-searchable-dropdown';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import { Entypo, AntDesign } from '@expo/vector-icons';
-
+import Dialog from "react-native-dialog";
 
 // NEEDS:
 //      -Clean Up (Move submit to header top right, save icon)
@@ -28,8 +28,23 @@ export default class RecordReflection extends Component {
             val: '',
             items: [
                 { "id": "0", "name": "Self Management" },
-                { "id": "1", "name": "Social Awareness" },
-                { "id": "2", "name": "Innovation" }
+                { "id": "1", "name": "Focussing" },
+                { "id": "2", "name": "Integrity" },
+                { "id": "3", "name": "Adapting" },
+                { "id": "4", "name": "Initiative" },
+
+                { "id": "5", "name": "Social Intelligence" },
+                { "id": "6", "name": "Communicating" },
+                { "id": "7", "name": "Feeling" },
+                { "id": "8", "name": "Collaborating" },
+                { "id": "9", "name": "Leading" },
+
+                { "id": "10", "name": "Innovation" },
+                { "id": "11", "name": "Curiosity" },
+                { "id": "12", "name": "Creativity" },
+                { "id": "13", "name": "Sense Making" },
+                { "id": "14", "name": "Critical Thinking" },
+
             ],
             skillSelection: [["-1", "..."]],
             uploadURI: '',
@@ -39,22 +54,33 @@ export default class RecordReflection extends Component {
             timerTime: 0,
             micColour: 'grey',
             playPause: "playcircleo", // or 'pause'
-            isPlaybackAvailable: true,
-            recordingURI: ''
+            isPlaybackAvailable: false,
+            recordingURI: '',
+            dialogVisible: false,
+            title: ''
         }
     }
-    recording = new Audio.Recording()
+
+
+    recording = null
 
 
     handleSubmit = async () => {
         // console.log(this.state.skillSelection)
 
+
+        this.setState({
+            dialogVisible:false
+        })
         var items
         var array = []
-        for (items in this.state.skillSelection) {
-            array.push(items)
+        var skillSelection = this.state.skillSelection
+        var j = 0;
+        while (j < skillSelection.length) {
+            array.push(skillSelection[j][0])
+            j++
         }
-        var date = format(new Date(), "dd-MM-yyyy");
+        var date = format(new Date(), "dd-MM-yyyy-kk:mm:ss");
         var uid = firebase.auth().currentUser.uid;
 
 
@@ -90,9 +116,60 @@ export default class RecordReflection extends Component {
         console.log(this.state.uploadURI)
 
 
+        var colourArray = [0, 0, 0]
+
+        var i = 0;
+        var intval
+        while (i < array.length) {
+            intval = parseInt(array[i])
+            if (intval < 5) {
+                colourArray[0]++
+            } else if (intval >= 5 && intval < 9) {
+                colourArray[1]++
+            } else {
+                colourArray[2]++
+            }
+            i++;
+        }
+
+        var colour
+        var textColour
+
+        if (colourArray[0] > 0 && colourArray[1] > 0 && colourArray[2] > 0) {
+            //silver
+            colour = "#C0C0C0"
+            textColour = "#FFD700"
+        } else if (colourArray[0] > 0 && colourArray[1] > 0 && colourArray[2] === 0) {
+            //purple
+            colour = "#8E2FBA"
+            textColour = "white"
+        } else if (colourArray[0] > 0 && colourArray[1] === 0 && colourArray[2] > 0) {
+            //green
+            colour = "#27D538"
+            textColour = "white"
+        } else if (colourArray[0] === 0 && colourArray[1] > 0 && colourArray[2] > 0) {
+            //orange
+            colour = "#FF7B02"
+            textColour = "black"
+        } else if (colourArray[0] > 0 && colourArray[1] === 0 && colourArray[2] === 0) {
+            //blue
+            colour = "#4677D6"
+            textColour = "white"
+        } else if (colourArray[0] === 0 && colourArray[1] === 0 && colourArray[2] > 0) {
+            //yellow
+            colour = "#FFC530"
+            textColour = "black"
+        } else if (colourArray[0] === 0 && colourArray[1] > 0 && colourArray[2] === 0) {
+            //red
+            colour = "#FF5D60"
+            textColour = "white"
+        }
 
 
-        // Upload completed successfully, now we can get the download URL
+
+
+
+
 
 
 
@@ -100,7 +177,10 @@ export default class RecordReflection extends Component {
             textEntry: this.state.textEntry,
             categories: array,
             date: JSON.stringify(date),
-            uri: this.state.uploadURI
+            uri: this.state.uploadURI,
+            colour: colour,
+            textColour: textColour,
+            title: this.state.title
         })
 
 
@@ -135,26 +215,28 @@ export default class RecordReflection extends Component {
         } else {
             var array = this.state.skillSelection
             array.push([item.id, item.name])
-            console.log(array)
             // console.log(nuArray)
             this.setState({
                 skillSelection: array
             })
         }
-        // console.log(this.state.skillSelection);
+        console.log(this.state.skillSelection);
     }
 
     handleRecordingPress = async () => {
         console.log("Registering")
         if (this.state.isRecording === false) {
+            this.recording = null
             this.setState({
                 isRecording: true,
+                isPlaybackAvailable: false,
                 micColour: 'red'
             })
             this.requestio();
         } else {
             this.setState({
                 isRecording: false,
+                isPlaybackAvailable: true,
                 micColour: 'grey'
             })
             this.stopRecording();
@@ -162,16 +244,19 @@ export default class RecordReflection extends Component {
     }
 
     requestio = async () => {
+        this.recording = new Audio.Recording()
+
         var huh = await Audio.requestPermissionsAsync();
-        var hoh = await this.recording.getStatusAsync()
+        var hoh = await this.recording.getStatusAsync();
         try {
             await this.recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
             await this.recording.startAsync();
+
             this.setState({
                 timerOn: true,
-                timerTime: this.state.timerTime,
-                timerStart: Date.now() - this.state.timerTime
-            });
+                timerTime: 0,
+                timerStart: Date.now()
+            })
             this.timer = setInterval(() => {
                 this.setState({
                     timerTime: Date.now() - this.state.timerStart
@@ -192,12 +277,16 @@ export default class RecordReflection extends Component {
     }
 
     playRecording = async () => {
+        if (this.recording === null) {
+            console.log("handled")
+            return;
+        }
         console.log("called")
         console.log(typeof (this.state.recordingURI))
         const playbackObject = await Audio.Sound.createAsync(
             { uri: this.state.recordingURI },
             { shouldPlay: true }
-          );
+        );
         // try {
         //     await this.recroding.loadAsync(this.state.recordingURI, initialStatus = {}, downloadFirst = true)
         //     await this.recording.playAsync();
@@ -213,6 +302,16 @@ export default class RecordReflection extends Component {
     }
 
 
+
+
+    componentDidMount = () => {
+        this.props.navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity onPress={() => this.setState({ dialogVisible: true })}>
+                    <AntDesign name="save" size={32} color="black" paddingRight="50" />
+                </TouchableOpacity>),
+        })
+    }
 
 
     render() {
@@ -272,10 +371,7 @@ export default class RecordReflection extends Component {
                         underlineColorAndroid="transparent"
                     //To remove the underline from the android input
                     />
-                    <ScrollView horizontal={true} contentContainerStyle={{
-                        flex: -1,
-                        justifyContent: 'space-between'
-                    }}>
+                    <ScrollView horizontal>
                         {this.state.skillSelection.map((item) => (
                             <Text key={item[0]}>{item[1]}   </Text>
                         ))
@@ -283,11 +379,11 @@ export default class RecordReflection extends Component {
                     </ScrollView>
 
 
-                    <Entypo name="mic" size={72} color={this.state.micColour} style={{ alignSelf: 'center' }} onPress={()=>this.handleRecordingPress()} />
+                    <Entypo name="mic" size={72} color={this.state.micColour} style={{ alignSelf: 'center' }} onPress={() => this.handleRecordingPress()} />
                     <View>
                         <Text style={{ alignSelf: 'center' }}>{hours} : {minutes} : {seconds} : {centiseconds}</Text>
                     </View>
-                    {this.state.isPlaybackAvailable ? <AntDesign name={this.state.playPause} size={32} color="black" style={{ alignSelf: 'center' }} onPress={()=>this.playRecording()} /> : null}
+                    {this.state.isPlaybackAvailable ? <AntDesign name={this.state.playPause} size={52} color="black" style={{ alignSelf: 'center' }} onPress={() => this.playRecording()} /> : null}
 
 
                     <TextInput
@@ -296,12 +392,17 @@ export default class RecordReflection extends Component {
                         onChangeText={textEntry => this.setState({ textEntry })}
                         value={this.state.textEntry}
                     />
-                    <Button
-                        style={styles.buttons}
+                    <Dialog.Container visible={this.state.dialogVisible}>
+                        <Dialog.Title>Enter a title for your reflection!</Dialog.Title>
+                        <Dialog.Input
+                            label="Title"
+                            onChangeText={title => this.setState({ title: title })}
+                        ></Dialog.Input>
+                        <Dialog.Button label="Cancel" onPress={() => this.setState({ dialogVisible: false })} />
+                        <Dialog.Button label="Save" onPress={() => this.handleSubmit()}
+                        />
+                    </Dialog.Container>
 
-                        title="Submit"
-                        onPress={this.handleSubmit}
-                    />
                 </View>
             </View>
         );
@@ -356,4 +457,5 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 32,
     },
+
 });

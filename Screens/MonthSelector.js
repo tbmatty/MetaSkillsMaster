@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import { ScrollView, Text, Button, Touchable } from 'react-native';
+import { ScrollView, Text, Button, TouchableOpacity, View, StyleSheet } from 'react-native';
 import * as firebase from 'firebase'
 
 
@@ -42,7 +42,7 @@ export default class MonthSelector extends Component {
                     monthYearArray.push(monthYear);
                     i++;
                 }
-                arrayToSet.push([monthYear, doc.data().textEntry, doc.data().categories, doc.data().date, doc.data().uri])
+                arrayToSet.push([monthYear, doc.data().textEntry, doc.data().categories, doc.data().date, doc.data().uri,doc. data().colour, doc.data().textColour, doc.data().title])
             })
         })
 
@@ -70,16 +70,16 @@ export default class MonthSelector extends Component {
         var i = 0;
         var copyTo = []
         while (i < copyFrom.length) {
-            if (copyFrom[i][0]===monthYear) {
-                copyTo.push([i,copyFrom[i]]);
+            if (copyFrom[i][0] === monthYear) {
+                copyTo.push([i, copyFrom[i]]);
             }
-            console.log(copyFrom[i][0]===monthYear);
+            console.log(copyFrom[i][0] === monthYear);
             i++;
-            
+
         }
         console.log("We're breaking up, its not me its you")
         console.log(copyTo)
-        this.props.navigation.navigate("Reflections" , { firebaseArray: copyTo });
+        this.props.navigation.navigate("Reflections", { firebaseArray: copyTo });
 
 
     }
@@ -99,7 +99,7 @@ export default class MonthSelector extends Component {
                     monthYearArray.push([i, monthYear]);
                     i++;
                 }
-                arrayToSet.push([monthYear, doc.data().textEntry, doc.data().categories, doc.data().date, doc.data().uri])
+                arrayToSet.push([monthYear, doc.data().textEntry, doc.data().categories, doc.data().date, doc.data().uri, doc.data().colour])
             })
         })
         this.setState({
@@ -110,29 +110,39 @@ export default class MonthSelector extends Component {
     }
 
 
-    heh = () =>{
-        console.log("WHAT WHAT WHAT!")
-    }
+
 
     render() {
         return (
-            <ScrollView contentContainerStyle={{
-                flex: -1,
-                justifyContent: 'space-between'
-            }}>
-                {this.state.monthsAndYears.map((item) => (
-                    
-                    <Button
-                        key={item[0]}
-                        title={this.state.monthIntMap[item[1].slice(0, 2)] + " " + item[1].slice(3,)}
-                        value={item[1]}
-                        onPress={() => this.handleButtonPress(item[1])}
-                    />
 
+            <ScrollView contentContainerStyle={{
+            }}>
+                <Text style={styles.titleText}>View your recordings across {this.state.monthsAndYears.length} month{this.state.monthsAndYears.length > 1 ? "s" : ""}</Text>
+
+                {this.state.monthsAndYears.map((item) => (
+                    <TouchableOpacity style={styles.button} key={item[0]} onPress={() => this.handleButtonPress(item[1])}>
+                        <Text style={styles.buttonText}>{this.state.monthIntMap[item[1].slice(0, 2)] + " " + item[1].slice(3,)}</Text>
+                    </TouchableOpacity>
                 ))
                 }
             </ScrollView>
         );
     };
-
 }
+
+const styles = StyleSheet.create({
+    button:{
+        padding:20,
+        backgroundColor: "white",
+        borderRadius: 4,
+        margin: 20
+    },
+    titleText:{
+        fontSize:32,
+        padding: 20
+    },
+    buttonText:{
+        fontSize:18,
+        paddingLeft:20
+    }
+})
