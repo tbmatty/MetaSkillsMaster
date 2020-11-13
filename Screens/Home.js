@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
 import * as firebase from "firebase";
 
 export default class Home extends Component {
@@ -43,9 +43,24 @@ export default class Home extends Component {
     render() {
         return (
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Button title="Record a Reflection!" onPress = {() => this.props.navigation.navigate("RecordReflection")}/>
+                <TouchableOpacity style={styles.button} onPress = {() => this.props.navigation.navigate("RecordReflection")}>
+                <Text style={styles.buttonText}>Record a Reflection</Text>
+                </TouchableOpacity>
             </View>
         );
     };
 
 }
+const styles=StyleSheet.create({
+    button:{
+        padding:20,
+        backgroundColor: "blue",
+        borderRadius: 4,
+        margin: 20
+    },
+    buttonText:{
+        fontSize:18,
+        paddingLeft:20,
+        color:"white"
+    }
+})

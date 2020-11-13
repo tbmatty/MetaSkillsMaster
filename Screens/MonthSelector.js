@@ -79,35 +79,13 @@ export default class MonthSelector extends Component {
         }
         console.log("We're breaking up, its not me its you")
         console.log(copyTo)
-        this.props.navigation.navigate("Reflections", { firebaseArray: copyTo });
+        this.props.navigation.navigate("Reflections", { firebaseArray: copyTo, monthYear:monthYear });
 
 
     }
 
 
-    test = async () => {
-        var uid = firebase.auth().currentUser.uid
-        var arrayToSet = []
-        var monthYearArray = []
-        var i = 0;
 
-        var monthYear
-        let firebaseRef = await firebase.firestore().collection("Recordings").doc(uid).collection("Recordings").get().then(snapshot => {
-            snapshot.forEach(doc => {
-                monthYear = doc.data().date.slice(4, 11);
-                if (monthYearArray.indexOf(monthYear) === -1) {
-                    monthYearArray.push([i, monthYear]);
-                    i++;
-                }
-                arrayToSet.push([monthYear, doc.data().textEntry, doc.data().categories, doc.data().date, doc.data().uri, doc.data().colour])
-            })
-        })
-        this.setState({
-            monthsAndYears: monthYearArray,
-            firebaseArray: arrayToSet,
-        })
-
-    }
 
 
 

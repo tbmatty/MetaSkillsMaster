@@ -57,7 +57,9 @@ export default class RecordReflection extends Component {
             isPlaybackAvailable: false,
             recordingURI: '',
             dialogVisible: false,
-            title: ''
+            title: '',
+            isLoaded: false,
+            isPlaying: false
         }
     }
 
@@ -70,7 +72,7 @@ export default class RecordReflection extends Component {
 
 
         this.setState({
-            dialogVisible:false
+            dialogVisible: false
         })
         var items
         var array = []
@@ -124,7 +126,7 @@ export default class RecordReflection extends Component {
             intval = parseInt(array[i])
             if (intval < 5) {
                 colourArray[0]++
-            } else if (intval >= 5 && intval < 9) {
+            } else if (intval >= 5 && intval <= 9) {
                 colourArray[1]++
             } else {
                 colourArray[2]++
@@ -276,31 +278,76 @@ export default class RecordReflection extends Component {
         console.log(hah);
     }
 
-    playRecording = async () => {
-        if (this.recording === null) {
-            console.log("handled")
-            return;
-        }
-        console.log("called")
-        console.log(typeof (this.state.recordingURI))
-        const playbackObject = await Audio.Sound.createAsync(
-            { uri: this.state.recordingURI },
-            { shouldPlay: true }
-        );
-        // try {
-        //     await this.recroding.loadAsync(this.state.recordingURI, initialStatus = {}, downloadFirst = true)
-        //     await this.recording.playAsync();
-        //     console.log("should be playing")
-        //     // Your sound is playing!
 
-        //     // Don't forget to unload the sound from memory
-        //     // when you are done using the Sound object
-        //     await this.recording.unloadAsync();
-        // } catch (error) {
-        //     // An error occurred!
-        // }
+
+    playbackObject = new Audio.Sound()
+
+    _onPlaybackStatusUpdate = playbackStatus => {
+        if (!playbackStatus.isLoaded) {
+            // Update your UI for the unloaded state
+            if (playbackStatus.error) {
+                console.log(`Encountered a fatal error during playback: ${playbackStatus.error}`);
+                // Send Expo team the error on Slack or the forums so we can help you debug!
+            }
+        } else {
+            // Update your UI for the loaded state
+
+            if (playbackStatus.isPlaying) {
+                // Update your UI for the playing state
+            } else {
+                // Update your UI for the paused state
+            }
+
+            if (playbackStatus.isBuffering) {
+                // Update your UI for the buffering state
+            }
+
+            if (playbackStatus.didJustFinish) {
+                // The player has just finished playing and will stop. Maybe you want to play something else?
+                this.playbackObject.unloadAsync()
+                this.setState({
+                    isLoaded: false,
+                    playPause: "playcircleo",
+                    isPlaying: false
+                })
+            }
+            // etc
+        }
+    };
+
+    playRecording = async () => {
+        if (this.state.isLoaded === false) {
+            await this.playbackObject.loadAsync({ uri: this.state.recordingURI }, { shouldPlay: true })
+            this.playbackObject.setOnPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
+            this.setState({
+                isLoaded: true
+            })
+        } else {
+            await this.playbackObject.playAsync()
+        }
+
+    }
+   
+
+    pauseRecording = async () => {
+        await this.playbackObject.pauseAsync()
     }
 
+    handlePlayPause = (uri) => {
+        if (this.state.isPlaying === false) {
+            this.setState({
+                playPause: "pause",
+                isPlaying: true
+            })
+            this.playRecording(uri)
+        } else {
+            this.setState({
+                playPause: "playcircleo",
+                isPlaying: false
+            })
+            this.pauseRecording()
+        }
+    }
 
 
 
@@ -383,7 +430,7 @@ export default class RecordReflection extends Component {
                     <View>
                         <Text style={{ alignSelf: 'center' }}>{hours} : {minutes} : {seconds} : {centiseconds}</Text>
                     </View>
-                    {this.state.isPlaybackAvailable ? <AntDesign name={this.state.playPause} size={52} color="black" style={{ alignSelf: 'center' }} onPress={() => this.playRecording()} /> : null}
+                    {this.state.isPlaybackAvailable ? <AntDesign name={this.state.playPause} size={52} color="black" style={{ alignSelf: 'center' }} onPress={() => this.handlePlayPause()} /> : null}
 
 
                     <TextInput

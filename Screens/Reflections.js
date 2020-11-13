@@ -9,6 +9,20 @@ export default class Reflections extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            monthIntMap: {
+                "1": "January",
+                "2": "February",
+                "3": "March",
+                "4": "April",
+                "5": "May",
+                "6": "June",
+                "7": "July",
+                "8": "August",
+                "9": "September",
+                "10": "October",
+                "11": "November",
+                "12": "December"
+            }
         }
     }
 
@@ -20,12 +34,11 @@ export default class Reflections extends Component {
     }
 
     render() {
-        const { firebaseArray } = this.props.route.params;
+        const { firebaseArray, monthYear } = this.props.route.params;
         return (
             <ScrollView contentContainerStyle={{
-                flex: -1,
-                justifyContent: 'space-between'
             }}>
+                <Text style={styles.titleText}>{this.state.monthIntMap[monthYear.slice(0,2)] + " " +monthYear.slice(3,)}</Text>
                 {firebaseArray.map((item) => (
 
                     <TouchableOpacity
@@ -55,7 +68,8 @@ export default class Reflections extends Component {
 }
 
 const styles = StyleSheet.create({
-    buttonText:{
-       
+    titleText:{
+        fontSize:32,
+        padding: 20
     }
 })
