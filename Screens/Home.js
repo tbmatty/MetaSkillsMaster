@@ -1,7 +1,8 @@
-import React, { Component, useState, useEffect, useRef } from 'react';
+import React, { Component } from 'react';
 import { render } from 'react-dom';
 import { View, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
 import * as firebase from "firebase";
+import { AntDesign } from '@expo/vector-icons';
 
 
 
@@ -16,33 +17,44 @@ export default class Home extends Component {
         }
     }
 
-    
-
-
-//General workflow for file upload
-handleUpload = async () => {
-    var storage = firebase.storage();
-    var storageRef = storage.ref();
-    var testRef = storageRef.child('test/test.txt');
-    var testMessage = 'testing123';
-    testRef.putString(testMessage).then(function (snapshot) {
-        console.log("U CANT EVEN FINISH IT");
-    });
-}
 
 
 
+    //General workflow for file upload
+    handleUpload = async () => {
+        var storage = firebase.storage();
+        var storageRef = storage.ref();
+        var testRef = storageRef.child('test/test.txt');
+        var testMessage = 'testing123';
+        testRef.putString(testMessage).then(function (snapshot) {
+            console.log("U CANT EVEN FINISH IT");
+        });
+    }
 
 
-render() {
-    return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("RecordReflection")}>
-                <Text style={styles.buttonText}>Record a Reflection</Text>
-            </TouchableOpacity>
-        </View>
-    );
-};
+    componentDidMount = () => {
+
+        this.props.navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity onPress={() => this.props.navigation.navigate("Profile")}>
+                    <AntDesign name="save" size={32} color="black" paddingRight="50" />
+                </TouchableOpacity>
+            ),
+        });
+
+    }
+
+
+
+    render() {
+        return (
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("RecordReflection")}>
+                    <Text style={styles.buttonText}>Record a Reflection</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    };
 
 }
 const styles = StyleSheet.create({

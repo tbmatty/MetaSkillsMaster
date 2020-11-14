@@ -1,13 +1,15 @@
 import * as React from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text, Button, Image, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { AntDesign } from '@expo/vector-icons';
 import { createAppContainer } from "@react-navigation/native"
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Notifications from 'expo-notifications';
-import {useState, useRef, useEffect} from 'react'
+import { useState, useRef, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
 // import registerForPushNotificationsAsync from "./Screens/Home.js/registerForPushNotificationsAsync"
 import Home from "./Screens/Home.js";
 import Skills from "./Screens/Skills.js";
@@ -67,16 +69,6 @@ function LogoTitle() {
 
 const Tab = createBottomTabNavigator();
 
-function MyTabs() {
-  return (
-      <Tab.Navigator>
-        <Tab.Screen name="Reflect" component={Home} options={{ title: 'Reflect!', headerLeft: 'none' }} />
-        <Tab.Screen name="Skills" component={Skills} options={{ title: "Skills" }} />
-        <Tab.Screen name="MonthSelector" component={MonthSelector} options={{ title: 'Reflections' }} />
-        <Tab.Screen name="Stats" component={Stats} options={{ title: 'Stats' }} />
-      </Tab.Navigator>
-  );
-}
 
 
 
@@ -96,8 +88,8 @@ function App() {
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
-  
-  
+
+
   useEffect(() => {
     console.log("hello")
     registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
@@ -139,7 +131,7 @@ function App() {
     } else {
       alert('Must use physical device for Push Notifications');
     }
-  
+
     if (Platform.OS === 'android') {
       Notifications.setNotificationChannelAsync('default', {
         name: 'default',
@@ -148,13 +140,54 @@ function App() {
         lightColor: '#FF231F7C',
       });
     }
-  
+
     return token;
   }
 
+  const [userDesiredTime, setUserDesiredTime] = useState(-1);
+  const [userDesiredTimeMinutes, setUserDesiredTimeMinutes] = useState(-1);
 
 
+  useEffect(() => {
+    var user = firebase.auth().currentUser;
+    if (!user) {
+      return;
+    }
+    let getval = firebase.firestore().collection('Users').doc(user.uid).get().then(doc => {
+      console.log(doc.data().notificationTime)
+      setUserDesiredTime(doc.data().notificationTime)
+      setUserDesiredTimeMinutes(doc.data().notificationTimeMinutes)
+    })
+    firebase.firestore().collection('Users').doc(user.uid).onSnapshot(function (doc) {
+      setUserDesiredTime(doc.data().notificationTime)
+      setUserDesiredTimeMinutes(doc.data().notificationTimeMinutes)
+      console.log(userDesiredTime)
+    });
+    console.log(userDesiredTime)
+    if (userDesiredTime === -1) {
+      return
+    }
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Daily reminder for Reflection'
+      },
+      trigger: {
+        hour: userDesiredTime, minute: userDesiredTimeMinutes, repeats: true
+      }
+    })
+  });
 
+
+  function MyTabs() {
+    return (
+      <Tab.Navigator>
+        <Tab.Screen name="Reflect" component={Home} options={{ title: 'Reflect!' }} />
+        <Tab.Screen name="Skills" component={Skills} options={{ title: "Skills" }} />
+        <Tab.Screen name="MonthSelector" component={MonthSelector} options={{ title: 'Reflections' }} />
+        <Tab.Screen name="Stats" component={Stats} options={{ title: 'Stats' }} />
+      </Tab.Navigator>
+    );
+  }
 
   return (
     <NavigationContainer>
@@ -162,14 +195,25 @@ function App() {
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="Login" component={Login} options={{ title: 'Login', }} />
         <Stack.Screen name="SignUp" component={SignUp} options={{ title: 'Sign Up!', }} />
-        <Stack.Screen name="Home" component={MyTabs} options={{title: 'MetaSkillsMaster' }} />
-        <Stack.Screen name="test" component={test} options={{title: 'wawaweewa'}}/>
-        <Stack.Screen name="RecordReflection" component={RecordReflection} options={{title: 'Record a reflection!'}}/>
-        <Stack.Screen name="SelfManagement" component={SelfManagement} options={{title: 'Self Management'}}/>
-        <Stack.Screen name="SocialAwareness" component={SocialAwareness} options={{title: 'Social Intelligence', headerStyle: {backgroundColor: '#FF5D60',}, headerTitleStyle: {color: 'white'}}}/>
-        <Stack.Screen name="Innovation" component={Innovation} options={{title: 'Innovation' }}/>
-        <Stack.Screen name="Reflections" component={Reflections} options={{title: 'Reflections'}}/>
-        <Stack.Screen name="Reflection" component={Reflection} options={{title: 'Reflection'}}/>
+        <Stack.Screen
+          name="Home"
+          component={MyTabs}
+          options={({ navigation }) => ({
+            title: 'MetaSkillsMaster',
+            headerRight: () => (
+              <TouchableOpacity onPress={() =>  navigation.navigate("Profile") }>
+                    <AntDesign name="user" size={32} color="black" paddingRight="50" />
+                </TouchableOpacity>
+            ),
+          })}
+        />
+        <Stack.Screen name="Profile" component={Profile} options={{ title: 'Profile' }} />
+        <Stack.Screen name="RecordReflection" component={RecordReflection} options={{ title: 'Record a reflection!' }} />
+        <Stack.Screen name="SelfManagement" component={SelfManagement} options={{ title: 'Self Management' }} />
+        <Stack.Screen name="SocialAwareness" component={SocialAwareness} options={{ title: 'Social Intelligence', headerStyle: { backgroundColor: '#FF5D60', }, headerTitleStyle: { color: 'white' } }} />
+        <Stack.Screen name="Innovation" component={Innovation} options={{ title: 'Innovation' }} />
+        <Stack.Screen name="Reflections" component={Reflections} options={{ title: 'Reflections' }} />
+        <Stack.Screen name="Reflection" component={Reflection} options={{ title: 'Reflection' }} />
         {/* <MyTabs /> */}
       </Stack.Navigator>
 

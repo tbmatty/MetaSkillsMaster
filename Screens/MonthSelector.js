@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import { ScrollView, Text, Button, TouchableOpacity, View, StyleSheet } from 'react-native';
 import * as firebase from 'firebase'
+import { AntDesign } from '@expo/vector-icons';
 
 
 export default class MonthSelector extends Component {
@@ -28,6 +29,14 @@ export default class MonthSelector extends Component {
     }
 
     componentDidMount = async () => {
+        console.log("OIFSDBGF")
+        // this.props.navigation.setOptions({
+        //     headerRight: () => (
+        //         <TouchableOpacity onPress={() =>  this.props.navigation.navigate("Profile") }>
+        //             <AntDesign name="save" size={32} color="black" paddingRight="50" />
+        //         </TouchableOpacity>),
+        // })
+
         var uid = firebase.auth().currentUser.uid
         var arrayToSet = []
         var monthYearArray = []

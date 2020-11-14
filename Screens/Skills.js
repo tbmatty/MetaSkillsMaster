@@ -1,12 +1,28 @@
 import React, {Component} from 'react';
 import { render } from 'react-dom';
-import { View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Button} from 'react-native';
+import * as Notifications from 'expo-notifications';
+import { AntDesign } from '@expo/vector-icons';
+
 
 
 export default class Skills extends Component {
     constructor(props) {
         super(props); 
     }
+
+
+    componentDidMount = () => {
+        this.props.navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity onPress={() =>  this.props.navigation.navigate("Profile") }>
+                    <AntDesign name="user" size={32} color="black" paddingRight="50" />
+                </TouchableOpacity>),
+        })
+    }
+
+
+
 
 
 render(){

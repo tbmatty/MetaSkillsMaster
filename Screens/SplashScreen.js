@@ -3,6 +3,7 @@ import { render } from 'react-dom';
 import { View, Text, Button } from 'react-native';
 import * as firebase from "firebase";
 import { CommonActions } from '@react-navigation/native';
+import { NotificationTimeoutError } from 'expo-notifications';
 
 
 
@@ -43,7 +44,9 @@ export default class SplashScreen extends Component {
                         if (!docSnapshot.exists) {
                             console.log("HELLO")
                             usersRef.set({
-                                email: user.email
+                                email: user.email,
+                                notificationTime : -1,
+                                notificationTimeMinutes : -1
                             }) // create the document
                         }else{
                             console.log("HEY")
