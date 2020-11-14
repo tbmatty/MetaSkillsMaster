@@ -4,6 +4,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createAppContainer } from "@react-navigation/native"
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Constants from 'expo-constants';
+import * as Permissions from 'expo-permissions';
+import * as Notifications from 'expo-notifications';
+import {useState, useRef, useEffect} from 'react'
+// import registerForPushNotificationsAsync from "./Screens/Home.js/registerForPushNotificationsAsync"
 import Home from "./Screens/Home.js";
 import Skills from "./Screens/Skills.js";
 import SignUp from "./Screens/SignUp.js";
@@ -40,55 +45,15 @@ if (firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig);
 }
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 
-// firebase.initializeApp(firebaseConfig);
-
-{/* <Stack.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: '#99ccff',
-          },
-          headerTintColor: '#0073e6',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
-      >
-        <Stack.Screen name="Home" component={Home} options={{ title: 'Reflect!' }} />
-        <Stack.Screen name="Skills" component={Skills} options={({ route }) => ({ title: route.params.parameterPass })} />
-        <Stack.Screen name="SignUp" component={SignUp} options={{ title: 'Sign Up! Do it now!' }} />
-        <Stack.Screen name="Login" component={Login} options={{ title: 'Welcome back!' }} />
-
-      </Stack.Navigator> */}
-
-
-// function SplashScreen({ navigation }) {
-
-//   var signedOut;
-
-//   firebase.auth().onAuthStateChanged((user) => {
-//     console.log(user);
-//     if (!user) {
-//       // this.setState({ user });
-//       signedOut = true;
-//       navigation.navigate("Login");
-//     } else {
-//       // this.setState({ user: null });
-//       signedOut = false;
-//       navigation.navigate("Home");
-//     }
-//     console.log(signedOut);
-//   });
-
-
-
-//   return (
-//     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-//       <Text>Loading</Text>
-//     </View>
-//   );
-// }
 
 function LogoTitle() {
   return (
@@ -127,12 +92,69 @@ const Stack = createStackNavigator();
 function App() {
 
 
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
+  
+  
+  useEffect(() => {
+    console.log("hello")
+    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
 
-  // if (1==1) {
-  //   // We haven't finished checking for the token yet
-  //   // return <SplashScreen />;
-  //   return <SplashScreen />;
-  // }
+    // This listener is fired whenever a notification is received while the app is foregrounded
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log("fired")
+      console.log(notification);
+    });
+
+    // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log("fired")
+      console.log(response);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, []);
+
+
+  async function registerForPushNotificationsAsync() {
+    let token;
+    if (Constants.isDevice) {
+      const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log(token);
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  
+    return token;
+  }
+
+
+
+
 
   return (
     <NavigationContainer>
