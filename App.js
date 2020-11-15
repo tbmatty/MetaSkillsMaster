@@ -148,6 +148,21 @@ function App() {
   const [userDesiredTimeMinutes, setUserDesiredTimeMinutes] = useState(-1);
 
 
+
+  async function cancelAndSchedule(){
+    await Notifications.cancelAllScheduledNotificationsAsync()
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Daily reminder for Reflection'
+      },
+      trigger: {
+        hour: userDesiredTime, minute: userDesiredTimeMinutes, repeats: true
+      }
+    })
+  }
+
+  
+
   useEffect(() => {
     var user = firebase.auth().currentUser;
     if (!user) {
@@ -161,20 +176,16 @@ function App() {
     firebase.firestore().collection('Users').doc(user.uid).onSnapshot(function (doc) {
       setUserDesiredTime(doc.data().notificationTime)
       setUserDesiredTimeMinutes(doc.data().notificationTimeMinutes)
-      console.log(userDesiredTime)
+      cancelAndSchedule()
     });
+
     console.log(userDesiredTime)
     if (userDesiredTime === -1) {
       return
-    }
-    Notifications.scheduleNotificationAsync({
-      content: {
-        title: 'Daily reminder for Reflection'
-      },
-      trigger: {
-        hour: userDesiredTime, minute: userDesiredTimeMinutes, repeats: true
+    }else{
+      cancelAndSchedule()
       }
-    })
+    
   });
 
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import * as firebase from "firebase";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -15,13 +15,25 @@ export default class Profile extends Component {
     }
     onChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
-        setShow(Platform.OS === 'ios');
-        setDate(currentDate);
+        
         this.setState({
             show: Platform.OS === 'ios',
             date: currentDate
         })
-        console.log(currentDate)
+        var dateStr = JSON.stringify(currentDate)
+        var hour = dateStr.slice(12,14)
+        var minute = dateStr.slice(15,17)
+        console.log(hour)
+        console.log(minute)
+        var user = firebase.auth().currentUser
+
+
+        let setDoc = firebase.firestore().collection("Users").doc(user.uid).set({
+            notificationTime: parseInt(hour),
+            notificationTimeMinutes: parseInt(minute),
+            email: user.email
+        })
+        alert("New notification time set to "+hour+":"+minute)
       };
     
 
@@ -40,9 +52,14 @@ export default class Profile extends Component {
     render() {
         return (
             <View>
-                <Text>Log out ya dafty</Text>
-                <Button title="Log out" onPress={() => firebase.auth().signOut()} />
-                <Button title="aha" onPress={()=>this.showDatePicker()}/>
+                <Text style={styles.titleText}>Hey You!</Text>
+                <TouchableOpacity onPress={()=>this.showDatePicker()} style={styles.button}>
+                    <Text style={styles.buttonText}>Set notification time</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={()=>firebase.auth().signOut()}>
+                    <Text style={styles.buttonText}>Sign out</Text>
+                </TouchableOpacity>
+                
                 {this.state.show ? 
                     <DateTimePicker
                         testID="dateTimePicker"
@@ -57,3 +74,20 @@ export default class Profile extends Component {
         );
     };
 }
+
+const styles=StyleSheet.create({
+    button:{
+        padding:20,
+        backgroundColor: "white",
+        borderRadius: 4,
+        margin: 20
+    },
+    titleText:{
+        fontSize:32,
+        padding: 20
+    },
+    buttonText:{
+        fontSize:18,
+        paddingLeft:20
+    }
+})

@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import { View, Text, Button, SafeAreaView, StyleSheet, ScrollView, List, AsyncStorage, TouchableOpacity } from 'react-native';
 import * as firebase from "firebase";
 import { TextInput } from 'react-native-gesture-handler';
-import { format } from 'date-fns';
+import { format, startOfWeek } from 'date-fns';
 import SearchableDropdown from 'react-native-searchable-dropdown';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
@@ -168,11 +168,42 @@ export default class RecordReflection extends Component {
         }
 
 
+        var weekStart = startOfWeek(new Date(), { weekStartsOn: 1 })
+        var formatWeekStart = format(weekStart, "dd-MM-yyyy")
 
 
 
 
 
+
+
+        var statArrayFromFirebase
+        const statRef = firebase.firestore().collection("Stats").doc(uid).collection("Weeks").doc(formatWeekStart)
+        await statRef.get().then((docSnapshot) => {
+            if (!docSnapshot.exists) {
+                var statArray = new Array(15).fill(0)
+                var index = 0
+                while (index < array.length) {
+                    statArray[parseInt(array[index])]++;
+                    index++
+                }
+                statRef.set({
+                    date: formatWeekStart,
+                    statArray: statArray
+                })
+            }else{
+                statArrayFromFirebase = docSnapshot.data().statArray
+                index = 0
+                while (index < array.length) {
+                    statArrayFromFirebase[parseInt(array[index])]++;
+                    index++
+                }
+                statRef.set({
+                    date: formatWeekStart,
+                    statArray: statArrayFromFirebase
+                })
+            }
+        })
 
 
         let setVal = await firebase.firestore().collection("Recordings").doc(uid).collection("Recordings").doc(JSON.stringify(date)).set({
@@ -327,7 +358,7 @@ export default class RecordReflection extends Component {
         }
 
     }
-   
+
 
     pauseRecording = async () => {
         await this.playbackObject.pauseAsync()
