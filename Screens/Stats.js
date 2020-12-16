@@ -5,7 +5,12 @@ import * as firebase from "firebase";
 import { AntDesign } from '@expo/vector-icons';
 import { format, startOfWeek } from 'date-fns';
 import { ECharts } from "react-native-echarts-wrapper";
-
+import {Chart,
+    LineChart,
+    BarChart,
+    PieChart,
+    ProgressChart,
+    ContributionGraph,} from "expo-chart-kit";
 
 export default class Stats extends Component {
     constructor(props) {
@@ -166,13 +171,42 @@ export default class Stats extends Component {
 
 
     render() {
-        const option = {
-
+        const chartConfig = {
+            backgroundGradientFrom: "#1E2923",
+            backgroundGradientFromOpacity: 0,
+            backgroundGradientTo: "#08130D",
+            backgroundGradientToOpacity: 0.5,
+            color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+            strokeWidth: 2, // optional, default 3
+            barPercentage: 0.5,
+            decimalPlaces: 0,
+            fromZero:true,
+            useShadowColorFromDataset: false // optional
+        };
+        const data = {
+            labels: ["January", "February", "March"],
+            datasets: [
+                {
+                    data: [20, 45, 28]
+                }
+            ]
         };
         return (
-                
-                <View style={styles.chart}>
-                    <ECharts
+
+            <View style={styles.chart}>
+
+                <BarChart
+                    style={{margin:8}}
+                    data={data}
+                    showValuesOnTopOfBars={true}
+                    fromZero={true}
+                    width={380}
+                    height={380}
+                    yAxisLabel="$"
+                    chartConfig={chartConfig}
+                    verticalLabelRotation={30}
+                />
+                {/* <ECharts
                         legacyMode
                         option={{
                             xAxis: {
@@ -190,14 +224,14 @@ export default class Stats extends Component {
                             ]
                         }
                         }>
-                    </ECharts>
-                    {/* <Text style={styles.midText}>{this.state.threeWeekly[0]+ " Reflections on Self Management this "+this.state.weekMonthYear}</Text>
+                    </ECharts> */}
+
+                {/* <Text style={styles.midText}>{this.state.threeWeekly[0]+ " Reflections on Self Management this "+this.state.weekMonthYear}</Text>
                 <Text style={styles.midText}>{this.state.threeWeekly[1]+ " Reflections on Social Intelligence this "+this.state.weekMonthYear}</Text>
                 <Text style={styles.midText}>{this.state.threeWeekly[2]+ " Reflections on Innovation this "+this.state.weekMonthYear}</Text>
                 <Text style={styles.midText}>{this.state.weeklyPlural? "Your most reflected skills this week: "+ this.state.mostRecordedWeekly:"Your most reflected skill this week: " + this.state.mostRecordedWeekly}</Text> */}
+            </View>
 
-                </View>
-                
 
         );
     };
@@ -210,7 +244,7 @@ const styles = StyleSheet.create({
     chart: {
         flex: 1
     },
-    big:{
-        flex:2
+    big: {
+        flex: 2
     }
 })
