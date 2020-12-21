@@ -119,17 +119,20 @@ export default class RecordReflection extends Component {
 
 
         var colourArray = [0, 0, 0]
-
+        var reflectionStatArray = [0,0,0]
         var i = 0;
         var intval
         while (i < array.length) {
             intval = parseInt(array[i])
-            if (intval < 5) {
+            if (intval < 5)  {
                 colourArray[0]++
+                reflectionStatArray[0]=1
             } else if (intval >= 5 && intval <= 9) {
                 colourArray[1]++
+                reflectionStatArray[1]=1
             } else {
                 colourArray[2]++
+                reflectionStatArray[2]=1
             }
             i++;
         }
@@ -189,18 +192,24 @@ export default class RecordReflection extends Component {
                 }
                 statRef.set({
                     date: formatWeekStart,
-                    statArray: statArray
+                    statArray: statArray,
+                    reflectionStatArray: reflectionStatArray
                 })
             }else{
                 statArrayFromFirebase = docSnapshot.data().statArray
+                reflectionStatArrayFromFirebase = docSnapshot.data().reflectionStatArray
                 index = 0
                 while (index < array.length) {
                     statArrayFromFirebase[parseInt(array[index])]++;
                     index++
                 }
+                let newRefStatArray = reflectionStatArray.map(function (value, index) {
+                    return value + reflectionStatArrayFromFirebase[index];
+                  })
                 statRef.set({
                     date: formatWeekStart,
-                    statArray: statArrayFromFirebase
+                    statArray: statArrayFromFirebase,
+                    reflectionStatArray: newRefStatArray
                 })
             }
         })
