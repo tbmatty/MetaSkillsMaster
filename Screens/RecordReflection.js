@@ -100,7 +100,6 @@ export default class RecordReflection extends Component {
         reader.readAsDataURL(blob);
         reader.onloadend = () => {
             let base64 = reader.result;
-            console.log(base64);
         };
         var storage = firebase.storage();
         var storageRef = storage.ref();

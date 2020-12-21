@@ -4,19 +4,13 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 import * as firebase from "firebase";
 import { AntDesign } from '@expo/vector-icons';
 import { format, startOfWeek } from 'date-fns';
-import { ECharts } from "react-native-echarts-wrapper";
-import {Chart,
-    LineChart,
-    BarChart,
-    PieChart,
-    ProgressChart,
-    ContributionGraph,} from "expo-chart-kit";
+import { PieChart } from "react-native-svg-charts";
 
 export default class Stats extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            displaySelfManagement: "5",
+            loading: true,
             weekMonthYear: "week",
             weekStats: [],
             monthStats: [],
@@ -24,6 +18,9 @@ export default class Stats extends Component {
             threeWeekly: [],
             threeMonthly: [],
             threeYearly: [],
+            reflectionStatsWeekly: [],
+            reflectionStatsMonthly: [],
+            reflectionStatsYearly: [],
             mostRecordedWeekly: "",
             mostRecordedMonthly: "",
             mostRecordedYearly: "",
@@ -44,7 +41,9 @@ export default class Stats extends Component {
                 12: "Creativity",
                 13: "Sense Making",
                 14: "Critical Thinking"
-            }
+            },
+            displayData: [],
+            color: ['#4677D6', '#FF5D60', '#FFC530']
         }
     }
 
@@ -56,6 +55,9 @@ export default class Stats extends Component {
     getFirebaseDataAsync = async () => {
         this.test
         var statArray
+        var reflectionStatsWeekly
+        var reflectionStatsMonthly = new Array(3).fill(0)
+        var reflectionStatsYearly = new Array(3).fill(0)
         var weekStats
         var monthStats = new Array(15).fill(0)
         var yearStats = new Array(15).fill(0)
@@ -68,32 +70,45 @@ export default class Stats extends Component {
                 statArray = doc.data().statArray
                 if (doc.data().date === thisWeek) {
                     weekStats = statArray
+                    reflectionStatsWeekly = doc.data().reflectionStatArray
                 }
                 if (doc.data().date.slice(3, 5) === thisMonth) {
                     i = 0
                     while (i < doc.data().statArray.length) {
                         monthStats[i] += doc.data().statArray[i]
+                        if (i < 3) {
+                            reflectionStatsMonthly[i] += doc.data().reflectionStatArray[i]
+                        }
                         i++
                     }
                 }
                 i = 0
                 while (i < doc.data().statArray.length) {
-                    yearStats[i] += doc.data().statArray[i]
-                    i++
+                    yearStats[i] += doc.data().statArray[i];
+                    if (i < 3) {
+                        reflectionStatsYearly[i] += doc.data().reflectionStatArray[i]
+                    }
+                    i++;
                 }
             })
         })
+
         this.setState({
+            weekStats: weekStats,
             monthStats: monthStats,
-            yearStats: yearStats
+            yearStats: yearStats,
+            reflectionStatsWeekly: reflectionStatsWeekly,
+            reflectionStatsMonthly: reflectionStatsMonthly,
+            reflectionStatsYearly: reflectionStatsYearly,
+            displayData: reflectionStatsWeekly,
         })
 
 
 
         var threeWeekly = []
-        console.log(weekStats)
-        console.log(monthStats)
-        console.log(yearStats)
+        console.log(reflectionStatsWeekly)
+        console.log(reflectionStatsMonthly)
+        console.log(reflectionStatsYearly)
 
 
         var threeWeekly = [0, 0, 0]
@@ -152,7 +167,8 @@ export default class Stats extends Component {
             i++
         }
         this.setState({
-            mostRecordedWeekly: weeklyRecorded
+            mostRecordedWeekly: weeklyRecorded,
+            loading: false
         })
 
     }
@@ -168,68 +184,44 @@ export default class Stats extends Component {
         return this.getAllIndexes(array, Math.max.apply(null, array));
     }
 
-
+    handleCalendarPress = () => {
+        var toggle = this.state.weekMonthYear
+        switch(toggle){
+            case "week":
+                this.setState({weekMonthYear: "month", displayData: this.state.reflectionStatsMonthly})
+                break;
+            case "month":
+                this.setState({weekMonthYear: "year", displayData: this.state.reflectionStatsYearly})
+                break;
+            case "year":
+                this.setState({weekMonthYear: "week", displayData: this.state.reflectionStatsWeekly})
+                break;
+        }
+    }
 
     render() {
-        const chartConfig = {
-            backgroundGradientFrom: "#1E2923",
-            backgroundGradientFromOpacity: 0,
-            backgroundGradientTo: "#08130D",
-            backgroundGradientToOpacity: 0.5,
-            color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-            strokeWidth: 2, // optional, default 3
-            barPercentage: 0.5,
-            decimalPlaces: 0,
-            fromZero:true,
-            useShadowColorFromDataset: false // optional
-        };
-        const data = {
-            labels: ["January", "February", "March"],
-            datasets: [
-                {
-                    data: [20, 45, 28]
-                }
-            ]
-        };
         return (
-
             <View style={styles.chart}>
-
-                <BarChart
-                    style={{margin:8}}
-                    data={data}
-                    showValuesOnTopOfBars={true}
-                    fromZero={true}
-                    width={380}
-                    height={380}
-                    yAxisLabel="$"
-                    chartConfig={chartConfig}
-                    verticalLabelRotation={30}
-                />
-                {/* <ECharts
-                        legacyMode
-                        option={{
-                            xAxis: {
-                                type: "category",
-                                data: ["Self Management", "Socnce", "Innovation"]
-                            },
-                            yAxis: {
-                                type: "value"
-                            },
-                            series: [
-                                {
-                                    data: [this.state.threeMonthly[0], this.state.threeMonthly[1], this.state.threeMonthly[2]],
-                                    type: "bar"
-                                }
-                            ]
-                        }
-                        }>
-                    </ECharts> */}
-
-                {/* <Text style={styles.midText}>{this.state.threeWeekly[0]+ " Reflections on Self Management this "+this.state.weekMonthYear}</Text>
-                <Text style={styles.midText}>{this.state.threeWeekly[1]+ " Reflections on Social Intelligence this "+this.state.weekMonthYear}</Text>
-                <Text style={styles.midText}>{this.state.threeWeekly[2]+ " Reflections on Innovation this "+this.state.weekMonthYear}</Text>
-                <Text style={styles.midText}>{this.state.weeklyPlural? "Your most reflected skills this week: "+ this.state.mostRecordedWeekly:"Your most reflected skill this week: " + this.state.mostRecordedWeekly}</Text> */}
+                {this.state.loading ? <Text>2 seconds brother</Text> :
+                    <PieChart
+                        style={{ height: 200 }}
+                        data={this.state.displayData
+                            .filter((value) => value >= 0)
+                            .map((value, index) => ({
+                                value,
+                                svg: {
+                                    fill: this.state.color[index],
+                                    onPress: () => console.log('press', index),
+                                },
+                                key: `pie-${index}`,
+                            }))}
+                    />
+                }
+                <Text style={styles.midText1}>{this.state.displayData[0] + " Reflections on Self Management this " + this.state.weekMonthYear}</Text>
+                <Text style={styles.midText2}>{this.state.displayData[1] + " Reflections on Social Intelligence this " + this.state.weekMonthYear}</Text>
+                <Text style={styles.midText3}>{this.state.displayData[2] + " Reflections on Innovation this " + this.state.weekMonthYear}</Text>
+                <Text style={styles.midText}>{this.state.weeklyPlural ? "Your most reflected skills this week: " + this.state.mostRecordedWeekly : "Your most reflected skill this week: " + this.state.mostRecordedWeekly}</Text>
+                <AntDesign name="calendar" size={62} color="black" style={{ alignSelf: 'center' }} onPress={() => this.handleCalendarPress()} />
             </View>
 
 
@@ -240,6 +232,21 @@ const styles = StyleSheet.create({
     midText: {
         fontSize: 20,
         padding: 20
+    },
+    midText1: {
+        fontSize: 20,
+        padding: 20,
+        color: '#4677D6'
+    },
+    midText2: {
+        fontSize: 20,
+        padding: 20,
+        color: '#FF5D60'
+    },
+    midText3: {
+        fontSize: 20,
+        padding: 20,
+        color: '#FFC530'
     },
     chart: {
         flex: 1
