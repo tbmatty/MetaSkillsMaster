@@ -6,6 +6,8 @@ import { AntDesign } from '@expo/vector-icons';
 import { format, startOfWeek } from 'date-fns';
 import { PieChart } from "react-native-svg-charts";
 
+
+
 export default class Stats extends Component {
     constructor(props) {
         super(props);
