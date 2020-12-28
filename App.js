@@ -150,7 +150,7 @@ function App() {
 
 
   async function cancelAndSchedule(){
-    await Notifications.cancelAllScheduledNotificationsAsync()
+    Notifications.cancelAllScheduledNotificationsAsync()
     Notifications.scheduleNotificationAsync({
       content: {
         title: 'Daily reminder for Reflection'
