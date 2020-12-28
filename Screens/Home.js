@@ -21,7 +21,24 @@ export default class Home extends Component {
             billybob: "",
             expoPushToken: '',
             cardInfo: [],
-            loading: true
+            loading: true,
+            cardStyles :{
+                "Self Management" : styles.card1,
+                "Focussing" : styles.card1,
+                "Integrity" : styles.card1,
+                "Adapting" : styles.card1,
+                "Initiative" : styles.card1,
+                "Social Intelligence" : styles.card2,
+                "Communicating" : styles.card2,
+                "Feeling" : styles.card2,
+                "Collaborating" : styles.card2,
+                "Leading" : styles.card2,
+                "Innovation" : styles.card3,
+                "Curiosity" : styles.card3,
+                "Creativity" : styles.card3,
+                "Sense Making" : styles.card3,
+                "Critical Thinking" : styles.card3
+            }
         }
     }
 
@@ -78,7 +95,7 @@ export default class Home extends Component {
                     {this.state.loading ? <Text>Just loading brother</Text> :
                         <ScrollView horizontal>
                             {this.state.cardInfo.map((value, index) => (
-                                <TouchableOpacity style={styles.card} onPress={() => console.log(value)}>
+                                <TouchableOpacity key={index} style={this.state.cardStyles[value[0]]} onPress={() => console.log(value)}>
                                     <Text style={styles.buttonText}>{value[0]}</Text>
                                     <Text style={styles.buttonText}>{value[1]}</Text>
                                 </TouchableOpacity>
@@ -98,10 +115,24 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         margin: 20
     },
-    card: {
+    card1: {
         padding: 20,
         paddingVertical: 40,
-        backgroundColor: "grey",
+        backgroundColor: "#4677D6",
+        borderRadius: 8,
+        margin: 20,
+    },
+    card2: {
+        padding: 20,
+        paddingVertical: 40,
+        backgroundColor: "#FF5D60",
+        borderRadius: 8,
+        margin: 20,
+    },
+    card3: {
+        padding: 20,
+        paddingVertical: 40,
+        backgroundColor: "#FFC530",
         borderRadius: 8,
         margin: 20,
     },
