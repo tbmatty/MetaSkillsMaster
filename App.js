@@ -227,6 +227,8 @@ function App() {
         <Stack.Screen name="Innovation" component={Innovation} options={{ title: 'Innovation', headerStyle: { backgroundColor: '#FFC530', }, headerTitleStyle: { color: 'black' } }} />
         <Stack.Screen name="Reflections" component={Reflections} options={{ title: 'Reflections' }} />
         <Stack.Screen name="Reflection" component={Reflection} options={{ title: 'Reflection' }} />
+        <Stack.Screen name="Test" component={test} options={{ title: 'test' }} />
+
         {/* <MyTabs /> */}
       </Stack.Navigator>
 

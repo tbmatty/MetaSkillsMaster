@@ -70,6 +70,9 @@ export default class Profile extends Component {
                         onChange={this.onChange}
                     />:null
                 }
+                <TouchableOpacity style={styles.button} onPress={()=>this.props.navigation.navigate("Test")}>
+                    <Text style={styles.buttonText}>Test Screen</Text>
+                </TouchableOpacity>
             </View>
         );
     };
