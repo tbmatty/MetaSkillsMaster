@@ -1,4 +1,4 @@
-import React, { Component, useRef } from 'react';
+import React, { Component, useEffect } from 'react';
 import { render } from 'react-dom';
 import { ScrollView, Text, Button, StyleSheet, SectionList, SafeAreaView, FlatList } from 'react-native';
 
@@ -29,8 +29,27 @@ export default class SocialAwareness extends Component {
                     data: ['Placeholder text for information about the meta skill of leading. Placeholder text for information about the meta skill of leading. Placeholder text for information about the meta skill of leading. Placeholder text for information about the meta skill of leading. Placeholder text for information about the meta skill of leading. Placeholder text for information about the meta skill of leading. Placeholder text for information about the meta skill of leading. '],
                 },
             ],
+            textstyles:{
+                "Social Intelligence" : styles.titleText,
+                "Communicating" : styles.subHeadingText,
+                "Feeling" : styles.subHeadingText,
+                "Collaboration" : styles.subHeadingText,
+                "Leading" : styles.subHeadingText
+            }
         }
     }
+
+    componentDidMount = () =>{
+        var object = {
+            itemIndex: 0,
+            sectionIndex: this.props.navProp
+        }
+        this.sectionListRef.scrollToLocation(object)
+    }
+
+
+
+
 
     test = () => {
         var object = {
@@ -48,7 +67,7 @@ export default class SocialAwareness extends Component {
                     sections={this.state.data}
                     keyExtractor={(item, index) => item + index}
                     renderItem={({ item }) => <Text style={styles.bodyText}>{item}</Text>}
-                    renderSectionHeader={({ section: { title } }) => <Text style={styles.subHeadingText}>{title}</Text>}
+                    renderSectionHeader={({ section: { title } }) => <Text style={this.state.textstyles[title]}>{title}</Text>}
                 />
                 <Button title="Press me" onPress={() => this.test()}></Button>
             </SafeAreaView>

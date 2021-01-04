@@ -28,13 +28,13 @@ export default class Skills extends Component {
 render(){
     return(
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <TouchableOpacity onPress={()=>this.props.navigation.navigate("SelfManagement")} style={styles.button1}>
+            <TouchableOpacity onPress={()=>this.props.navigation.navigate("SelfManagement", {navProp:0})} style={styles.button1}>
                 <Text style={styles.buttonText}>Self Management</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={()=>this.props.navigation.navigate("SocialAwareness")} style={styles.button2}>
+            <TouchableOpacity onPress={()=>this.props.navigation.navigate("SocialAwareness", {navProp:4})} style={styles.button2}>
                 <Text style={styles.buttonText}>Social Intelligence</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={()=>this.props.navigation.navigate("Innovation")} style={styles.button3}>
+            <TouchableOpacity onPress={()=>this.props.navigation.navigate("Innovation", {navProp:0})} style={styles.button3}>
                 <Text style={styles.buttonText2}>Innovation</Text>
             </TouchableOpacity>
         </View>

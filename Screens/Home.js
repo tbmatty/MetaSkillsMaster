@@ -38,6 +38,23 @@ export default class Home extends Component {
                 "Creativity" : styles.card3,
                 "Sense Making" : styles.card3,
                 "Critical Thinking" : styles.card3
+            },
+            cardNavigationDestination :{
+                "Self Management" : "SelfManagement",
+                "Focussing" : "SelfManagement",
+                "Integrity" :  "SelfManagement",
+                "Adapting" :  "SelfManagement",
+                "Initiative" :  "SelfManagement",
+                "Social Intelligence" : "SocialAwareness",
+                "Communicating" :  "SocialAwareness",
+                "Feeling" :  "SocialAwareness",
+                "Collaborating" :  "SocialAwareness",
+                "Leading" :  "SocialAwareness",
+                "Innovation" : "Innovation",
+                "Curiosity" : "Innovation",
+                "Creativity" :"Innovation",
+                "Sense Making" : "Innovation",
+                "Critical Thinking" : "Innovation"
             }
         }
     }
@@ -75,11 +92,16 @@ export default class Home extends Component {
         let firebaseRef = firebase.firestore().collection("CardInfo")
         await firebaseRef.get().then(snapshot => {
             snapshot.forEach(doc => {
-                cardInfo.push([doc.data().Title, doc.data().Body])
+                cardInfo.push([doc.data().Title, doc.data().Body, doc.data().id])
                 console.log(doc.data().Title, doc.data().Body)
             })
         })
         this.setState({ cardInfo: cardInfo, loading:false })
+    }
+
+    handleCardPress = (title, id) =>{
+        var destination = this.state.cardNavigationDestination[title]
+        this.props.navigation.navigate(destination, {navProp:id})
     }
 
     render() {
@@ -95,7 +117,7 @@ export default class Home extends Component {
                     {this.state.loading ? <Text>Just loading brother</Text> :
                         <ScrollView horizontal>
                             {this.state.cardInfo.map((value, index) => (
-                                <TouchableOpacity key={index} style={this.state.cardStyles[value[0]]} onPress={() => console.log(value)}>
+                                <TouchableOpacity key={index} style={this.state.cardStyles[value[0]]} onPress={() => this.handleCardPress(value[0],value[2])}>
                                     <Text style={styles.buttonText}>{value[0]}</Text>
                                     <Text style={styles.buttonText}>{value[1]}</Text>
                                 </TouchableOpacity>

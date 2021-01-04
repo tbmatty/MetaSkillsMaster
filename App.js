@@ -220,9 +220,9 @@ function App() {
         />
         <Stack.Screen name="Profile" component={Profile} options={{ title: 'Profile' }} />
         <Stack.Screen name="RecordReflection" component={RecordReflection} options={{ title: 'Record a reflection!' }} />
-        <Stack.Screen name="SelfManagement" component={SelfManagement} options={{ title: 'Self Management' }} />
+        <Stack.Screen name="SelfManagement" component={SelfManagement} options={{ title: 'Self Management' , headerStyle: { backgroundColor: '#4677D6', }, headerTitleStyle: { color: 'white' } }} />
         <Stack.Screen name="SocialAwareness" component={SocialAwareness} options={{ title: 'Social Intelligence', headerStyle: { backgroundColor: '#FF5D60', }, headerTitleStyle: { color: 'white' } }} />
-        <Stack.Screen name="Innovation" component={Innovation} options={{ title: 'Innovation' }} />
+        <Stack.Screen name="Innovation" component={Innovation} options={{ title: 'Innovation', headerStyle: { backgroundColor: '#FFC530', }, headerTitleStyle: { color: 'black' } }} />
         <Stack.Screen name="Reflections" component={Reflections} options={{ title: 'Reflections' }} />
         <Stack.Screen name="Reflection" component={Reflection} options={{ title: 'Reflection' }} />
         {/* <MyTabs /> */}
