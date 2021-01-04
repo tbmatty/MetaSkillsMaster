@@ -41,11 +41,16 @@ export default class Innovation extends Component {
 
 
     componentDidMount = () =>{
-        var object = {
-            itemIndex: 0,
-            sectionIndex: this.props.navProp
-        }
-        this.sectionListRef.scrollToLocation(object)
+        setTimeout(() => {
+            if (this.sectionListRef) {
+              this.sectionListRef.scrollToLocation({
+                  animated: true,
+                  itemIndex: 0,
+                  sectionIndex: this.props.route.params.navProp,
+                  viewPosition: 0
+              });
+            }
+          }, 150);
     }
 
     render() {
@@ -58,7 +63,6 @@ export default class Innovation extends Component {
                     renderItem={({ item }) => <Text style={styles.bodyText}>{item}</Text>}
                     renderSectionHeader={({ section: { title } }) => <Text style={this.state.textstyles[title]}>{title}</Text>}
                 />
-                <Button title="Press me" onPress={() => this.test()}></Button>
             </SafeAreaView>
         );
     };

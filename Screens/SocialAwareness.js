@@ -9,13 +9,13 @@ export default class SocialAwareness extends Component {
         this.getItemLayout = sectionListGetItemLayout({
             // The height of the row with rowData at the given sectionIndex and rowIndex
             getItemHeight: (rowData, sectionIndex, rowIndex) => sectionIndex === 0 ? 100 : 50,
-      
+
             // These four properties are optional
             // getSeparatorHeight: () => 1 / PixelRatio.get(), // The height of your separators
             // getSectionHeaderHeight: () => 20, // The height of your section headers
             // getSectionFooterHeight: () => 10, // The height of your section footers
             // listHeaderHeight: 40, // The height of your list header
-          })
+        })
         this.state = {
             data: [
                 {
@@ -39,22 +39,27 @@ export default class SocialAwareness extends Component {
                     data: ['Placeholder text for information about the meta skill of leading. Placeholder text for information about the meta skill of leading. Placeholder text for information about the meta skill of leading. Placeholder text for information about the meta skill of leading. Placeholder text for information about the meta skill of leading. Placeholder text for information about the meta skill of leading. Placeholder text for information about the meta skill of leading. '],
                 },
             ],
-            textstyles:{
-                "Social Intelligence" : styles.titleText,
-                "Communicating" : styles.subHeadingText,
-                "Feeling" : styles.subHeadingText,
-                "Collaboration" : styles.subHeadingText,
-                "Leading" : styles.subHeadingText
+            textstyles: {
+                "Social Intelligence": styles.titleText,
+                "Communicating": styles.subHeadingText,
+                "Feeling": styles.subHeadingText,
+                "Collaboration": styles.subHeadingText,
+                "Leading": styles.subHeadingText
             }
         }
     }
 
-    componentDidMount = () =>{
-        var object = {
-            itemIndex: 0,
-            sectionIndex: 4
-        }
-        this.sectionListRef.scrollToLocation(object)
+    componentDidMount = () => {
+        setTimeout(() => {
+            if (this.sectionListRef) {
+                this.sectionListRef.scrollToLocation({
+                    animated: true,
+                    itemIndex: 0,
+                    sectionIndex: this.props.route.params.navProp,
+                    viewPosition: 0
+                });
+            }
+        }, 150);
     }
 
 
@@ -78,7 +83,6 @@ export default class SocialAwareness extends Component {
                     renderItem={({ item }) => <Text style={styles.bodyText}>{item}</Text>}
                     renderSectionHeader={({ section: { title } }) => <Text style={this.state.textstyles[title]}>{title}</Text>}
                 />
-                <Button title="Press me" onPress={() => this.test()}></Button>
             </SafeAreaView>
         );
     };

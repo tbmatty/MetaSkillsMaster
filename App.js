@@ -28,6 +28,7 @@ import Innovation from './Screens/Innovation.js';
 import Reflections from './Screens/Reflections.js';
 import MonthSelector from './Screens/MonthSelector.js';
 import Reflection from './Screens/Reflection.js';
+import { LogBox } from 'react-native';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDwn_LuSa2_c2yfNFLrF4bSUo8nKWPqlXQ",
@@ -40,6 +41,7 @@ const firebaseConfig = {
   measurementId: "G-FRK5GMW27D"
 };
 
+LogBox.ignoreLogs(['Setting a timer']);
 
 
 
