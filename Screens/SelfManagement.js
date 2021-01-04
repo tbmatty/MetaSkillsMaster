@@ -2,11 +2,22 @@ import React, {Component} from 'react';
 import { render } from 'react-dom';
 import { SafeAreaView, Text, Button, StyleSheet, SectionList} from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import sectionListGetItemLayout from 'react-native-section-list-get-item-layout';
 
 
 export default class SelfManagement extends Component {
     constructor(props) {
         super(props); 
+        this.getItemLayout = sectionListGetItemLayout({
+            // The height of the row with rowData at the given sectionIndex and rowIndex
+            getItemHeight: (rowData, sectionIndex, rowIndex) => sectionIndex === 0 ? 100 : 50,
+      
+            // These four properties are optional
+            // getSeparatorHeight: () => 1 / PixelRatio.get(), // The height of your separators
+            getSectionHeaderHeight: () => 32, // The height of your section headers
+            // getSectionFooterHeight: () => 10, // The height of your section footers
+            // listHeaderHeight: 40, // The height of your list header
+          })
         this.state = {
             data: [
                 {
@@ -43,7 +54,15 @@ export default class SelfManagement extends Component {
     componentDidMount = () =>{
         var object = {
             itemIndex: 0,
-            sectionIndex: this.props.navProp
+            sectionIndex: 4
+        }
+        this.sectionListRef.scrollToLocation(object)
+    }
+
+    test = () => {
+        var object = {
+            itemIndex: 0,
+            sectionIndex: 4
         }
         this.sectionListRef.scrollToLocation(object)
     }
@@ -54,6 +73,7 @@ export default class SelfManagement extends Component {
                 <SectionList
                     ref={ref => this.sectionListRef = ref}
                     sections={this.state.data}
+                    getItemLayout={this.getItemLayout}
                     keyExtractor={(item, index) => item + index}
                     renderItem={({ item }) => <Text style={styles.bodyText}>{item}</Text>}
                     renderSectionHeader={({ section: { title } }) => <Text style={this.state.textstyles[title]}>{title}</Text>}
