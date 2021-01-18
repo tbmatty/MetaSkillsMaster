@@ -87,6 +87,22 @@ export default class RecordReflection extends Component {
 
 
         // console.log(file)
+        let userDoc = firebase.firestore().collection("Users").doc(uid)
+        var lastDate
+        var concurrentDays
+        let getUserDoc = await userDoc.get().then(doc=>{
+            lastDate=doc.data().lastDate,
+            concurrentDays=doc.data().ConsecutiveDays,
+            console.log(doc.data().ConsecutiveDays)
+        })
+        console.log("Concurrent days: "+JSON.stringify(concurrentDays))
+        if(lastDate!=date.slice(0,10)){
+            concurrentDays++
+            await userDoc.set({
+                lastDate:date.slice(0,10),
+                ConsecutiveDays:concurrentDays
+            },{merge:true})
+        }
 
 
 
@@ -170,6 +186,54 @@ export default class RecordReflection extends Component {
         }
 
 
+        
+        let badgesRef = firebase.firestore().collection("BadgeProgress").doc(uid)
+        var highScoreConsec
+        var highScoreInnov
+        var highScoreSelfM
+        var highScoreSocial
+        await badgesRef.get().then(doc=>{
+            highScoreConsec = doc.data().Consistency;
+            highScoreInnov = doc.data().Innovation;
+            highScoreSelfM = doc.data().SelfManagement;
+            highScoreSocial = doc.data().SocialAwareness;
+        })
+
+        if(colourArray[0]>=1){
+            highScoreSelfM ++;
+        }
+        if(colourArray[1]>=1){
+            highScoreSocial ++;
+        }
+        if(colourArray[2]>=1){
+            highScoreInnov ++;
+        }
+
+        if(concurrentDays>highScoreConsec){
+            highScoreConsec=concurrentDays
+        }
+
+        badgesRef.set({
+            Consistency : highScoreConsec,
+            Innovation : highScoreInnov,
+            SelfManagement : highScoreSelfM,
+            SocialAwareness : highScoreSocial
+        })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         var weekStart = startOfWeek(new Date(), { weekStartsOn: 1 })
         var formatWeekStart = format(weekStart, "dd-MM-yyyy")
 
@@ -224,7 +288,7 @@ export default class RecordReflection extends Component {
             title: this.state.title
         })
 
-
+        
     }
 
 

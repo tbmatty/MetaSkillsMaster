@@ -15,14 +15,14 @@ export default class Profile extends Component {
     }
     onChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
-        
+
         this.setState({
             show: Platform.OS === 'ios',
             date: currentDate
         })
         var dateStr = JSON.stringify(currentDate)
-        var hour = dateStr.slice(12,14)
-        var minute = dateStr.slice(15,17)
+        var hour = dateStr.slice(12, 14)
+        var minute = dateStr.slice(15, 17)
         console.log(hour)
         console.log(minute)
         var user = firebase.auth().currentUser
@@ -33,19 +33,19 @@ export default class Profile extends Component {
             notificationTimeMinutes: parseInt(minute),
             email: user.email
         })
-        alert("New notification time set to "+hour+":"+minute)
-      };
-    
+        alert("New notification time set to " + hour + ":" + minute)
+    };
+
 
     showDatePicker = () => {
         this.setState({
-            show:true,
+            show: true,
         })
-      };
+    };
 
-    hideDatePicker = () =>{
+    hideDatePicker = () => {
         this.setState({
-            show:false,
+            show: false,
         })
     }
 
@@ -53,14 +53,14 @@ export default class Profile extends Component {
         return (
             <View>
                 <Text style={styles.titleText}>Hey You!</Text>
-                <TouchableOpacity onPress={()=>this.showDatePicker()} style={styles.button}>
+                <TouchableOpacity onPress={() => this.showDatePicker()} style={styles.button}>
                     <Text style={styles.buttonText}>Set notification time</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={()=>firebase.auth().signOut()}>
+                <TouchableOpacity style={styles.button} onPress={() => firebase.auth().signOut()}>
                     <Text style={styles.buttonText}>Sign out</Text>
                 </TouchableOpacity>
-                
-                {this.state.show ? 
+
+                {this.state.show ?
                     <DateTimePicker
                         testID="dateTimePicker"
                         value={this.state.date}
@@ -68,29 +68,32 @@ export default class Profile extends Component {
                         is24Hour={true}
                         display="default"
                         onChange={this.onChange}
-                    />:null
+                    /> : null
                 }
-                <TouchableOpacity style={styles.button} onPress={()=>this.props.navigation.navigate("Test")}>
-                    <Text style={styles.buttonText}>Test Screen</Text>
+                <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("Trophies")}>
+                    <Text style={styles.buttonText}>Trophies</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("Trophy")}>
+                    <Text style={styles.buttonText}>Trophy</Text>
                 </TouchableOpacity>
             </View>
         );
     };
 }
 
-const styles=StyleSheet.create({
-    button:{
-        padding:20,
+const styles = StyleSheet.create({
+    button: {
+        padding: 20,
         backgroundColor: "white",
         borderRadius: 4,
         margin: 20
     },
-    titleText:{
-        fontSize:32,
+    titleText: {
+        fontSize: 32,
         padding: 20
     },
-    buttonText:{
-        fontSize:18,
-        paddingLeft:20
+    buttonText: {
+        fontSize: 18,
+        paddingLeft: 20
     }
 })

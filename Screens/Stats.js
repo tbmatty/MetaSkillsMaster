@@ -14,6 +14,8 @@ export default class Stats extends Component {
         this.state = {
             loading: true,
             weekMonthYear: "week",
+            consecutive: 0,
+            consecutiveAllTime: 0,
             weekStats: [],
             monthStats: [],
             yearStats: [],
@@ -94,6 +96,17 @@ export default class Stats extends Component {
                 }
             })
         })
+        
+        var consecutive
+        let getConsec = await firebase.firestore().collection("Users").doc(uid).get().then(doc=>{
+            consecutive = doc.data().ConsecutiveDays;
+        })
+
+        var consecutiveAllTime
+        let getAllTimeConsec = await firebase.firestore().collection("BadgeProgress").doc(uid).get().then(doc=>{
+            consecutiveAllTime = doc.data().Consistency;
+        })
+
 
         this.setState({
             weekStats: weekStats,
@@ -103,6 +116,8 @@ export default class Stats extends Component {
             reflectionStatsMonthly: reflectionStatsMonthly,
             reflectionStatsYearly: reflectionStatsYearly,
             displayData: reflectionStatsWeekly,
+            consecutive:consecutive,
+            consecutiveAllTime: consecutiveAllTime
         })
 
 
@@ -219,6 +234,8 @@ export default class Stats extends Component {
                             }))}
                     />
                 }
+                <Text>Your current streak: {this.state.consecutive} Days</Text>
+                <Text>Your all time streak: {this.state.consecutiveAllTime} Days</Text>
                 <Text style={styles.midText1}>{this.state.displayData[0] + " Reflections on Self Management this " + this.state.weekMonthYear}</Text>
                 <Text style={styles.midText2}>{this.state.displayData[1] + " Reflections on Social Intelligence this " + this.state.weekMonthYear}</Text>
                 <Text style={styles.midText3}>{this.state.displayData[2] + " Reflections on Innovation this " + this.state.weekMonthYear}</Text>

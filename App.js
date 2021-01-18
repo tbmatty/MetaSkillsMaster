@@ -20,7 +20,7 @@ import Stats from "./Screens/Stats.js";
 import * as firebase from "firebase";
 import firestore from "@firebase/firestore";
 import SplashScreen from './Screens/SplashScreen.js';
-import test from './Screens/test.js';
+import Trophies from './Screens/Trophies.js';
 import RecordReflection from './Screens/RecordReflection.js';
 import SelfManagement from './Screens/SelfManagement.js';
 import SocialAwareness from './Screens/SocialAwareness.js';
@@ -28,6 +28,8 @@ import Innovation from './Screens/Innovation.js';
 import Reflections from './Screens/Reflections.js';
 import MonthSelector from './Screens/MonthSelector.js';
 import Reflection from './Screens/Reflection.js';
+import Trophy from './Screens/Trophy.js';
+import { format, startOfWeek } from 'date-fns';
 import { LogBox } from 'react-native';
 
 const firebaseConfig = {
@@ -70,15 +72,6 @@ function LogoTitle() {
 
 
 const Tab = createBottomTabNavigator();
-
-
-
-
-
-
-
-
-
 
 const Stack = createStackNavigator();
 
@@ -190,6 +183,42 @@ function App() {
     
   });
 
+  //concurrentDate
+  useEffect(()=>{
+    var user = firebase.auth().currentUser;
+    if(!user){
+      return;
+    }
+    var yesterday = new Date();
+    yesterday.setDate(yesterday.getDate()-1);
+    var yesterdayFormat = format(yesterday, "dd-MM-yyyy")
+
+    var today = new Date()
+    today = format(today, "dd-MM-yyyy")
+
+    getUserLastDateAsync().then(lastDate=>{
+      if(yesterdayFormat!=lastDate && lastDate!=today){
+        let setdoc = firebase.firestore().collection("Users").doc(user.uid).set({
+          ConsecutiveDays:0,
+        }, {merge:true})
+      }
+    })
+
+    
+  })
+
+  async function getUserLastDateAsync(){
+    var lastDate
+    let getdoc = await firebase.firestore().collection("Users").doc(user.uid).get().then(doc=>{
+      lastDate=doc.data().lastDate
+      console.log("firebase date: "+lastDate)
+    })
+    return lastDate
+  }
+
+
+
+
 
   function MyTabs() {
     return (
@@ -227,8 +256,8 @@ function App() {
         <Stack.Screen name="Innovation" component={Innovation} options={{ title: 'Innovation', headerStyle: { backgroundColor: '#FFC530', }, headerTitleStyle: { color: 'black' } }} />
         <Stack.Screen name="Reflections" component={Reflections} options={{ title: 'Reflections' }} />
         <Stack.Screen name="Reflection" component={Reflection} options={{ title: 'Reflection' }} />
-        <Stack.Screen name="Test" component={test} options={{ title: 'test' }} />
-
+        <Stack.Screen name="Trophies" component={Trophies} options={{ title: 'Achievements' }} />
+        <Stack.Screen name="Trophy" component={Trophy} options={{title: 'Trophy'}}/>
         {/* <MyTabs /> */}
       </Stack.Navigator>
 

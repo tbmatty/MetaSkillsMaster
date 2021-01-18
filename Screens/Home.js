@@ -3,14 +3,7 @@ import { render } from 'react-dom';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import * as firebase from "firebase";
 import { AntDesign } from '@expo/vector-icons';
-import BootstrapStyleSheet from 'react-native-bootstrap-styles';
 import { Entypo } from '@expo/vector-icons'; 
-
-
-const DIMENSIONS_WIDTH = 350
-const DIMENSIONS_HEIGHT = 400
-const bootstrapStyleSheet = new BootstrapStyleSheet();
-const { s, c } = bootstrapStyleSheet;
 
 
 export default class Home extends Component {

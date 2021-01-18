@@ -45,14 +45,27 @@ export default class SplashScreen extends Component {
                             console.log("HELLO")
                             usersRef.set({
                                 email: user.email,
-                                notificationTime : -1,
-                                notificationTimeMinutes : -1
+                                notificationTime: -1,
+                                notificationTimeMinutes: -1
                             }) // create the document
-                        }else{
+                        } else {
                             console.log("HEY")
                         }
                     });
 
+                const badgesRef = firebase.firestore().collection('BadgeProgress').doc(user.uid)
+                badgesRef.get()
+                    .then((docSnapshot) => {
+                        if (!docSnapshot.exists) {
+                            console.log("HELLO")
+                            badgesRef.set({
+                                Consistency: 0,
+                                Innovation: 0,
+                                SelfManagements: 0,
+                                SocialAwareness: 0
+                            }) // create the document
+                        }
+                    });
                 this.props.navigation.dispatch(
                     CommonActions.reset({
                         index: 1,
