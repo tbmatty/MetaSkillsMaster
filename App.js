@@ -257,7 +257,7 @@ function App() {
         <Stack.Screen name="Reflections" component={Reflections} options={{ title: 'Reflections' }} />
         <Stack.Screen name="Reflection" component={Reflection} options={{ title: 'Reflection' }} />
         <Stack.Screen name="Trophies" component={Trophies} options={{ title: 'Achievements' }} />
-        <Stack.Screen name="Trophy" component={Trophy} options={{title: 'Trophy'}}/>
+        <Stack.Screen name="Trophy" component={Trophy} options={{title: 'A Trophy!'}}/>
         {/* <MyTabs /> */}
       </Stack.Navigator>
 

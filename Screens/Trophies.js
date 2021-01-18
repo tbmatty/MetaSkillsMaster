@@ -56,7 +56,7 @@ export default class Trophies extends Component {
                 <View style={styles.selfMangementRow}>
                     {(this.state.selfManagement >= 10) ?
                         <View style={styles.blueColumn}>
-                            <Entypo name="trophy" size={42} color="white" />
+                            <Entypo name="trophy" size={42} color="white" onPress={()=>this.props.navigation.navigate("Trophy", {id:0})}/>
                         </View> :
                         <View style={styles.greyColumn}>
                             <Entypo name="lock" size={42} color="black" />
@@ -64,7 +64,7 @@ export default class Trophies extends Component {
                     }
                     {(this.state.selfManagement >= 50) ?
                         <View style={styles.blueColumn}>
-                            <Entypo name="trophy" size={42} color="white" />
+                            <Entypo name="trophy" size={42} color="white" onPress={()=>this.props.navigation.navigate("Trophy", {id:1})}/>
                         </View> :
                         <View style={styles.greyColumn}>
                             <Entypo name="lock" size={42} color="black" />
@@ -72,7 +72,7 @@ export default class Trophies extends Component {
                     }
                     {(this.state.selfManagement >= 100) ?
                         <View style={styles.blueColumn}>
-                            <Entypo name="trophy" size={42} color="white" />
+                            <Entypo name="trophy" size={42} color="white" onPress={()=>this.props.navigation.navigate("Trophy", {id:2})}/>
                         </View> :
                         <View style={styles.greyColumn}>
                             <Entypo name="lock" size={42} color="black" />
@@ -82,7 +82,7 @@ export default class Trophies extends Component {
                 <View style={styles.socialAwarenessRow}>
                     {(this.state.socialAwareness >= 10) ?
                         <View style={styles.redColumn}>
-                            <Entypo name="trophy" size={42} color="white" />
+                            <Entypo name="trophy" size={42} color="white" onPress={()=>this.props.navigation.navigate("Trophy", {id:3})}/>
                         </View> :
                         <View style={styles.greyColumn}>
                             <Entypo name="lock" size={42} color="black" />
@@ -90,7 +90,7 @@ export default class Trophies extends Component {
                     }
                     {(this.state.socialAwareness >= 50) ?
                         <View style={styles.redColumn}>
-                            <Entypo name="trophy" size={42} color="white" />
+                            <Entypo name="trophy" size={42} color="white" onPress={()=>this.props.navigation.navigate("Trophy", {id:4})}/>
                         </View> :
                         <View style={styles.greyColumn}>
                             <Entypo name="lock" size={42} color="black" />
@@ -98,7 +98,7 @@ export default class Trophies extends Component {
                     }
                     {(this.state.socialAwareness >= 100) ?
                         <View style={styles.redColumn}>
-                            <Entypo name="trophy" size={42} color="white" />
+                            <Entypo name="trophy" size={42} color="white" onPress={()=>this.props.navigation.navigate("Trophy", {id:5})}/>
                         </View> :
                         <View style={styles.greyColumn}>
                             <Entypo name="lock" size={42} color="black" />
@@ -108,7 +108,7 @@ export default class Trophies extends Component {
                 <View style={styles.InnovationRow}>
                     {(this.state.Innovation >= 10) ?
                         <View style={styles.yellowColumn}>
-                            <Entypo name="trophy" size={42} color="white" />
+                            <Entypo name="trophy" size={42} color="white" onPress={()=>this.props.navigation.navigate("Trophy", {id:6})}/>
                         </View> :
                         <View style={styles.greyColumn}>
                             <Entypo name="lock" size={42} color="black" />
@@ -116,7 +116,7 @@ export default class Trophies extends Component {
                     }
                     {(this.state.Innovation >= 50) ?
                         <View style={styles.yellowColumn}>
-                            <Entypo name="trophy" size={42} color="white" />
+                            <Entypo name="trophy" size={42} color="white" onPress={()=>this.props.navigation.navigate("Trophy", {id:7})}/>
                         </View> :
                         <View style={styles.greyColumn}>
                             <Entypo name="lock" size={42} color="black" />
@@ -124,7 +124,7 @@ export default class Trophies extends Component {
                     }
                     {(this.state.Innovation >= 100) ?
                         <View style={styles.yellowColumn}>
-                            <Entypo name="trophy" size={42} color="white" />
+                            <Entypo name="trophy" size={42} color="white" onPress={()=>this.props.navigation.navigate("Trophy", {id:8})}/>
                         </View> :
                         <View style={styles.greyColumn}>
                             <Entypo name="lock" size={42} color="black" />
@@ -134,7 +134,7 @@ export default class Trophies extends Component {
                 <View style={styles.ConsistencyRow}>
                     {(this.state.Consistency >= 10) ?
                         <View style={styles.purpleColumn}>
-                            <Entypo name="trophy" size={42} color="white" />
+                            <Entypo name="trophy" size={42} color="white" onPress={()=>this.props.navigation.navigate("Trophy", {id:9})}/>
                         </View> :
                         <View style={styles.greyColumn}>
                             <Entypo name="lock" size={42} color="black" />
@@ -142,7 +142,7 @@ export default class Trophies extends Component {
                     }
                     {(this.state.Consistency >= 50) ?
                         <View style={styles.purpleColumn}>
-                            <Entypo name="trophy" size={42} color="white" />
+                            <Entypo name="trophy" size={42} color="white" onPress={()=>this.props.navigation.navigate("Trophy", {id:10})}/>
                         </View> :
                         <View style={styles.greyColumn}>
                             <Entypo name="lock" size={42} color="black" />
@@ -150,7 +150,7 @@ export default class Trophies extends Component {
                     }
                     {(this.state.Consistency >= 100) ?
                         <View style={styles.purpleColumn}>
-                            <Entypo name="trophy" size={42} color="white" />
+                            <Entypo name="trophy" size={42} color="white" onPress={()=>this.props.navigation.navigate("Trophy", {id:11})}/>
                         </View> :
                         <View style={styles.greyColumn}>
                             <Entypo name="lock" size={42} color="black" />

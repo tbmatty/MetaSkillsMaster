@@ -1,6 +1,6 @@
 import React, { Component, useState } from 'react';
 import { render } from 'react-dom';
-import { View, Text, Button, SafeAreaView, StyleSheet, ScrollView, List, AsyncStorage, TouchableOpacity } from 'react-native';
+import { View, Text, Button, SafeAreaView, StyleSheet, ScrollView, List, ActivityIndicator, TouchableOpacity } from 'react-native';
 import * as firebase from "firebase";
 import { TextInput } from 'react-native-gesture-handler';
 import { format, startOfWeek } from 'date-fns';
@@ -44,8 +44,57 @@ export default class RecordReflection extends Component {
                 { "id": "12", "name": "Creativity" },
                 { "id": "13", "name": "Sense Making" },
                 { "id": "14", "name": "Critical Thinking" },
-
             ],
+            skills: [["0", "Self Management"],
+            ["1", "Focussing"],
+            ["2", "Integrity"],
+            ["3", "Adapting"],
+            ["4", "Initiative"],
+            ["5", "Social Intelligence"],
+            ["6", "Communicating"],
+            ["7", "Feeling"],
+            ["8", "Collaborating"],
+            ["9", "Leading"],
+            ["10", "Innovation"],
+            ["11", "Curiosity"],
+            ["12", "Creativity"],
+            ["13", "Sense Making"],
+            ["14", "Critical Thinking"]
+            ],
+            buttonColours: {
+                "0": styles.blueButton,
+                "1": styles.blueButton,
+                "2": styles.blueButton,
+                "3": styles.blueButton,
+                "4": styles.blueButton,
+                "5": styles.redButton,
+                "6": styles.redButton,
+                "7": styles.redButton,
+                "8": styles.redButton,
+                "9": styles.redButton,
+                "10": styles.yellowButton,
+                "11": styles.yellowButton,
+                "12": styles.yellowButton,
+                "13": styles.yellowButton,
+                "14": styles.yellowButton
+            },
+            buttonTextColour:{
+                "0": "white",
+                "1": "white",
+                "2": "white",
+                "3": "white",
+                "4": "white",
+                "5": "white",
+                "6": "white",
+                "7": "white",
+                "8": "white",
+                "9": "white",
+                "10": "black",
+                "11": "black",
+                "12": "black",
+                "13": "black",
+                "14": "black"
+            },
             skillSelection: [["-1", "..."]],
             uploadURI: '',
             isRecording: false,
@@ -59,7 +108,10 @@ export default class RecordReflection extends Component {
             dialogVisible: false,
             title: '',
             isLoaded: false,
-            isPlaying: false
+            isPlaying: false,
+            isUploading: false,
+            isFinishedUploading: false,
+            isPickingSkill: false,
         }
     }
 
@@ -72,8 +124,17 @@ export default class RecordReflection extends Component {
 
 
         this.setState({
-            dialogVisible: false
+            dialogVisible: false,
+            isUploading: true
         })
+
+        this.props.navigation.setOptions({
+            headerShown: false
+        });
+
+
+
+
         var items
         var array = []
         var skillSelection = this.state.skillSelection
@@ -82,6 +143,10 @@ export default class RecordReflection extends Component {
             array.push(skillSelection[j][0])
             j++
         }
+
+        console.log(array)
+
+
         var date = format(new Date(), "dd-MM-yyyy-kk:mm:ss");
         var uid = firebase.auth().currentUser.uid;
 
@@ -90,18 +155,18 @@ export default class RecordReflection extends Component {
         let userDoc = firebase.firestore().collection("Users").doc(uid)
         var lastDate
         var concurrentDays
-        let getUserDoc = await userDoc.get().then(doc=>{
-            lastDate=doc.data().lastDate,
-            concurrentDays=doc.data().ConsecutiveDays,
-            console.log(doc.data().ConsecutiveDays)
+        let getUserDoc = await userDoc.get().then(doc => {
+            lastDate = doc.data().lastDate,
+                concurrentDays = doc.data().ConsecutiveDays,
+                console.log(doc.data().ConsecutiveDays)
         })
-        console.log("Concurrent days: "+JSON.stringify(concurrentDays))
-        if(lastDate!=date.slice(0,10)){
+        console.log("Concurrent days: " + JSON.stringify(concurrentDays))
+        if (lastDate != date.slice(0, 10)) {
             concurrentDays++
             await userDoc.set({
-                lastDate:date.slice(0,10),
-                ConsecutiveDays:concurrentDays
-            },{merge:true})
+                lastDate: date.slice(0, 10),
+                ConsecutiveDays: concurrentDays
+            }, { merge: true })
         }
 
 
@@ -134,20 +199,20 @@ export default class RecordReflection extends Component {
 
 
         var colourArray = [0, 0, 0]
-        var reflectionStatArray = [0,0,0]
+        var reflectionStatArray = [0, 0, 0]
         var i = 0;
         var intval
         while (i < array.length) {
             intval = parseInt(array[i])
-            if (intval < 5)  {
+            if (intval < 5) {
                 colourArray[0]++
-                reflectionStatArray[0]=1
+                reflectionStatArray[0] = 1
             } else if (intval >= 5 && intval <= 9) {
                 colourArray[1]++
-                reflectionStatArray[1]=1
+                reflectionStatArray[1] = 1
             } else {
                 colourArray[2]++
-                reflectionStatArray[2]=1
+                reflectionStatArray[2] = 1
             }
             i++;
         }
@@ -186,38 +251,38 @@ export default class RecordReflection extends Component {
         }
 
 
-        
+
         let badgesRef = firebase.firestore().collection("BadgeProgress").doc(uid)
         var highScoreConsec
         var highScoreInnov
         var highScoreSelfM
         var highScoreSocial
-        await badgesRef.get().then(doc=>{
+        await badgesRef.get().then(doc => {
             highScoreConsec = doc.data().Consistency;
             highScoreInnov = doc.data().Innovation;
             highScoreSelfM = doc.data().SelfManagement;
             highScoreSocial = doc.data().SocialAwareness;
         })
 
-        if(colourArray[0]>=1){
-            highScoreSelfM ++;
+        if (colourArray[0] >= 1) {
+            highScoreSelfM++;
         }
-        if(colourArray[1]>=1){
-            highScoreSocial ++;
+        if (colourArray[1] >= 1) {
+            highScoreSocial++;
         }
-        if(colourArray[2]>=1){
-            highScoreInnov ++;
+        if (colourArray[2] >= 1) {
+            highScoreInnov++;
         }
 
-        if(concurrentDays>highScoreConsec){
-            highScoreConsec=concurrentDays
+        if (concurrentDays > highScoreConsec) {
+            highScoreConsec = concurrentDays
         }
 
         badgesRef.set({
-            Consistency : highScoreConsec,
-            Innovation : highScoreInnov,
-            SelfManagement : highScoreSelfM,
-            SocialAwareness : highScoreSocial
+            Consistency: highScoreConsec,
+            Innovation: highScoreInnov,
+            SelfManagement: highScoreSelfM,
+            SocialAwareness: highScoreSocial
         })
 
 
@@ -258,7 +323,7 @@ export default class RecordReflection extends Component {
                     statArray: statArray,
                     reflectionStatArray: reflectionStatArray
                 })
-            }else{
+            } else {
                 statArrayFromFirebase = docSnapshot.data().statArray
                 reflectionStatArrayFromFirebase = docSnapshot.data().reflectionStatArray
                 index = 0
@@ -268,7 +333,7 @@ export default class RecordReflection extends Component {
                 }
                 let newRefStatArray = reflectionStatArray.map(function (value, index) {
                     return value + reflectionStatArrayFromFirebase[index];
-                  })
+                })
                 statRef.set({
                     date: formatWeekStart,
                     statArray: statArrayFromFirebase,
@@ -288,7 +353,12 @@ export default class RecordReflection extends Component {
             title: this.state.title
         })
 
-        
+        this.setState({
+            isFinishedUploading: true
+        })
+        setTimeout(() => {
+            this.props.navigation.navigate("Home");
+        }, 3000);
     }
 
 
@@ -452,7 +522,11 @@ export default class RecordReflection extends Component {
         }
     }
 
-
+    handlePickSkills = () =>{
+        this.setState({
+            isPickingSkill:true
+        })
+    }
 
     componentDidMount = () => {
         this.props.navigation.setOptions({
@@ -471,16 +545,32 @@ export default class RecordReflection extends Component {
         let minutes = ("0" + (Math.floor(timerTime / 60000) % 60)).slice(-2);
         let hours = ("0" + Math.floor(timerTime / 3600000)).slice(-2);
         return (
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <View style={styles.container}>
-                    <Text style={styles.titleText}>
-                        Time for recording a reflection on a meta-skill!
-                        </Text>
-                    <Text style={styles.headingText}>
-                        What meta skills have you developed recently?
-                        </Text>
-                    <SearchableDropdown
-                        onTextChange={text => console.log("text")}
+            <View style={{ flex: 6 }}>
+                {this.state.isUploading ?
+                    <View style={{ flex: 6 }}>
+                        {this.state.isFinishedUploading ?
+                            <AntDesign name="checkcircleo" size={34} color="green" /> :
+                            <ActivityIndicator size="large" color="blue" />
+                        }
+                    </View>
+                    :
+                    <View style={{ flex: 6 }}>
+                        {this.state.isPickingSkill ?
+                            <View style={{ flex: 6 }}>
+                                <ScrollView>
+                                    {this.state.skills.map((item)=>(
+                                        <TouchableOpacity style={this.state.buttonColours[item[0]]}>
+                                            <Text style={{color:this.state.buttonTextColour[item[0]]}} key={item[0]}>{item[1]}</Text>
+                                        </TouchableOpacity>
+                                    ))
+                                    }
+                                </ScrollView>
+                            </View> :
+                            <View style={{ flex: 6 }}>
+                                <View style={{ flex: 2 }}>
+                                    <Button title="Pick skills" onPress={() => this.handlePickSkills()} />
+                                    {/* <SearchableDropdown
+                            onTextChange={text => console.log("text")}
                         //On text change listner on the searchable input
                         onItemSelect={item => this.handleItemPress(item)}
                         //onItemSelect called after the selection from the dropdown
@@ -519,41 +609,49 @@ export default class RecordReflection extends Component {
                         resetValue={false}
                         //reset textInput Value with true and false state
                         underlineColorAndroid="transparent"
-                    //To remove the underline from the android input
-                    />
-                    <ScrollView horizontal>
-                        {this.state.skillSelection.map((item) => (
-                            <Text key={item[0]}>{item[1]}   </Text>
-                        ))
+                        //To remove the underline from the android input
+                        /> */}
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <ScrollView horizontal>
+                                        {this.state.skillSelection.map((item) => (
+                                            <Text key={item[0]}>{item[1]}   </Text>
+                                        ))
+                                        }
+                                    </ScrollView>
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Entypo name="mic" size={72} color={this.state.micColour} style={{ alignSelf: 'center' }} onPress={() => this.handleRecordingPress()} />
+                                    <View>
+                                        <Text style={{ alignSelf: 'center' }}>{hours} : {minutes} : {seconds} : {centiseconds}</Text>
+                                    </View>
+                                    {this.state.isPlaybackAvailable ? <AntDesign name={this.state.playPause} size={52} color="black" style={{ alignSelf: 'center' }} onPress={() => this.handlePlayPause()} /> : null}
+                                </View>
+                                <View style={{ flex: 2 }}>
+                                    <TextInput
+                                        style={styles.textInput}
+                                        placeholder="Enter your reflections here"
+                                        onChangeText={textEntry => this.setState({ textEntry })}
+                                        value={this.state.textEntry}
+                                        multiline={true}
+                                    />
+                                </View>
+
+                                <Dialog.Container visible={this.state.dialogVisible}>
+                                    <Dialog.Title>Enter a title for your reflection!</Dialog.Title>
+                                    <Dialog.Input
+                                        label="Title"
+                                        onChangeText={title => this.setState({ title: title })}
+                                    ></Dialog.Input>
+                                    <Dialog.Button label="Cancel" onPress={() => this.setState({ dialogVisible: false })} />
+                                    <Dialog.Button label="Save" onPress={() => this.handleSubmit()}
+                                    />
+                                </Dialog.Container>
+                            </View>
                         }
-                    </ScrollView>
-
-
-                    <Entypo name="mic" size={72} color={this.state.micColour} style={{ alignSelf: 'center' }} onPress={() => this.handleRecordingPress()} />
-                    <View>
-                        <Text style={{ alignSelf: 'center' }}>{hours} : {minutes} : {seconds} : {centiseconds}</Text>
                     </View>
-                    {this.state.isPlaybackAvailable ? <AntDesign name={this.state.playPause} size={52} color="black" style={{ alignSelf: 'center' }} onPress={() => this.handlePlayPause()} /> : null}
 
-
-                    <TextInput
-                        style={styles.textInput}
-                        placeholder="Enter your reflections here"
-                        onChangeText={textEntry => this.setState({ textEntry })}
-                        value={this.state.textEntry}
-                    />
-                    <Dialog.Container visible={this.state.dialogVisible}>
-                        <Dialog.Title>Enter a title for your reflection!</Dialog.Title>
-                        <Dialog.Input
-                            label="Title"
-                            onChangeText={title => this.setState({ title: title })}
-                        ></Dialog.Input>
-                        <Dialog.Button label="Cancel" onPress={() => this.setState({ dialogVisible: false })} />
-                        <Dialog.Button label="Save" onPress={() => this.handleSubmit()}
-                        />
-                    </Dialog.Container>
-
-                </View>
+                }
             </View>
         );
     };
@@ -564,11 +662,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'white',
-        padding: 10,
-    },
-    getsmall: {
-        flex: 0.5,
-
     },
     getbig: {
         flex: 2
@@ -607,5 +700,25 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 32,
     },
-
+    blueButton: {
+        backgroundColor: "#4677D6",
+        padding: 20,
+        borderRadius: 10,
+        paddingHorizontal: 30,
+        margin: 40
+      },
+      redButton: {
+        backgroundColor: "#FF5D60",
+        padding: 20,
+        borderRadius: 4,
+        margin: 40,
+        paddingHorizontal:30
+      },
+      yellowButton: {
+        backgroundColor: "#FFC530",
+        padding: 20,
+        borderRadius: 4,
+        margin: 40,
+        paddingHorizontal: 60
+      },
 });
