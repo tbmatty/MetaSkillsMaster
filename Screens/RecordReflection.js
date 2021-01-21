@@ -1,6 +1,6 @@
 import React, { Component, useState } from 'react';
 import { render } from 'react-dom';
-import { View, Text, Button, SafeAreaView, StyleSheet, ScrollView, List, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, Button, SafeAreaView, StyleSheet, ScrollView, List, ActivityIndicator, TouchableOpacity, BackHandler } from 'react-native';
 import * as firebase from "firebase";
 import { TextInput } from 'react-native-gesture-handler';
 import { format, startOfWeek } from 'date-fns';
@@ -61,6 +61,22 @@ export default class RecordReflection extends Component {
             ["13", "Sense Making"],
             ["14", "Critical Thinking"]
             ],
+            cancelSkills: [["0", "Self Management"],
+            ["1", "Focussing"],
+            ["2", "Integrity"],
+            ["3", "Adapting"],
+            ["4", "Initiative"],
+            ["5", "Social Intelligence"],
+            ["6", "Communicating"],
+            ["7", "Feeling"],
+            ["8", "Collaborating"],
+            ["9", "Leading"],
+            ["10", "Innovation"],
+            ["11", "Curiosity"],
+            ["12", "Creativity"],
+            ["13", "Sense Making"],
+            ["14", "Critical Thinking"]
+            ],
             buttonColours: {
                 "0": styles.blueButton,
                 "1": styles.blueButton,
@@ -78,7 +94,24 @@ export default class RecordReflection extends Component {
                 "13": styles.yellowButton,
                 "14": styles.yellowButton
             },
-            buttonTextColour:{
+            tagColours: {
+                "0": styles.blueTag,
+                "1": styles.blueTag,
+                "2": styles.blueTag,
+                "3": styles.blueTag,
+                "4": styles.blueTag,
+                "5": styles.redTag,
+                "6": styles.redTag,
+                "7": styles.redTag,
+                "8": styles.redTag,
+                "9": styles.redTag,
+                "10": styles.yellowTag,
+                "11": styles.yellowTag,
+                "12": styles.yellowTag,
+                "13": styles.yellowTag,
+                "14": styles.yellowTag
+            },
+            buttonTextColour: {
                 "0": "white",
                 "1": "white",
                 "2": "white",
@@ -522,11 +555,79 @@ export default class RecordReflection extends Component {
         }
     }
 
-    handlePickSkills = () =>{
+    handlePickSkills = () => {
         this.setState({
-            isPickingSkill:true
+            isPickingSkill: true
+        })
+        this.props.navigation.setOptions({
+            headerShown: false
+        });
+
+    }
+
+    handleSkillPicked = (item) => {
+        var skillsAlreadyPicked = this.state.skillSelection
+        if (skillsAlreadyPicked[0][0] == "-1") {
+            this.setState({
+                skillSelection: [item]
+            })
+        } else {
+            skillsAlreadyPicked.push(item)
+            this.setState({
+                skillSelection: skillsAlreadyPicked
+            })
+        }
+        var removeFromSkillList = this.state.skills
+        for (var i = 0; i < removeFromSkillList.length; i++) {
+            if (removeFromSkillList[i][0] === item[0]) {
+                removeFromSkillList.splice(i, 1);
+            }
+        }
+        this.props.navigation.setOptions({
+            headerShown: true
+        });
+        this.setState({
+            skills: removeFromSkillList,
+            cancelSkills: this.state.cancelSkills,
+            isPickingSkill: false
         })
     }
+
+    saveSkillPicks = () => {
+        this.setState({
+            isPickingSkill: false
+        })
+        this.props.navigation.setOptions({
+            headerShown: true
+        });
+
+    }
+
+    clearSkillPicks = () => {
+        console.log(this.state.skills)
+        var skillsCancelled = [["0", "Self Management"],
+        ["1", "Focussing"],
+        ["2", "Integrity"],
+        ["3", "Adapting"],
+        ["4", "Initiative"],
+        ["5", "Social Intelligence"],
+        ["6", "Communicating"],
+        ["7", "Feeling"],
+        ["8", "Collaborating"],
+        ["9", "Leading"],
+        ["10", "Innovation"],
+        ["11", "Curiosity"],
+        ["12", "Creativity"],
+        ["13", "Sense Making"],
+        ["14", "Critical Thinking"]
+        ]
+        this.setState({
+            skills: skillsCancelled,
+            skillSelection: [["-1", "..."]],
+        })
+    }
+
+
 
     componentDidMount = () => {
         this.props.navigation.setOptions({
@@ -557,83 +658,68 @@ export default class RecordReflection extends Component {
                     <View style={{ flex: 6 }}>
                         {this.state.isPickingSkill ?
                             <View style={{ flex: 6 }}>
-                                <ScrollView>
-                                    {this.state.skills.map((item)=>(
-                                        <TouchableOpacity style={this.state.buttonColours[item[0]]}>
-                                            <Text style={{color:this.state.buttonTextColour[item[0]]}} key={item[0]}>{item[1]}</Text>
-                                        </TouchableOpacity>
-                                    ))
-                                    }
-                                </ScrollView>
+                                <View style={{ flex: 1, paddingVertical: 20 }}>
+                                    <View style={{ flexDirection: 'row', flex: 2 }}>
+                                        <View style={{ flex: 1 }}>
+                                            <TouchableOpacity style={styles.greyButton} onPress={() => this.saveSkillPicks()}>
+                                                <Text style={{ color: "black" }}>Back</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <TouchableOpacity style={styles.greyButton} onPress={() => this.clearSkillPicks()}>
+                                                <Text style={{ color: "black" }}>Clear</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </View>
+                                <View style={{ flex: 5 }}>
+                                    <ScrollView>
+                                        {this.state.skills.map((item) => (
+                                            <TouchableOpacity key={item[0]} style={this.state.buttonColours[item[0]]} onPress={() => this.handleSkillPicked(item)}>
+                                                <Text style={{ color: this.state.buttonTextColour[item[0]] }}>{item[1]}</Text>
+                                            </TouchableOpacity>
+                                        ))
+                                        }
+
+                                    </ScrollView>
+                                </View>
                             </View> :
                             <View style={{ flex: 6 }}>
-                                <View style={{ flex: 2 }}>
-                                    <Button title="Pick skills" onPress={() => this.handlePickSkills()} />
-                                    {/* <SearchableDropdown
-                            onTextChange={text => console.log("text")}
-                        //On text change listner on the searchable input
-                        onItemSelect={item => this.handleItemPress(item)}
-                        //onItemSelect called after the selection from the dropdown
-                        containerStyle={{ padding: 5 }}
-                        //suggestion container style
-                        textInputStyle={{
-                            //inserted text style
-                            padding: 12,
-                            borderWidth: 1,
-                            borderColor: '#ccc',
-                            backgroundColor: '#FAF7F6',
-                        }}
-                        itemStyle={{
-                            //single dropdown item style
-                            padding: 10,
-                            marginTop: 2,
-                            backgroundColor: '#FAF9F8',
-                            borderColor: '#bbb',
-                            borderWidth: 1,
-                        }}
-                        itemTextStyle={{
-                            //text style of a single dropdown item
-                            color: '#222',
-                        }}
-                        itemsContainerStyle={{
-                            //items container style you can pass maxHeight
-                            //to restrict the items dropdown hieght
-                            maxHeight: '60%',
-                        }}
-                        items={this.state.items}
-                        //mapping of item array
-                        defaultIndex={2}
-                        //default selected item index
-                        placeholder="placeholder"
-                        //place holder for the search input
-                        resetValue={false}
-                        //reset textInput Value with true and false state
-                        underlineColorAndroid="transparent"
-                        //To remove the underline from the android input
-                        /> */}
-                                </View>
                                 <View style={{ flex: 1 }}>
                                     <ScrollView horizontal>
                                         {this.state.skillSelection.map((item) => (
-                                            <Text key={item[0]}>{item[1]}   </Text>
+                                            <TouchableOpacity key={item[0]} style={this.state.tagColours[item[0]]}>
+                                                <Text style={{ color: this.state.buttonTextColour[item[0]] }} >{item[1]}</Text>
+                                            </TouchableOpacity>
                                         ))
                                         }
                                     </ScrollView>
                                 </View>
-                                <View style={{ flex: 1 }}>
+                                <View style={{ flex: 1, backgroundColor: "red" }}>
+                                    <TouchableOpacity style={styles.greyButton} onPress={()=>this.handlePickSkills()}>
+                                        <Text>Add Skills</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                
+                                <View style={{ flex: 1, backgroundColor: "yellow" }}>
                                     <Entypo name="mic" size={72} color={this.state.micColour} style={{ alignSelf: 'center' }} onPress={() => this.handleRecordingPress()} />
                                     <View>
                                         <Text style={{ alignSelf: 'center' }}>{hours} : {minutes} : {seconds} : {centiseconds}</Text>
                                     </View>
                                     {this.state.isPlaybackAvailable ? <AntDesign name={this.state.playPause} size={52} color="black" style={{ alignSelf: 'center' }} onPress={() => this.handlePlayPause()} /> : null}
                                 </View>
-                                <View style={{ flex: 2 }}>
+                                <View style={{ flex: 3, backgroundColor: "purple" }}>
                                     <TextInput
                                         style={styles.textInput}
                                         placeholder="Enter your reflections here"
                                         onChangeText={textEntry => this.setState({ textEntry })}
                                         value={this.state.textEntry}
                                         multiline={true}
+                                        onFocus={()=>console.log("Foc")}
+                                        blurOnSubmit={true}
+                                        onBlur={(event)=>console.log(event)}
+                                        onSubmitEditing={()=>console.log("submit")}
+                                        returnKeyType="done"
                                     />
                                 </View>
 
@@ -686,7 +772,7 @@ const styles = StyleSheet.create({
     textInput: {
         flex: 2,
         height: 40,
-        borderColor: 'gray',
+        borderColor: 'white',
         borderWidth: 1,
         padding: 8,
         marginTop: 18
@@ -706,19 +792,43 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingHorizontal: 30,
         margin: 40
-      },
-      redButton: {
+    },
+    redButton: {
         backgroundColor: "#FF5D60",
         padding: 20,
         borderRadius: 4,
         margin: 40,
-        paddingHorizontal:30
-      },
-      yellowButton: {
+        paddingHorizontal: 30
+    },
+    yellowButton: {
         backgroundColor: "#FFC530",
         padding: 20,
         borderRadius: 4,
         margin: 40,
         paddingHorizontal: 60
-      },
+    },
+    greyButton: {
+        backgroundColor: "white",
+        padding: 20,
+        borderRadius: 4,
+        margin: 40,
+    },
+    redTag: {
+        backgroundColor: "#FF5D60",
+        padding: 20,
+        borderRadius: 4,
+        margin: 20
+    },
+    yellowTag: {
+        backgroundColor: "#FFC530",
+        padding: 20,
+        borderRadius: 4,
+        margin: 20,
+    },
+    blueTag: {
+        backgroundColor: "#4677D6",
+        padding: 20,
+        borderRadius: 4,
+        margin: 20,
+    },
 });
