@@ -1,6 +1,6 @@
-import React, { Component, useState } from 'react';
+import React, { useState, useEffect, useFocusEffect, useCallback } from 'react';
 import { render } from 'react-dom';
-import { View, Text, Button, SafeAreaView, StyleSheet, ScrollView, List, ActivityIndicator, TouchableOpacity, BackHandler } from 'react-native';
+import { View, Text, Button, Alert, StyleSheet, ScrollView, List, ActivityIndicator, TouchableOpacity, BackHandler, Keyboard } from 'react-native';
 import * as firebase from "firebase";
 import { TextInput } from 'react-native-gesture-handler';
 import { format, startOfWeek } from 'date-fns';
@@ -16,152 +16,142 @@ import Dialog from "react-native-dialog";
 //      -CSS (Improvements always available, currently bearable)
 
 
-export default class RecordReflection extends Component {
+export default function RecordReflection(props) {
+
+    const [textEntry, setTextEntry] = useState('');
+    const [val, setVal] = useState('')
+    const [items, setItems] = useState([
+        { "id": "0", "name": "Self Management" },
+        { "id": "1", "name": "Focussing" },
+        { "id": "2", "name": "Integrity" },
+        { "id": "3", "name": "Adapting" },
+        { "id": "4", "name": "Initiative" },
+
+        { "id": "5", "name": "Social Intelligence" },
+        { "id": "6", "name": "Communicating" },
+        { "id": "7", "name": "Feeling" },
+        { "id": "8", "name": "Collaborating" },
+        { "id": "9", "name": "Leading" },
+
+        { "id": "10", "name": "Innovation" },
+        { "id": "11", "name": "Curiosity" },
+        { "id": "12", "name": "Creativity" },
+        { "id": "13", "name": "Sense Making" },
+        { "id": "14", "name": "Critical Thinking" },
+    ])
+    const [skills, setSkills] = useState([["0", "Self Management"],
+    ["1", "Focussing"],
+    ["2", "Integrity"],
+    ["3", "Adapting"],
+    ["4", "Initiative"],
+    ["5", "Social Intelligence"],
+    ["6", "Communicating"],
+    ["7", "Feeling"],
+    ["8", "Collaborating"],
+    ["9", "Leading"],
+    ["10", "Innovation"],
+    ["11", "Curiosity"],
+    ["12", "Creativity"],
+    ["13", "Sense Making"],
+    ["14", "Critical Thinking"]
+    ])
+    const [cancelSkills, setCancelSkills] = useState([["0", "Self Management"],
+    ["1", "Focussing"],
+    ["2", "Integrity"],
+    ["3", "Adapting"],
+    ["4", "Initiative"],
+    ["5", "Social Intelligence"],
+    ["6", "Communicating"],
+    ["7", "Feeling"],
+    ["8", "Collaborating"],
+    ["9", "Leading"],
+    ["10", "Innovation"],
+    ["11", "Curiosity"],
+    ["12", "Creativity"],
+    ["13", "Sense Making"],
+    ["14", "Critical Thinking"]
+    ])
+    const [buttonColours, setButtonColours] = useState({
+        "0": styles.blueButton,
+        "1": styles.blueButton,
+        "2": styles.blueButton,
+        "3": styles.blueButton,
+        "4": styles.blueButton,
+        "5": styles.redButton,
+        "6": styles.redButton,
+        "7": styles.redButton,
+        "8": styles.redButton,
+        "9": styles.redButton,
+        "10": styles.yellowButton,
+        "11": styles.yellowButton,
+        "12": styles.yellowButton,
+        "13": styles.yellowButton,
+        "14": styles.yellowButton
+    })
+    const [tagColours, setTagColour] = useState({
+        "0": styles.blueTag,
+        "1": styles.blueTag,
+        "2": styles.blueTag,
+        "3": styles.blueTag,
+        "4": styles.blueTag,
+        "5": styles.redTag,
+        "6": styles.redTag,
+        "7": styles.redTag,
+        "8": styles.redTag,
+        "9": styles.redTag,
+        "10": styles.yellowTag,
+        "11": styles.yellowTag,
+        "12": styles.yellowTag,
+        "13": styles.yellowTag,
+        "14": styles.yellowTag
+    })
+    const [buttonTextColour, setButtonTextColour] = useState({
+        "0": "white",
+        "1": "white",
+        "2": "white",
+        "3": "white",
+        "4": "white",
+        "5": "white",
+        "6": "white",
+        "7": "white",
+        "8": "white",
+        "9": "white",
+        "10": "black",
+        "11": "black",
+        "12": "black",
+        "13": "black",
+        "14": "black"
+    })
+    const [skillSelection, setSkillSelection] = useState([["-1", "..."]])
+    const [uploadURI, setUploadURI] = useState('')
+    const [isRecording, setIsRecording] = useState(false)
+    const [timerOn, setTimerOn] = useState(false)
+    const [timerStart, setTimerStart] = useState(0)
+    const [timerTime, setTimerTime] = useState(0)
+    const [micColour, setMicColour] = useState('grey')
+    const [playPause, setPlayPause] = useState("playcircleo")
+    const [isPlaybackAvailable, setIsPlaybackAvailable] = useState(false)
+    const [recordingURI, setRecordingURI] = useState('')
+    const [dialogVisible, setDialogVisible] = useState(false)
+    const [title, setTitle] = useState('')
+    const [isLoaded, setIsLoaded] = useState(false)
+    const [isPlaying, setIsPlaying] = useState(false)
+    const [isUploading, setIsUploading] = useState(false)
+    const [isFinishedUploading, setIsFinishedUploading] = useState(false)
+    const [isPickingSkill, setIsPickingSkill] = useState(false)
+    const [userIsTyping, setUserIsTyping] = useState(false)
+    const [recording, setRecording] = useState()
+    //let recording = new Audio.Recording()
 
 
-    constructor(props) {
-        super(props);
+    const handleSubmit = async () => {
+        // console.log(skillSelection)
 
-        this.state = {
-
-            textEntry: '',
-            val: '',
-            items: [
-                { "id": "0", "name": "Self Management" },
-                { "id": "1", "name": "Focussing" },
-                { "id": "2", "name": "Integrity" },
-                { "id": "3", "name": "Adapting" },
-                { "id": "4", "name": "Initiative" },
-
-                { "id": "5", "name": "Social Intelligence" },
-                { "id": "6", "name": "Communicating" },
-                { "id": "7", "name": "Feeling" },
-                { "id": "8", "name": "Collaborating" },
-                { "id": "9", "name": "Leading" },
-
-                { "id": "10", "name": "Innovation" },
-                { "id": "11", "name": "Curiosity" },
-                { "id": "12", "name": "Creativity" },
-                { "id": "13", "name": "Sense Making" },
-                { "id": "14", "name": "Critical Thinking" },
-            ],
-            skills: [["0", "Self Management"],
-            ["1", "Focussing"],
-            ["2", "Integrity"],
-            ["3", "Adapting"],
-            ["4", "Initiative"],
-            ["5", "Social Intelligence"],
-            ["6", "Communicating"],
-            ["7", "Feeling"],
-            ["8", "Collaborating"],
-            ["9", "Leading"],
-            ["10", "Innovation"],
-            ["11", "Curiosity"],
-            ["12", "Creativity"],
-            ["13", "Sense Making"],
-            ["14", "Critical Thinking"]
-            ],
-            cancelSkills: [["0", "Self Management"],
-            ["1", "Focussing"],
-            ["2", "Integrity"],
-            ["3", "Adapting"],
-            ["4", "Initiative"],
-            ["5", "Social Intelligence"],
-            ["6", "Communicating"],
-            ["7", "Feeling"],
-            ["8", "Collaborating"],
-            ["9", "Leading"],
-            ["10", "Innovation"],
-            ["11", "Curiosity"],
-            ["12", "Creativity"],
-            ["13", "Sense Making"],
-            ["14", "Critical Thinking"]
-            ],
-            buttonColours: {
-                "0": styles.blueButton,
-                "1": styles.blueButton,
-                "2": styles.blueButton,
-                "3": styles.blueButton,
-                "4": styles.blueButton,
-                "5": styles.redButton,
-                "6": styles.redButton,
-                "7": styles.redButton,
-                "8": styles.redButton,
-                "9": styles.redButton,
-                "10": styles.yellowButton,
-                "11": styles.yellowButton,
-                "12": styles.yellowButton,
-                "13": styles.yellowButton,
-                "14": styles.yellowButton
-            },
-            tagColours: {
-                "0": styles.blueTag,
-                "1": styles.blueTag,
-                "2": styles.blueTag,
-                "3": styles.blueTag,
-                "4": styles.blueTag,
-                "5": styles.redTag,
-                "6": styles.redTag,
-                "7": styles.redTag,
-                "8": styles.redTag,
-                "9": styles.redTag,
-                "10": styles.yellowTag,
-                "11": styles.yellowTag,
-                "12": styles.yellowTag,
-                "13": styles.yellowTag,
-                "14": styles.yellowTag
-            },
-            buttonTextColour: {
-                "0": "white",
-                "1": "white",
-                "2": "white",
-                "3": "white",
-                "4": "white",
-                "5": "white",
-                "6": "white",
-                "7": "white",
-                "8": "white",
-                "9": "white",
-                "10": "black",
-                "11": "black",
-                "12": "black",
-                "13": "black",
-                "14": "black"
-            },
-            skillSelection: [["-1", "..."]],
-            uploadURI: '',
-            isRecording: false,
-            timerOn: false,
-            timerStart: 0,
-            timerTime: 0,
-            micColour: 'grey',
-            playPause: "playcircleo", // or 'pause'
-            isPlaybackAvailable: false,
-            recordingURI: '',
-            dialogVisible: false,
-            title: '',
-            isLoaded: false,
-            isPlaying: false,
-            isUploading: false,
-            isFinishedUploading: false,
-            isPickingSkill: false,
-        }
-    }
+        setDialogVisible(false);
+        setIsUploading(true);
 
 
-    recording = null
-
-
-    handleSubmit = async () => {
-        // console.log(this.state.skillSelection)
-
-
-        this.setState({
-            dialogVisible: false,
-            isUploading: true
-        })
-
-        this.props.navigation.setOptions({
+        props.navigation.setOptions({
             headerShown: false
         });
 
@@ -170,10 +160,10 @@ export default class RecordReflection extends Component {
 
         var items
         var array = []
-        var skillSelection = this.state.skillSelection
+        var skillsSelected = skillSelection
         var j = 0;
-        while (j < skillSelection.length) {
-            array.push(skillSelection[j][0])
+        while (j < skillsSelected.length) {
+            array.push(skillsSelected[j][0])
             j++
         }
 
@@ -204,11 +194,8 @@ export default class RecordReflection extends Component {
 
 
 
-        const uri = this.recording.getURI();
-        this.setState({
-            recordingURI: uri
-        })
-        const response = await fetch(uri);
+
+        const response = await fetch(recordingURI);
         const blob = await response.blob();
         const reader = new FileReader();
         reader.readAsDataURL(blob);
@@ -223,12 +210,10 @@ export default class RecordReflection extends Component {
             console.log("U CANT EVEN FINISH IT");
         });
 
-        await dateRef.getDownloadURL().then((url) => this.setState({
-            uploadURI: url,
-        }))
+        await dateRef.getDownloadURL().then((url) => setUploadURI(url))
 
 
-        console.log(this.state.uploadURI)
+        console.log(uploadURI)
 
 
         var colourArray = [0, 0, 0]
@@ -377,34 +362,33 @@ export default class RecordReflection extends Component {
 
 
         let setVal = await firebase.firestore().collection("Recordings").doc(uid).collection("Recordings").doc(JSON.stringify(date)).set({
-            textEntry: this.state.textEntry,
+            textEntry: textEntry,
             categories: array,
             date: JSON.stringify(date),
-            uri: this.state.uploadURI,
+            uri: recordingURI,
             colour: colour,
             textColour: textColour,
-            title: this.state.title
+            title: title
         })
 
-        this.setState({
-            isFinishedUploading: true
-        })
+
+        setIsFinishedUploading(true)
+
         setTimeout(() => {
-            this.props.navigation.navigate("Home");
-        }, 3000);
+            props.navigation.navigate("Home");
+        }, 1500);
     }
 
-
-    handleItemPress = (item) => {
+    const handleItemPress = (item) => {
         console.log(item)
 
-        const copyDict = { ... this.state.items }
+        const copyDict = { ...items }
         delete copyDict[item.id]
 
         var i;
 
-        for (i = 0; i < this.state.skillSelection.length; i++) {
-            if (item.id == this.state.skillSelection[i][0]) {
+        for (i = 0; i < skillSelection.length; i++) {
+            if (item.id == skillSelection[i][0]) {
                 console.log("hello")
                 alert("You have already included this ")
                 return
@@ -414,81 +398,93 @@ export default class RecordReflection extends Component {
 
 
 
-        var check = this.state.skillSelection[0][0]
+        var check = skillSelection[0][0]
         if (check == "-1") {
             console.log("only once")
-            this.setState({
-                skillSelection: [[item.id, item.name]]
-            })
+            setSkillSelection([[item.id, item.name]])
         } else {
-            var array = this.state.skillSelection
+            var array = skillSelection
             array.push([item.id, item.name])
             // console.log(nuArray)
-            this.setState({
-                skillSelection: array
-            })
+            setSkillSelection(array)
         }
-        console.log(this.state.skillSelection);
+        console.log(skillSelection);
     }
 
-    handleRecordingPress = async () => {
+    const handleRecordingPress = async () => {
         console.log("Registering")
-        if (this.state.isRecording === false) {
-            this.recording = null
-            this.setState({
-                isRecording: true,
-                isPlaybackAvailable: false,
-                micColour: 'red'
-            })
-            this.requestio();
+        if (isRecording === false) {
+            //setRecording(null)
+            setIsRecording(true);
+            setIsPlaybackAvailable(false);
+            setMicColour('red');
+            requestio();
         } else {
-            this.setState({
-                isRecording: false,
-                isPlaybackAvailable: true,
-                micColour: 'grey'
-            })
-            this.stopRecording();
+            setIsRecording(false);
+            setIsPlaybackAvailable(true);
+            setMicColour('grey');
+            stopRecording();
         }
     }
 
-    requestio = async () => {
-        this.recording = new Audio.Recording()
+    const requestio = async () => {
+        // //setRecording(new Audio.Recording())
+        // var huh = await Audio.requestPermissionsAsync();
+        // const recording = new Audio.Recording()
+        // try {
 
-        var huh = await Audio.requestPermissionsAsync();
-        var hoh = await this.recording.getStatusAsync();
+        //     await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+        //     console.log("HELLO HELLO HELLO HELLO HELLO")
+
+        //     await recording.startAsync();
+        //     setTimerOn(true);
+        //     setTimerTime(0)
+        //     setTimerStart(Date.now())
+
+        //     timer = setInterval(() => {
+        //         setTimerTime(Date.now() - timerStart);
+        //     }, 10);
+        // } catch (error) {
+        // }
         try {
-            await this.recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
-            await this.recording.startAsync();
+            console.log('Requesting permissions..');
+            await Audio.requestPermissionsAsync();
+            await Audio.setAudioModeAsync({
+                allowsRecordingIOS: true,
+                playsInSilentModeIOS: true,
+            });
+            console.log('Starting recording..');
+            const recording = new Audio.Recording();
+            await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+            await recording.startAsync();
+            
+            setTimerOn(true);
+            setTimerTime(0)
+            setTimerStart(Date.now())
 
-            this.setState({
-                timerOn: true,
-                timerTime: 0,
-                timerStart: Date.now()
-            })
-            this.timer = setInterval(() => {
-                this.setState({
-                    timerTime: Date.now() - this.state.timerStart
-                });
+            timer = setInterval(() => {
+                setTimerTime(Date.now() - timerStart);
             }, 10);
-            // You are now recording!
-        } catch (error) {
-            // An error occurred!
+
+            setRecording(recording);
+            console.log('Recording started');
+        } catch (err) {
+            console.error('Failed to start recording', err);
         }
     }
 
-    stopRecording = async () => {
-        await this.recording.stopAndUnloadAsync()
-        this.setState({ timerOn: false, recordingURI: this.recording.getURI() });
-        clearInterval(this.timer);
-        var hah = await this.recording.getStatusAsync()
-        console.log(hah);
+    const stopRecording = async () => {
+        setRecording(undefined)
+        await recording.stopAndUnloadAsync()
+        setTimerOn(false);
+        const uri = recording.getURI()
+        setRecordingURI(uri)
+        clearInterval(timer);
     }
-
-
 
     playbackObject = new Audio.Sound()
 
-    _onPlaybackStatusUpdate = playbackStatus => {
+    const _onPlaybackStatusUpdate = (playbackStatus) => {
         if (!playbackStatus.isLoaded) {
             // Update your UI for the unloaded state
             if (playbackStatus.error) {
@@ -510,101 +506,83 @@ export default class RecordReflection extends Component {
 
             if (playbackStatus.didJustFinish) {
                 // The player has just finished playing and will stop. Maybe you want to play something else?
-                this.playbackObject.unloadAsync()
-                this.setState({
-                    isLoaded: false,
-                    playPause: "playcircleo",
-                    isPlaying: false
-                })
+                playbackObject.unloadAsync()
+                setIsLoaded(false)
+                setPlayPause("playcircleo")
+                setIsPlaying(false)
             }
             // etc
         }
     };
 
-    playRecording = async () => {
-        if (this.state.isLoaded === false) {
-            await this.playbackObject.loadAsync({ uri: this.state.recordingURI }, { shouldPlay: true })
-            this.playbackObject.setOnPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
-            this.setState({
-                isLoaded: true
-            })
+    const playRecording = async () => {
+        if (isLoaded === false) {
+            await playbackObject.loadAsync({ uri: recordingURI }, { shouldPlay: true })
+            playbackObject.setOnPlaybackStatusUpdate(_onPlaybackStatusUpdate);
+            setIsLoaded(true)
         } else {
-            await this.playbackObject.playAsync()
+            await playbackObject.playAsync()
         }
 
     }
 
 
-    pauseRecording = async () => {
-        await this.playbackObject.pauseAsync()
+    const pauseRecording = async () => {
+        await playbackObject.pauseAsync()
     }
 
-    handlePlayPause = (uri) => {
-        if (this.state.isPlaying === false) {
-            this.setState({
-                playPause: "pause",
-                isPlaying: true
-            })
-            this.playRecording(uri)
+    const handlePlayPause = (uri) => {
+        if (isPlaying === false) {
+            setPlayPause("pause")
+            setIsPlaying(true)
+            playRecording(uri)
         } else {
-            this.setState({
-                playPause: "playcircleo",
-                isPlaying: false
-            })
-            this.pauseRecording()
+            setPlayPause("playcircleo")
+            setIsPlaying(false)
+            pauseRecording()
         }
     }
 
-    handlePickSkills = () => {
-        this.setState({
-            isPickingSkill: true
-        })
-        this.props.navigation.setOptions({
+    const handlePickSkills = () => {
+        setIsPickingSkill(true)
+        props.navigation.setOptions({
             headerShown: false
         });
 
     }
 
-    handleSkillPicked = (item) => {
-        var skillsAlreadyPicked = this.state.skillSelection
+    const handleSkillPicked = (item) => {
+        var skillsAlreadyPicked = skillSelection
         if (skillsAlreadyPicked[0][0] == "-1") {
-            this.setState({
-                skillSelection: [item]
-            })
+            setSkillSelection([item])
         } else {
             skillsAlreadyPicked.push(item)
-            this.setState({
-                skillSelection: skillsAlreadyPicked
-            })
+            setSkillSelection(skillsAlreadyPicked)
         }
-        var removeFromSkillList = this.state.skills
+        var removeFromSkillList = skills
         for (var i = 0; i < removeFromSkillList.length; i++) {
             if (removeFromSkillList[i][0] === item[0]) {
                 removeFromSkillList.splice(i, 1);
             }
         }
-        this.props.navigation.setOptions({
+        props.navigation.setOptions({
             headerShown: true
         });
-        this.setState({
-            skills: removeFromSkillList,
-            cancelSkills: this.state.cancelSkills,
-            isPickingSkill: false
-        })
+        setSkills(removeFromSkillList)
+        //set cancelskills to cancelskills ?
+        setIsPickingSkill(false)
     }
 
-    saveSkillPicks = () => {
-        this.setState({
-            isPickingSkill: false
-        })
-        this.props.navigation.setOptions({
+    const saveSkillPicks = () => {
+        setIsPickingSkill(false)
+        props.navigation.setOptions({
             headerShown: true
         });
 
     }
 
-    clearSkillPicks = () => {
-        console.log(this.state.skills)
+    const clearSkillPicks = () => {
+        console.log(skills)
         var skillsCancelled = [["0", "Self Management"],
         ["1", "Focussing"],
         ["2", "Integrity"],
@@ -621,126 +599,166 @@ export default class RecordReflection extends Component {
         ["13", "Sense Making"],
         ["14", "Critical Thinking"]
         ]
-        this.setState({
-            skills: skillsCancelled,
-            skillSelection: [["-1", "..."]],
-        })
+        setSkills(skillsCancelled)
+        setSkillSelection([["-1", "..."]])
     }
 
+    const backAction = () => {
+        Alert.alert("Hold on!", "Are you sure you want to go back?", [
+            {
+                text: "Cancel",
+                onPress: () => null,
+                style: "cancel"
+            },
+            { text: "YES", onPress: () => BackHandler.exitApp() }
+        ]);
+        return true;
+    };
+
+    const handleSave = () => {
+        setDialogVisible(true)
+    }
+
+    const _keyboardDidShow = () => {
+        if (!dialogVisible) {
+            setUserIsTyping(true)
+        }
+    };
+
+    const _keyboardDidHide = () => {
+        if (!dialogVisible) {
+            setUserIsTyping(false)
+        }
+    };
+
+    useEffect(() => {
+        BackHandler.addEventListener("hardwareBackPress", backAction);
+        Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+        Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
 
 
-    componentDidMount = () => {
-        this.props.navigation.setOptions({
+        props.navigation.setOptions({
             headerRight: () => (
-                <TouchableOpacity onPress={() => this.setState({ dialogVisible: true })}>
+                <TouchableOpacity onPress={() => handleSave()}>
                     <AntDesign name="save" size={32} color="black" paddingRight="50" />
                 </TouchableOpacity>),
         })
-    }
 
 
-    render() {
-        const { timerTime } = this.state;
-        let centiseconds = ("0" + (Math.floor(timerTime / 10) % 100)).slice(-2);
-        let seconds = ("0" + (Math.floor(timerTime / 1000) % 60)).slice(-2);
-        let minutes = ("0" + (Math.floor(timerTime / 60000) % 60)).slice(-2);
-        let hours = ("0" + Math.floor(timerTime / 3600000)).slice(-2);
-        return (
-            <View style={{ flex: 6 }}>
-                {this.state.isUploading ?
-                    <View style={{ flex: 6 }}>
-                        {this.state.isFinishedUploading ?
-                            <AntDesign name="checkcircleo" size={34} color="green" /> :
-                            <ActivityIndicator size="large" color="blue" />
-                        }
-                    </View>
-                    :
-                    <View style={{ flex: 6 }}>
-                        {this.state.isPickingSkill ?
-                            <View style={{ flex: 6 }}>
-                                <View style={{ flex: 1, paddingVertical: 20 }}>
-                                    <View style={{ flexDirection: 'row', flex: 2 }}>
-                                        <View style={{ flex: 1 }}>
-                                            <TouchableOpacity style={styles.greyButton} onPress={() => this.saveSkillPicks()}>
-                                                <Text style={{ color: "black" }}>Back</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                        <View style={{ flex: 1 }}>
-                                            <TouchableOpacity style={styles.greyButton} onPress={() => this.clearSkillPicks()}>
-                                                <Text style={{ color: "black" }}>Clear</Text>
-                                            </TouchableOpacity>
-                                        </View>
+        return () =>
+            Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+        Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+        BackHandler.removeEventListener("hardwareBackPress", backAction);
+    }, []);
+
+
+
+
+    let centiseconds = ("0" + (Math.floor(timerTime / 10) % 100)).slice(-2);
+    let seconds = ("0" + (Math.floor(timerTime / 1000) % 60)).slice(-2);
+    let minutes = ("0" + (Math.floor(timerTime / 60000) % 60)).slice(-2);
+    let hours = ("0" + Math.floor(timerTime / 3600000)).slice(-2);
+    return (
+        <View style={{ flex: 6 }}>
+            {isUploading ?
+                <View style={{ flex: 6 }}>
+                    {isFinishedUploading ?
+                        <AntDesign name="checkcircleo" size={34} color="green" /> :
+                        <ActivityIndicator size="large" color="blue" />
+                    }
+                </View>
+                :
+                <View style={{ flex: 6 }}>
+                    {isPickingSkill ?
+                        <View style={{ flex: 6 }}>
+                            <View style={{ flex: 1, paddingVertical: 20 }}>
+                                <View style={{ flexDirection: 'row', flex: 2 }}>
+                                    <View style={{ flex: 1 }}>
+                                        <TouchableOpacity style={styles.greyButton} onPress={() => saveSkillPicks()}>
+                                            <Text style={{ color: "black" }}>Back</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <TouchableOpacity style={styles.greyButton} onPress={() => clearSkillPicks()}>
+                                            <Text style={{ color: "black" }}>Clear</Text>
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
-                                <View style={{ flex: 5 }}>
-                                    <ScrollView>
-                                        {this.state.skills.map((item) => (
-                                            <TouchableOpacity key={item[0]} style={this.state.buttonColours[item[0]]} onPress={() => this.handleSkillPicked(item)}>
-                                                <Text style={{ color: this.state.buttonTextColour[item[0]] }}>{item[1]}</Text>
-                                            </TouchableOpacity>
-                                        ))
-                                        }
-
-                                    </ScrollView>
-                                </View>
-                            </View> :
-                            <View style={{ flex: 6 }}>
-                                <View style={{ flex: 1 }}>
-                                    <ScrollView horizontal>
-                                        {this.state.skillSelection.map((item) => (
-                                            <TouchableOpacity key={item[0]} style={this.state.tagColours[item[0]]}>
-                                                <Text style={{ color: this.state.buttonTextColour[item[0]] }} >{item[1]}</Text>
-                                            </TouchableOpacity>
-                                        ))
-                                        }
-                                    </ScrollView>
-                                </View>
-                                <View style={{ flex: 1, backgroundColor: "red" }}>
-                                    <TouchableOpacity style={styles.greyButton} onPress={()=>this.handlePickSkills()}>
-                                        <Text>Add Skills</Text>
-                                    </TouchableOpacity>
-                                </View>
-                                
-                                <View style={{ flex: 1, backgroundColor: "yellow" }}>
-                                    <Entypo name="mic" size={72} color={this.state.micColour} style={{ alignSelf: 'center' }} onPress={() => this.handleRecordingPress()} />
-                                    <View>
-                                        <Text style={{ alignSelf: 'center' }}>{hours} : {minutes} : {seconds} : {centiseconds}</Text>
-                                    </View>
-                                    {this.state.isPlaybackAvailable ? <AntDesign name={this.state.playPause} size={52} color="black" style={{ alignSelf: 'center' }} onPress={() => this.handlePlayPause()} /> : null}
-                                </View>
-                                <View style={{ flex: 3, backgroundColor: "purple" }}>
-                                    <TextInput
-                                        style={styles.textInput}
-                                        placeholder="Enter your reflections here"
-                                        onChangeText={textEntry => this.setState({ textEntry })}
-                                        value={this.state.textEntry}
-                                        multiline={true}
-                                        onFocus={()=>console.log("Foc")}
-                                        blurOnSubmit={true}
-                                        onBlur={(event)=>console.log(event)}
-                                        onSubmitEditing={()=>console.log("submit")}
-                                        returnKeyType="done"
-                                    />
-                                </View>
-
-                                <Dialog.Container visible={this.state.dialogVisible}>
-                                    <Dialog.Title>Enter a title for your reflection!</Dialog.Title>
-                                    <Dialog.Input
-                                        label="Title"
-                                        onChangeText={title => this.setState({ title: title })}
-                                    ></Dialog.Input>
-                                    <Dialog.Button label="Cancel" onPress={() => this.setState({ dialogVisible: false })} />
-                                    <Dialog.Button label="Save" onPress={() => this.handleSubmit()}
-                                    />
-                                </Dialog.Container>
                             </View>
-                        }
-                    </View>
+                            <View style={{ flex: 5 }}>
+                                <ScrollView>
+                                    {skills.map((item) => (
+                                        <TouchableOpacity key={item[0]} style={buttonColours[item[0]]} onPress={() => handleSkillPicked(item)}>
+                                            <Text style={{ color: buttonTextColour[item[0]] }}>{item[1]}</Text>
+                                        </TouchableOpacity>
+                                    ))
+                                    }
 
-                }
-            </View>
-        );
-    };
+                                </ScrollView>
+                            </View>
+                        </View> :
+                        <View style={{ flex: 6 }}>
+                            {!userIsTyping ?
+                                <View style={{ flex: 3 }}>
+                                    <View style={{ flex: 1 }}>
+                                        <ScrollView horizontal>
+                                            {skillSelection.map((item) => (
+                                                <TouchableOpacity key={item[0]} style={tagColours[item[0]]}>
+                                                    <Text style={{ color: buttonTextColour[item[0]] }} >{item[1]}</Text>
+                                                </TouchableOpacity>
+                                            ))
+                                            }
+                                        </ScrollView>
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <TouchableOpacity style={styles.greyButton} onPress={() => handlePickSkills()}>
+                                            <Text>Add Skills</Text>
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    <View style={{ flex: 1 }}>
+                                        <Entypo name="mic" size={72} color={micColour} style={{ alignSelf: 'center' }} onPress={() => handleRecordingPress()} />
+                                        <View>
+                                            <Text style={{ alignSelf: 'center' }}>{hours} : {minutes} : {seconds} : {centiseconds}</Text>
+                                        </View>
+                                        {isPlaybackAvailable ? <AntDesign name={playPause} size={52} color="black" style={{ alignSelf: 'center' }} onPress={() => handlePlayPause()} /> : null}
+                                    </View>
+
+                                </View>
+                                :
+                                null
+                            }
+                            <View style={{ flex: 3 }}>
+                                <TextInput
+                                    style={styles.textInput}
+                                    placeholder="Enter your reflections here"
+                                    onChangeText={textEntry => setTextEntry(textEntry)}
+                                    value={textEntry}
+                                    multiline={true}
+                                    blurOnSubmit={true}
+                                    returnKeyType="done"
+                                />
+                            </View>
+
+
+
+                            <Dialog.Container visible={dialogVisible}>
+                                <Dialog.Title>Enter a title for your reflection!</Dialog.Title>
+                                <Dialog.Input
+                                    label="Title"
+                                    onChangeText={title => setTitle(title)}
+                                ></Dialog.Input>
+                                <Dialog.Button label="Cancel" onPress={() => setDialogVisible(false)} />
+                                <Dialog.Button label="Save" onPress={() => handleSubmit()}
+                                />
+                            </Dialog.Container>
+                        </View>
+                    }
+                </View>
+
+            }
+        </View>
+    );
 }
 
 
