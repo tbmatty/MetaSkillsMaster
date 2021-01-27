@@ -9,6 +9,7 @@ import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import { Entypo, AntDesign } from '@expo/vector-icons';
 import Dialog from "react-native-dialog";
+import {HeaderBackButton} from '@react-navigation/stack';
 
 // NEEDS:
 //      -Clean Up (Move submit to header top right, save icon)
@@ -141,6 +142,7 @@ export default function RecordReflection(props) {
     const [isPickingSkill, setIsPickingSkill] = useState(false)
     const [userIsTyping, setUserIsTyping] = useState(false)
     const [recording, setRecording] = useState()
+    const [timer, startTimer] = useState()
     //let recording = new Audio.Recording()
 
 
@@ -428,24 +430,6 @@ export default function RecordReflection(props) {
     }
 
     const requestio = async () => {
-        // //setRecording(new Audio.Recording())
-        // var huh = await Audio.requestPermissionsAsync();
-        // const recording = new Audio.Recording()
-        // try {
-
-        //     await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
-        //     console.log("HELLO HELLO HELLO HELLO HELLO")
-
-        //     await recording.startAsync();
-        //     setTimerOn(true);
-        //     setTimerTime(0)
-        //     setTimerStart(Date.now())
-
-        //     timer = setInterval(() => {
-        //         setTimerTime(Date.now() - timerStart);
-        //     }, 10);
-        // } catch (error) {
-        // }
         try {
             console.log('Requesting permissions..');
             await Audio.requestPermissionsAsync();
@@ -459,12 +443,12 @@ export default function RecordReflection(props) {
             await recording.startAsync();
             
             setTimerOn(true);
-            setTimerTime(0)
+            setTimerTime(timerTime)
             setTimerStart(Date.now())
 
-            timer = setInterval(() => {
-                setTimerTime(Date.now() - timerStart);
-            }, 10);
+            // startTimer(setInterval(() => {
+            //     setTimerTime(Date.now() - timerStart);
+            // }, 10)) 
 
             setRecording(recording);
             console.log('Recording started');
@@ -479,7 +463,7 @@ export default function RecordReflection(props) {
         setTimerOn(false);
         const uri = recording.getURI()
         setRecordingURI(uri)
-        clearInterval(timer);
+        // clearInterval(timer);
     }
 
     playbackObject = new Audio.Sound()
@@ -610,7 +594,7 @@ export default function RecordReflection(props) {
                 onPress: () => null,
                 style: "cancel"
             },
-            { text: "YES", onPress: () => BackHandler.exitApp() }
+            { text: "YES", onPress: () => props.navigation.goBack() }
         ]);
         return true;
     };
@@ -642,13 +626,17 @@ export default function RecordReflection(props) {
                 <TouchableOpacity onPress={() => handleSave()}>
                     <AntDesign name="save" size={32} color="black" paddingRight="50" />
                 </TouchableOpacity>),
+            headerLeft: () =>(
+                <HeaderBackButton onPress={()=>backAction()}/>
+            )
         })
 
+        //Clean up function
 
         return () =>
-            Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
-        Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+        Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
         BackHandler.removeEventListener("hardwareBackPress", backAction);
+        Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
     }, []);
 
 

@@ -1,42 +1,37 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { render } from 'react-dom';
 import { ScrollView, Text, Button, TouchableOpacity, View, StyleSheet } from 'react-native';
 import * as firebase from 'firebase'
 import { AntDesign } from '@expo/vector-icons';
 
 
-export default class MonthSelector extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            monthsAndYears: [],
-            monthIntMap: {
-                "01": "January",
-                "02": "February",
-                "03": "March",
-                "04": "April",
-                "05": "May",
-                "06": "June",
-                "07": "July",
-                "08": "August",
-                "09": "September",
-                "10": "October",
-                "11": "November",
-                "12": "December"
-            },
-            firebaseArray: [],
-        }
-    }
+export default function MonthSelector (props) {
 
-    componentDidMount = async () => {
-        console.log("OIFSDBGF")
-        // this.props.navigation.setOptions({
-        //     headerRight: () => (
-        //         <TouchableOpacity onPress={() =>  this.props.navigation.navigate("Profile") }>
-        //             <AntDesign name="save" size={32} color="black" paddingRight="50" />
-        //         </TouchableOpacity>),
-        // })
+    const[monthIntMap, setMonthIntMap] = useState({
+        "01": "January",
+        "02": "February",
+        "03": "March",
+        "04": "April",
+        "05": "May",
+        "06": "June",
+        "07": "July",
+        "08": "August",
+        "09": "September",
+        "10": "October",
+        "11": "November",
+        "12": "December"
+    })
+    const[monthsAndYears, setMonthsAndYears] = useState([])
+    const[firebaseArray, setFirebaseArray] = useState([])
 
+
+
+
+    useEffect(()=>{
+        getFirebaseData()
+    },[])
+
+    const getFirebaseData = async() =>{
         var uid = firebase.auth().currentUser.uid
         var arrayToSet = []
         var monthYearArray = []
@@ -47,7 +42,6 @@ export default class MonthSelector extends Component {
             snapshot.forEach(doc => {
                 monthYear = doc.data().date.slice(4, 11);
                 if (monthYearArray.indexOf(monthYear) === -1) {
-                    console.log("twice")
                     monthYearArray.push(monthYear);
                     i++;
                 }
@@ -63,19 +57,15 @@ export default class MonthSelector extends Component {
             i++
         }
 
-
-
-        this.setState({
-            monthsAndYears: arrayWithKeys,
-            firebaseArray: arrayToSet,
-        })
+        setMonthsAndYears(arrayWithKeys)
+        setFirebaseArray(arrayToSet)
     }
 
 
-    handleButtonPress = async (monthYear) => {
+    const handleButtonPress = (monthYear) => {
         console.log(monthYear)
         console.log("yooo we out here")
-        var copyFrom = this.state.firebaseArray;
+        var copyFrom = firebaseArray;
         var i = 0;
         var copyTo = []
         while (i < copyFrom.length) {
@@ -86,11 +76,9 @@ export default class MonthSelector extends Component {
             i++;
 
         }
-        console.log("We're breaking up, its not me its you")
-        console.log(copyTo)
-        this.props.navigation.navigate("Reflections", { firebaseArray: copyTo, monthYear:monthYear });
-
-
+        // console.log("We're breaking up, its not me its you")
+        // console.log(copyTo)
+        props.navigation.navigate("Reflections", { firebaseArray: copyTo, monthYear:monthYear });
     }
 
 
@@ -99,23 +87,25 @@ export default class MonthSelector extends Component {
 
 
 
-    render() {
+
         return (
 
             <ScrollView contentContainerStyle={{
             }}>
-                <Text style={styles.titleText}>View your recordings across {this.state.monthsAndYears.length} month{this.state.monthsAndYears.length > 1 ? "s" : ""}</Text>
+                <Text style={styles.titleText}>View your recordings across {monthsAndYears.length} month{monthsAndYears.length > 1 ? "s" : ""}</Text>
 
-                {this.state.monthsAndYears.map((item) => (
-                    <TouchableOpacity style={styles.button} key={item[0]} onPress={() => this.handleButtonPress(item[1])}>
-                        <Text style={styles.buttonText}>{this.state.monthIntMap[item[1].slice(0, 2)] + " " + item[1].slice(3,)}</Text>
+                {monthsAndYears.map((item) => (
+                    <TouchableOpacity style={styles.button} key={item[0]} onPress={() => handleButtonPress(item[1])}>
+                        <Text style={styles.buttonText}>{monthIntMap[item[1].slice(0, 2)] + " " + item[1].slice(3,)}</Text>
                     </TouchableOpacity>
                 ))
                 }
             </ScrollView>
         );
+
+
     };
-}
+
 
 const styles = StyleSheet.create({
     button:{

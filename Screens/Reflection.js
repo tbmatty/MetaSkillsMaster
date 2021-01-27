@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import { ScrollView, Text, Button, StyleSheet } from 'react-native';
+import { ScrollView, Text, Button, StyleSheet, Alert } from 'react-native';
 import { Audio } from 'expo-av';
-import { AntDesign } from '@expo/vector-icons';
+import { FontAwesome, AntDesign } from '@expo/vector-icons';
+import * as firebase from "firebase";
 
 
 export default class Reflection extends Component {
     constructor(props) {
         super(props);
         this.state = {
-
+            firebaseData:this.props.route.params.firebaseData,
             colours: {
                 "0": "#4677D6",
                 "1": "#4677D6",
@@ -49,6 +50,38 @@ export default class Reflection extends Component {
             isLoaded: false,
         }
     }
+
+
+    componentDidMount = () =>{
+        this.props.navigation.setOptions({
+            headerRight: () => (
+                
+                    <FontAwesome name="trash-o" size={32} color="black" paddingRight="50" onPress={()=>this.deleteReflectionAlert()}/>
+                ),
+        })
+    }
+
+    deleteReflectionAlert = () =>{
+        Alert.alert("Hold on!", "Are you sure you want to delete this reflection?", [
+            {
+                text: "Cancel",
+                onPress: () => null,
+                style: "cancel"
+            },
+            { text: "YES", onPress: () => this.deleteReflection() }
+        ]);
+        return true;
+    }
+
+    deleteReflection = async() =>{
+        console.log(this.state.firebaseData)
+        let uid = await firebase.auth().currentUser.uid
+        console.log(uid)
+        let firebaseRef = firebase.firestore().collection("Recordings").doc(uid).collection("Recordings").doc(this.state.firebaseData[3])
+        firebaseRef.delete()
+    }
+
+
 
 
     playbackObject = new Audio.Sound()
@@ -145,7 +178,7 @@ export default class Reflection extends Component {
                 }
                 <Text style={styles.bodyText}>{firebaseData[1]}</Text>
                 <AntDesign name={this.state.playPause} size={52} color="black" style={{ alignSelf: 'center' }} onPress={() => this.handlePlayPause(firebaseData[4])} />
-                <Text style={styles.dateText}>{"You recorded this on " + firebaseData[3].slice(1, 11) + " at " + firebaseData[3].slice(12, 20)}</Text>
+                <Text style={styles.dateText}>{"You recorded this on " + firebaseData[3].slice(1, 11) + " at " + firebaseData[3].slice(12, 20) + "TAKE A PEAK: "+firebaseData[3]}</Text>
             </ScrollView>
         );
     };
