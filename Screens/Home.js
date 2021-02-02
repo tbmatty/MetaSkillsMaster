@@ -76,26 +76,26 @@ export default class Home extends Component {
                 </TouchableOpacity>
             ),
         });
-        this.getFirebaseData()
+    //    this.getFirebaseData()
         
     }
 
-    getFirebaseData = async() =>{
-        var cardInfo = []
-        let firebaseRef = firebase.firestore().collection("CardInfo")
-        await firebaseRef.get().then(snapshot => {
-            snapshot.forEach(doc => {
-                cardInfo.push([doc.data().Title, doc.data().Body, doc.data().id])
-                console.log(doc.data().Title, doc.data().Body)
-            })
-        })
-        this.setState({ cardInfo: cardInfo, loading:false })
-    }
+    // getFirebaseData = async() =>{
+    //     var cardInfo = []
+    //     let firebaseRef = firebase.firestore().collection("CardInfo")
+    //     await firebaseRef.get().then(snapshot => {
+    //         snapshot.forEach(doc => {
+    //             cardInfo.push([doc.data().Title, doc.data().Body, doc.data().id])
+    //             console.log(doc.data().Title, doc.data().Body)
+    //         })
+    //     })
+    //     this.setState({ cardInfo: cardInfo, loading:false })
+    // }
 
-    handleCardPress = (title, id) =>{
-        var destination = this.state.cardNavigationDestination[title]
-        this.props.navigation.navigate(destination, {navProp:id})
-    }
+    // handleCardPress = (title, id) =>{
+    //     var destination = this.state.cardNavigationDestination[title]
+    //     this.props.navigation.navigate(destination, {navProp:id})
+    // }
 
     render() {
         return (
@@ -106,7 +106,7 @@ export default class Home extends Component {
                     </TouchableOpacity> */}
                     <Entypo name="new-message" size={96} color="black" onPress={() => this.props.navigation.navigate("RecordReflection")}/>
                 </View>
-                <View style={{ flex: 1, paddingBottom: 40}}>
+                {/* <View style={{ flex: 1, paddingBottom: 40}}>
                     {this.state.loading ? <Text>Just loading brother</Text> :
                         <ScrollView horizontal>
                             {this.state.cardInfo.map((value, index) => (
@@ -117,7 +117,7 @@ export default class Home extends Component {
                             ))}
                         </ScrollView>
                     }
-                </View>
+                </View> */}
             </View>
         );
     };

@@ -5,9 +5,9 @@ import * as firebase from 'firebase'
 import { AntDesign } from '@expo/vector-icons';
 
 
-export default function MonthSelector (props) {
+export default function MonthSelector(props) {
 
-    const[monthIntMap, setMonthIntMap] = useState({
+    const [monthIntMap, setMonthIntMap] = useState({
         "01": "January",
         "02": "February",
         "03": "March",
@@ -21,17 +21,31 @@ export default function MonthSelector (props) {
         "11": "November",
         "12": "December"
     })
-    const[monthsAndYears, setMonthsAndYears] = useState([])
-    const[firebaseArray, setFirebaseArray] = useState([])
+    const [monthsAndYears, setMonthsAndYears] = useState([])
+    const [firebaseArray, setFirebaseArray] = useState([])
+    const [user, setUser] = useState(firebase.auth().currentUser)
 
 
 
-
-    useEffect(()=>{
+    useEffect(() => {
         getFirebaseData()
-    },[])
 
-    const getFirebaseData = async() =>{
+        // How to listen for changes to firebase doc
+        //
+        //
+        let unsubscribe = firebase.firestore().collection('Recordings').doc(user.uid).collection('Recordings').onSnapshot(function (snapshot) {
+            getFirebaseData()
+        });
+
+
+
+    }, [])
+
+
+
+    const getFirebaseData = async () => {
+        console.log("FIre")
+
         var uid = firebase.auth().currentUser.uid
         var arrayToSet = []
         var monthYearArray = []
@@ -45,7 +59,7 @@ export default function MonthSelector (props) {
                     monthYearArray.push(monthYear);
                     i++;
                 }
-                arrayToSet.push([monthYear, doc.data().textEntry, doc.data().categories, doc.data().date, doc.data().uri,doc. data().colour, doc.data().textColour, doc.data().title])
+                arrayToSet.push([monthYear, doc.data().textEntry, doc.data().categories, doc.data().date, doc.data().uri, doc.data().colour, doc.data().textColour, doc.data().title])
             })
         })
 
@@ -78,7 +92,7 @@ export default function MonthSelector (props) {
         }
         // console.log("We're breaking up, its not me its you")
         // console.log(copyTo)
-        props.navigation.navigate("Reflections", { firebaseArray: copyTo, monthYear:monthYear });
+        props.navigation.navigate("Reflections", { firebaseArray: copyTo, monthYear: monthYear });
     }
 
 
@@ -88,38 +102,38 @@ export default function MonthSelector (props) {
 
 
 
-        return (
+    return (
 
-            <ScrollView contentContainerStyle={{
-            }}>
-                <Text style={styles.titleText}>View your recordings across {monthsAndYears.length} month{monthsAndYears.length > 1 ? "s" : ""}</Text>
+        <ScrollView contentContainerStyle={{
+        }}>
+            <Text style={styles.titleText}>View your recordings across {monthsAndYears.length} month{monthsAndYears.length > 1 ? "s" : ""}</Text>
 
-                {monthsAndYears.map((item) => (
-                    <TouchableOpacity style={styles.button} key={item[0]} onPress={() => handleButtonPress(item[1])}>
-                        <Text style={styles.buttonText}>{monthIntMap[item[1].slice(0, 2)] + " " + item[1].slice(3,)}</Text>
-                    </TouchableOpacity>
-                ))
-                }
-            </ScrollView>
-        );
+            {monthsAndYears.map((item) => (
+                <TouchableOpacity style={styles.button} key={item[0]} onPress={() => handleButtonPress(item[1])}>
+                    <Text style={styles.buttonText}>{monthIntMap[item[1].slice(0, 2)] + " " + item[1].slice(3,)}</Text>
+                </TouchableOpacity>
+            ))
+            }
+        </ScrollView>
+    );
 
 
-    };
+};
 
 
 const styles = StyleSheet.create({
-    button:{
-        padding:20,
+    button: {
+        padding: 20,
         backgroundColor: "white",
         borderRadius: 4,
         margin: 20
     },
-    titleText:{
-        fontSize:32,
+    titleText: {
+        fontSize: 32,
         padding: 20
     },
-    buttonText:{
-        fontSize:18,
-        paddingLeft:20
+    buttonText: {
+        fontSize: 18,
+        paddingLeft: 20
     }
 })

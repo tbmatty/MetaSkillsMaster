@@ -9,7 +9,7 @@ import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import { Entypo, AntDesign } from '@expo/vector-icons';
 import Dialog from "react-native-dialog";
-import {HeaderBackButton} from '@react-navigation/stack';
+import { HeaderBackButton } from '@react-navigation/stack';
 
 // NEEDS:
 //      -Clean Up (Move submit to header top right, save icon)
@@ -123,7 +123,7 @@ export default function RecordReflection(props) {
         "13": "black",
         "14": "black"
     })
-    const [skillSelection, setSkillSelection] = useState([["-1", "..."]])
+    const [skillSelection, setSkillSelection] = useState([])
     const [uploadURI, setUploadURI] = useState('')
     const [isRecording, setIsRecording] = useState(false)
     const [timerOn, setTimerOn] = useState(false)
@@ -143,10 +143,31 @@ export default function RecordReflection(props) {
     const [userIsTyping, setUserIsTyping] = useState(false)
     const [recording, setRecording] = useState()
     const [timer, startTimer] = useState()
+    const [textLength, setTextLength] = useState(true)
+    // const [response, setResponse] = useState()
+    // const [blob, setBlob] = useState()
+    //const [reader, setReader] = useState()
     //let recording = new Audio.Recording()
 
 
-    const handleSubmit = async () => {
+    const handleSubmit = () => {
+        console.log(title.length)
+        console.log(recording)
+        console.log(timerTime)
+        if (skillSelection.length === 0) {
+            console.log("NOOOOOOOOOOOOOOOOO")
+            setDialogVisible(false)
+            Alert.alert("Pick a skill.")
+        } else if (textEntry === '' && recording === undefined) {
+            setDialogVisible(false)
+            Alert.alert("You've not reflected on anything there, pal")
+        } else if (title.length === 0) {
+            Alert.alert("Empty title")
+        } else { handleUpload() }
+
+    }
+
+    const handleUpload = async () => {
         // console.log(skillSelection)
 
         setDialogVisible(false);
@@ -194,28 +215,36 @@ export default function RecordReflection(props) {
             }, { merge: true })
         }
 
+        var firebaseURI = ""
+
+        if (timerTime > 0) {
+            var response = await fetch(recordingURI);
+            var blob = await response.blob();
+            var reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = () => {
+                let base64 = reader.result;
+                console.log(base64)
+            };
+            var storage = firebase.storage();
+            var storageRef = storage.ref();
+            var userRef = storageRef.child(uid);
+            var dateRef = userRef.child(date);
+            await dateRef.put(blob).then(function (snapshot) {
+                console.log("U CANT EVEN FINISH IT");
+            });
+
+            await dateRef.getDownloadURL().then((url) => firebaseURI = url)
+
+            setUploadURI(firebaseURI)
+            console.log("Firebase URI: " + firebaseURI)
+            console.log("upload URI: " + uploadURI)
+        }
 
 
 
-        const response = await fetch(recordingURI);
-        const blob = await response.blob();
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = () => {
-            let base64 = reader.result;
-        };
-        var storage = firebase.storage();
-        var storageRef = storage.ref();
-        var userRef = storageRef.child(uid);
-        var dateRef = userRef.child(date);
-        await dateRef.put(blob).then(function (snapshot) {
-            console.log("U CANT EVEN FINISH IT");
-        });
-
-        await dateRef.getDownloadURL().then((url) => setUploadURI(url))
 
 
-        console.log(uploadURI)
 
 
         var colourArray = [0, 0, 0]
@@ -329,6 +358,7 @@ export default function RecordReflection(props) {
 
 
         var statArrayFromFirebase
+        var reflectionStatArrayFromFirebase
         const statRef = firebase.firestore().collection("Stats").doc(uid).collection("Weeks").doc(formatWeekStart)
         await statRef.get().then((docSnapshot) => {
             if (!docSnapshot.exists) {
@@ -367,7 +397,7 @@ export default function RecordReflection(props) {
             textEntry: textEntry,
             categories: array,
             date: JSON.stringify(date),
-            uri: recordingURI,
+            uri: firebaseURI,
             colour: colour,
             textColour: textColour,
             title: title
@@ -381,37 +411,6 @@ export default function RecordReflection(props) {
         }, 1500);
     }
 
-    const handleItemPress = (item) => {
-        console.log(item)
-
-        const copyDict = { ...items }
-        delete copyDict[item.id]
-
-        var i;
-
-        for (i = 0; i < skillSelection.length; i++) {
-            if (item.id == skillSelection[i][0]) {
-                console.log("hello")
-                alert("You have already included this ")
-                return
-            }
-        }
-
-
-
-
-        var check = skillSelection[0][0]
-        if (check == "-1") {
-            console.log("only once")
-            setSkillSelection([[item.id, item.name]])
-        } else {
-            var array = skillSelection
-            array.push([item.id, item.name])
-            // console.log(nuArray)
-            setSkillSelection(array)
-        }
-        console.log(skillSelection);
-    }
 
     const handleRecordingPress = async () => {
         console.log("Registering")
@@ -441,10 +440,12 @@ export default function RecordReflection(props) {
             const recording = new Audio.Recording();
             await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
             await recording.startAsync();
-            
+
             setTimerOn(true);
-            setTimerTime(timerTime)
-            setTimerStart(Date.now())
+            setTimerStart(Date.now() - 0)
+            setIsRecording(true)
+            console.log(timerStart)
+            console.log(Date.now() - timerStart)
 
             // startTimer(setInterval(() => {
             //     setTimerTime(Date.now() - timerStart);
@@ -457,8 +458,37 @@ export default function RecordReflection(props) {
         }
     }
 
+    useEffect(() => {
+        console.log("timer")
+        var time = 0
+        if (timerOn) {
+            startTimer(setInterval(() => {
+                // setTimerTime(new Date() - timerStart);
+                time += 10 // Don't know why but this works
+                setTimerTime(time)
+            }, 10))
+        }
+        if (!timerOn) {
+            clearInterval(timer)
+        }
+    }, [timerOn])
+
+    const msToTime = (duration) => {
+        var milliseconds = parseInt((duration % 1000) / 100),
+            seconds = Math.floor((duration / 1000) % 60),
+            minutes = Math.floor((duration / (1000 * 60)) % 60),
+            hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+        hours = (hours < 10) ? "0" + hours : hours;
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+        return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+    }
+
     const stopRecording = async () => {
         setRecording(undefined)
+        setIsRecording(false)
         await recording.stopAndUnloadAsync()
         setTimerOn(false);
         const uri = recording.getURI()
@@ -466,7 +496,6 @@ export default function RecordReflection(props) {
         // clearInterval(timer);
     }
 
-    playbackObject = new Audio.Sound()
 
     const _onPlaybackStatusUpdate = (playbackStatus) => {
         if (!playbackStatus.isLoaded) {
@@ -499,6 +528,10 @@ export default function RecordReflection(props) {
         }
     };
 
+
+    const [playbackObject,setPlaybackObject] = useState(new Audio.Sound())
+
+
     const playRecording = async () => {
         if (isLoaded === false) {
             await playbackObject.loadAsync({ uri: recordingURI }, { shouldPlay: true })
@@ -507,13 +540,14 @@ export default function RecordReflection(props) {
         } else {
             await playbackObject.playAsync()
         }
-
     }
 
 
     const pauseRecording = async () => {
         await playbackObject.pauseAsync()
+        setPlayPause("playcircleo")
     }
+
 
     const handlePlayPause = (uri) => {
         if (isPlaying === false) {
@@ -527,17 +561,19 @@ export default function RecordReflection(props) {
         }
     }
 
+
     const handlePickSkills = () => {
         setIsPickingSkill(true)
         props.navigation.setOptions({
             headerShown: false
         });
-
     }
+
 
     const handleSkillPicked = (item) => {
         var skillsAlreadyPicked = skillSelection
-        if (skillsAlreadyPicked[0][0] == "-1") {
+        if (skillsAlreadyPicked == []) {
+            console.log("yup")
             setSkillSelection([item])
         } else {
             skillsAlreadyPicked.push(item)
@@ -584,7 +620,7 @@ export default function RecordReflection(props) {
         ["14", "Critical Thinking"]
         ]
         setSkills(skillsCancelled)
-        setSkillSelection([["-1", "..."]])
+        setSkillSelection([])
     }
 
     const backAction = () => {
@@ -594,58 +630,98 @@ export default function RecordReflection(props) {
                 onPress: () => null,
                 style: "cancel"
             },
-            { text: "YES", onPress: () => props.navigation.goBack() }
+            { text: "YES", onPress: () => handleGoBack() }
         ]);
         return true;
     };
 
+    const handleGoBack = async() =>{
+        console.log(isRecording)
+        console.log(isLoaded)
+        if(isRecording===true){
+            console.log("YEAH PROBLEMO")
+            await recording.stopAndUnloadAsync()
+        }
+        if(isLoaded===true){
+            console.log("RECORDING PROBLEMO")
+            await playbackObject.stopAndUnloadAsync()
+        }
+        props.navigation.goBack()
+    }
+
     const handleSave = () => {
+        // //Check at least 1 skill picked
+        console.log(skillSelection)
+        console.log(textEntry)
+        console.log(recording)
+        // if (skillSelection.length===0) {
+        //     Alert.alert("Make sure to associate a skill with your reflection")
+        // } else if (textEntry.length === 0 && recording===undefined) {
+        //     Alert.alert("Please enter either a text or recording entry to capture your reflection")
+        // } else {
+        // }
         setDialogVisible(true)
+
+    }
+
+    const handleTextEntry = (textEntry) => {
+        setTextEntry(textEntry)
     }
 
     const _keyboardDidShow = () => {
-        if (!dialogVisible) {
-            setUserIsTyping(true)
-        }
-    };
+        setUserIsTyping(true)
+    }
 
     const _keyboardDidHide = () => {
-        if (!dialogVisible) {
-            setUserIsTyping(false)
-        }
+        setUserIsTyping(false)
     };
 
     useEffect(() => {
         BackHandler.addEventListener("hardwareBackPress", backAction);
         Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
         Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
-
+        let isMounted = true
 
         props.navigation.setOptions({
             headerRight: () => (
                 <TouchableOpacity onPress={() => handleSave()}>
                     <AntDesign name="save" size={32} color="black" paddingRight="50" />
                 </TouchableOpacity>),
-            headerLeft: () =>(
-                <HeaderBackButton onPress={()=>backAction()}/>
+            headerLeft: () => (
+                <HeaderBackButton onPress={() => backAction()} />
             )
         })
 
         //Clean up function
 
-        return () =>
-        Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
-        BackHandler.removeEventListener("hardwareBackPress", backAction);
-        Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+        return () => {
+            Keyboard.removeListener("keyboardDidShow", _keyboardDidShow),
+                BackHandler.removeEventListener("hardwareBackPress", backAction),
+                Keyboard.removeListener("keyboardDidHide", _keyboardDidHide),
+                isMounted = false
+        }
     }, []);
 
+    useEffect(() => {
+        setTextLength(textEntry.length)
+        console.log(textLength)
+    }, [textEntry])
 
 
+    const handleDialogYes = () => {
+        console.log(textLength)
+        console.log(recording)
+        console.log(skillSelection)
+    }
 
-    let centiseconds = ("0" + (Math.floor(timerTime / 10) % 100)).slice(-2);
-    let seconds = ("0" + (Math.floor(timerTime / 1000) % 60)).slice(-2);
-    let minutes = ("0" + (Math.floor(timerTime / 60000) % 60)).slice(-2);
-    let hours = ("0" + Math.floor(timerTime / 3600000)).slice(-2);
+
+    // let centiseconds = ("0" + (Math.floor(timerTime / 10) % 100)).slice(-2);
+    // let seconds = ("0" + (Math.floor(timerTime / 1000) % 60)).slice(-2);
+    // let minutes = ("0" + (Math.floor(timerTime / 60000) % 60)).slice(-2);
+    // let hours = ("0" + Math.floor(timerTime / 3600000)).slice(-2);
+    let hours = Math.floor(timerTime / 1000 / 60 / 60);
+    let minutes = Math.floor((timerTime / 1000 / 60 / 60 - hours) * 60);
+    let seconds = Math.floor(((timerTime / 1000 / 60 / 60 - hours) * 60 - minutes) * 60);
     return (
         <View style={{ flex: 6 }}>
             {isUploading ?
@@ -707,7 +783,7 @@ export default function RecordReflection(props) {
                                     <View style={{ flex: 1 }}>
                                         <Entypo name="mic" size={72} color={micColour} style={{ alignSelf: 'center' }} onPress={() => handleRecordingPress()} />
                                         <View>
-                                            <Text style={{ alignSelf: 'center' }}>{hours} : {minutes} : {seconds} : {centiseconds}</Text>
+                                            <Text style={{ alignSelf: 'center' }}>{msToTime(timerTime)}</Text>
                                         </View>
                                         {isPlaybackAvailable ? <AntDesign name={playPause} size={52} color="black" style={{ alignSelf: 'center' }} onPress={() => handlePlayPause()} /> : null}
                                     </View>
@@ -720,7 +796,7 @@ export default function RecordReflection(props) {
                                 <TextInput
                                     style={styles.textInput}
                                     placeholder="Enter your reflections here"
-                                    onChangeText={textEntry => setTextEntry(textEntry)}
+                                    onChangeText={(textEntry) => handleTextEntry(textEntry)}
                                     value={textEntry}
                                     multiline={true}
                                     blurOnSubmit={true}

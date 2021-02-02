@@ -79,6 +79,7 @@ export default class Reflection extends Component {
         console.log(uid)
         let firebaseRef = firebase.firestore().collection("Recordings").doc(uid).collection("Recordings").doc(this.state.firebaseData[3])
         firebaseRef.delete()
+        this.props.navigation.navigate("MonthSelector")
     }
 
 

@@ -51,31 +51,35 @@ export default class Profile extends Component {
 
     render() {
         return (
-            <View>
-                <Text style={styles.titleText}>Hey You!</Text>
-                <TouchableOpacity onPress={() => this.showDatePicker()} style={styles.button}>
-                    <Text style={styles.buttonText}>Set notification time</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => firebase.auth().signOut()}>
-                    <Text style={styles.buttonText}>Sign out</Text>
-                </TouchableOpacity>
+            <View style={{ flex: 5 }}>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.titleText}>Hey You!</Text>
+                </View>
+                <View style={{ flex: 4 }}>
+                    <TouchableOpacity onPress={() => this.showDatePicker()} style={styles.button}>
+                        <Text style={styles.buttonText}>Set notification time</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={() => firebase.auth().signOut()}>
+                        <Text style={styles.buttonText}>Sign out</Text>
+                    </TouchableOpacity>
 
-                {this.state.show ?
-                    <DateTimePicker
-                        testID="dateTimePicker"
-                        value={this.state.date}
-                        mode={this.state.mode}
-                        is24Hour={true}
-                        display="default"
-                        onChange={this.onChange}
-                    /> : null
-                }
-                <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("Trophies")}>
-                    <Text style={styles.buttonText}>Trophies</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("Trophy")}>
-                    <Text style={styles.buttonText}>Trophy</Text>
-                </TouchableOpacity>
+                    {this.state.show ?
+                        <DateTimePicker
+                            testID="dateTimePicker"
+                            value={this.state.date}
+                            mode={this.state.mode}
+                            is24Hour={true}
+                            display="default"
+                            onChange={this.onChange}
+                        /> : null
+                    }
+                    <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("Trophies")}>
+                        <Text style={styles.buttonText}>Trophies</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("Trophy")}>
+                        <Text style={styles.buttonText}>Trophy</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         );
     };

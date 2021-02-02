@@ -88,6 +88,7 @@ function App() {
   useEffect(() => {
     console.log("hello")
     registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+    let isMounted = true; // note this flag denote mount status
 
     // This listener is fired whenever a notification is received while the app is foregrounded
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
@@ -104,6 +105,7 @@ function App() {
     return () => {
       Notifications.removeNotificationSubscription(notificationListener);
       Notifications.removeNotificationSubscription(responseListener);
+      isMounted = false
     };
   }, []);
 
@@ -139,12 +141,12 @@ function App() {
     return token;
   }
 
-  const [userDesiredTime, setUserDesiredTime] = useState(-1);
-  const [userDesiredTimeMinutes, setUserDesiredTimeMinutes] = useState(-1);
+  const [userDesiredTime, setUserDesiredTime] = useState(17);
+  const [userDesiredTimeMinutes, setUserDesiredTimeMinutes] = useState(30);
 
 
 
-  async function cancelAndSchedule(){
+  async function cancelAndSchedule() {
     Notifications.cancelAllScheduledNotificationsAsync()
     Notifications.scheduleNotificationAsync({
       content: {
@@ -155,8 +157,9 @@ function App() {
       }
     })
   }
+////
+///
 
-  
 
   useEffect(() => {
     var user = firebase.auth().currentUser;
@@ -177,41 +180,48 @@ function App() {
     console.log(userDesiredTime)
     if (userDesiredTime === -1) {
       return
-    }else{
+    } else {
       cancelAndSchedule()
-      }
-    
-  });
+    }
+
+  }, []);
 
   //concurrentDate
-  useEffect(()=>{
+  useEffect(() => {
     var user = firebase.auth().currentUser;
-    if(!user){
+    if (!user) {
       return;
     }
     var yesterday = new Date();
-    yesterday.setDate(yesterday.getDate()-1);
+    yesterday.setDate(yesterday.getDate() - 1);
     var yesterdayFormat = format(yesterday, "dd-MM-yyyy")
 
     var today = new Date()
     today = format(today, "dd-MM-yyyy")
 
-    getUserLastDateAsync().then(lastDate=>{
-      if(yesterdayFormat!=lastDate && lastDate!=today){
-        let setdoc = firebase.firestore().collection("Users").doc(user.uid).set({
-          ConsecutiveDays:0,
-        }, {merge:true})
+    let isMounted=true
+
+
+
+    getUserLastDateAsync().then(lastDate => {
+      if (isMounted) {
+        if (yesterdayFormat != lastDate && lastDate != today) {
+          let setdoc = firebase.firestore().collection("Users").doc(user.uid).set({
+            ConsecutiveDays: 0,
+          }, { merge: true })
+        }
       }
     })
 
-    
-  })
+    return () => { isMounted = false };
+  }, [])
 
-  async function getUserLastDateAsync(){
+  async function getUserLastDateAsync() {
     var lastDate
-    let getdoc = await firebase.firestore().collection("Users").doc(user.uid).get().then(doc=>{
-      lastDate=doc.data().lastDate
-      console.log("firebase date: "+lastDate)
+    var user = await firebase.auth().currentUser;
+    let getdoc = await firebase.firestore().collection("Users").doc(user.uid).get().then(doc => {
+      lastDate = doc.data().lastDate
+      console.log("firebase date: " + lastDate)
     })
     return lastDate
   }
@@ -243,21 +253,21 @@ function App() {
           options={({ navigation }) => ({
             title: 'MetaSkillsMaster',
             headerRight: () => (
-              <TouchableOpacity onPress={() =>  navigation.navigate("Profile") }>
-                    <AntDesign name="user" size={32} color="black" paddingRight="50" />
-                </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+                <AntDesign name="user" size={32} color="black" paddingRight="50" />
+              </TouchableOpacity>
             ),
           })}
         />
         <Stack.Screen name="Profile" component={Profile} options={{ title: 'Profile' }} />
         <Stack.Screen name="RecordReflection" component={RecordReflection} options={{ title: 'Record a reflection!' }} />
-        <Stack.Screen name="SelfManagement" component={SelfManagement} options={{ title: 'Self Management' , headerStyle: { backgroundColor: '#4677D6', }, headerTitleStyle: { color: 'white' } }} />
+        <Stack.Screen name="SelfManagement" component={SelfManagement} options={{ title: 'Self Management', headerStyle: { backgroundColor: '#4677D6', }, headerTitleStyle: { color: 'white' } }} />
         <Stack.Screen name="SocialAwareness" component={SocialAwareness} options={{ title: 'Social Intelligence', headerStyle: { backgroundColor: '#FF5D60', }, headerTitleStyle: { color: 'white' } }} />
         <Stack.Screen name="Innovation" component={Innovation} options={{ title: 'Innovation', headerStyle: { backgroundColor: '#FFC530', }, headerTitleStyle: { color: 'black' } }} />
         <Stack.Screen name="Reflections" component={Reflections} options={{ title: 'Reflections' }} />
         <Stack.Screen name="Reflection" component={Reflection} options={{ title: 'Reflection' }} />
         <Stack.Screen name="Trophies" component={Trophies} options={{ title: 'Achievements' }} />
-        <Stack.Screen name="Trophy" component={Trophy} options={{title: 'A Trophy!'}}/>
+        <Stack.Screen name="Trophy" component={Trophy} options={{ title: 'A Trophy!' }} />
         {/* <MyTabs /> */}
       </Stack.Navigator>
 
