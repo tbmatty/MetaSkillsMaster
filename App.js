@@ -236,7 +236,7 @@ function App() {
         <Tab.Screen name="Reflect" component={Home} options={{ title: 'Reflect!' }} />
         <Tab.Screen name="Skills" component={Skills} options={{ title: "Skills" }} />
         <Tab.Screen name="MonthSelector" component={MonthSelector} options={{ title: 'Reflections' }} />
-        <Tab.Screen name="Stats" component={Stats} options={{ title: 'Stats' }} />
+        <Tab.Screen name="Profile" component={Profile} options={{ title: 'Me!' }} />
       </Tab.Navigator>
     );
   }
@@ -259,6 +259,7 @@ function App() {
             ),
           })}
         />
+        
         <Stack.Screen name="Profile" component={Profile} options={{ title: 'Profile' }} />
         <Stack.Screen name="RecordReflection" component={RecordReflection} options={{ title: 'Record a reflection!' }} />
         <Stack.Screen name="SelfManagement" component={SelfManagement} options={{ title: 'Self Management', headerStyle: { backgroundColor: '#4677D6', }, headerTitleStyle: { color: 'white' } }} />
@@ -268,6 +269,8 @@ function App() {
         <Stack.Screen name="Reflection" component={Reflection} options={{ title: 'Reflection' }} />
         <Stack.Screen name="Trophies" component={Trophies} options={{ title: 'Achievements' }} />
         <Stack.Screen name="Trophy" component={Trophy} options={{ title: 'A Trophy!' }} />
+        <Stack.Screen name="Stats" component={Stats} options={{ title: 'Your Stats' }} />
+
         {/* <MyTabs /> */}
       </Stack.Navigator>
 

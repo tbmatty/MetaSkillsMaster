@@ -141,7 +141,7 @@ export default function RecordReflection(props) {
     const [isFinishedUploading, setIsFinishedUploading] = useState(false)
     const [isPickingSkill, setIsPickingSkill] = useState(false)
     const [userIsTyping, setUserIsTyping] = useState(false)
-    const [recording, setRecording] = useState()
+    const [recording, setRecording] = useState(new Audio.Recording())
     const [timer, startTimer] = useState()
     const [textLength, setTextLength] = useState(true)
     // const [response, setResponse] = useState()
@@ -371,12 +371,15 @@ export default function RecordReflection(props) {
                 statRef.set({
                     date: formatWeekStart,
                     statArray: statArray,
-                    reflectionStatArray: reflectionStatArray
+                    reflectionStatArray: reflectionStatArray,
+                    reflectionCount:1
                 })
             } else {
                 statArrayFromFirebase = docSnapshot.data().statArray
                 reflectionStatArrayFromFirebase = docSnapshot.data().reflectionStatArray
+                var reflectionCount = docSnapshot.data().reflectionCount
                 index = 0
+                var newReflectionCount = reflectionCount+1
                 while (index < array.length) {
                     statArrayFromFirebase[parseInt(array[index])]++;
                     index++
@@ -387,7 +390,8 @@ export default function RecordReflection(props) {
                 statRef.set({
                     date: formatWeekStart,
                     statArray: statArrayFromFirebase,
-                    reflectionStatArray: newRefStatArray
+                    reflectionStatArray: newRefStatArray,
+                    reflectionCount:newReflectionCount
                 })
             }
         })
@@ -437,7 +441,7 @@ export default function RecordReflection(props) {
                 playsInSilentModeIOS: true,
             });
             console.log('Starting recording..');
-            const recording = new Audio.Recording();
+            //const recording = new Audio.Recording();
             await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
             await recording.startAsync();
 
@@ -487,12 +491,13 @@ export default function RecordReflection(props) {
     }
 
     const stopRecording = async () => {
-        setRecording(undefined)
         setIsRecording(false)
         await recording.stopAndUnloadAsync()
         setTimerOn(false);
         const uri = recording.getURI()
         setRecordingURI(uri)
+        setRecording(new Audio.Recording())
+
         // clearInterval(timer);
     }
 
@@ -624,7 +629,8 @@ export default function RecordReflection(props) {
     }
 
     const backAction = () => {
-        Alert.alert("Hold on!", "Are you sure you want to go back?", [
+    
+        Alert.alert("Hold on!", "Are you sure you want to go back? You will lose your progress recording this reflection.", [
             {
                 text: "Cancel",
                 onPress: () => null,
@@ -638,13 +644,26 @@ export default function RecordReflection(props) {
     const handleGoBack = async() =>{
         console.log(isRecording)
         console.log(isLoaded)
+        console.log("is Typing: "+userIsTyping)
+        //recording.getStatusAsync()
+        
         if(isRecording===true){
             console.log("YEAH PROBLEMO")
-            await recording.stopAndUnloadAsync()
+            
         }
         if(isLoaded===true){
             console.log("RECORDING PROBLEMO")
             await playbackObject.stopAndUnloadAsync()
+        }
+        try{
+            stopRecording()
+        }catch(e){
+            console.log(e)
+        }
+        try{
+            await playbackObject.unloadAsync()
+        }catch(e){
+            console.log(e)
         }
         props.navigation.goBack()
     }
@@ -673,6 +692,7 @@ export default function RecordReflection(props) {
     }
 
     const _keyboardDidHide = () => {
+        console.log("Fired")
         setUserIsTyping(false)
     };
 
@@ -706,6 +726,17 @@ export default function RecordReflection(props) {
         setTextLength(textEntry.length)
         console.log(textLength)
     }, [textEntry])
+
+    useEffect(() => {
+        // action on update of movies
+        console.log("isRecording: "+isRecording)
+        // setIsRecording(prevState => {
+        //     // Object.assign would also work
+        //     return {...prevState, ...isRecording};
+        //   });
+          
+    }, [isRecording]);
+
 
 
     const handleDialogYes = () => {
@@ -854,10 +885,11 @@ const styles = StyleSheet.create({
     textInput: {
         flex: 2,
         height: 40,
-        borderColor: 'white',
-        borderWidth: 1,
+        borderColor: 'black',
+        borderWidth: 2,
         padding: 8,
-        marginTop: 18
+        marginTop: 18,
+        paddingHorizontal:14
     },
     item: {
         backgroundColor: '#f9c2ff',

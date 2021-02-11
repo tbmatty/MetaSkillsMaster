@@ -24,7 +24,7 @@ export default class Home extends Component {
                 "Social Intelligence" : styles.card2,
                 "Communicating" : styles.card2,
                 "Feeling" : styles.card2,
-                "Collaborating" : styles.card2,
+                "Collaboration" : styles.card2,
                 "Leading" : styles.card2,
                 "Innovation" : styles.card3,
                 "Curiosity" : styles.card3,
@@ -41,14 +41,33 @@ export default class Home extends Component {
                 "Social Intelligence" : "SocialAwareness",
                 "Communicating" :  "SocialAwareness",
                 "Feeling" :  "SocialAwareness",
-                "Collaborating" :  "SocialAwareness",
+                "Collaboration" :  "SocialAwareness",
                 "Leading" :  "SocialAwareness",
                 "Innovation" : "Innovation",
                 "Curiosity" : "Innovation",
                 "Creativity" :"Innovation",
                 "Sense Making" : "Innovation",
                 "Critical Thinking" : "Innovation"
-            }
+            },
+            //             cardInfo.push([doc.data().Title, doc.data().Body, doc.data().id])
+            cardInfo :[
+                ["Self Management", "Learn about self management!", 0],
+                ["Focussing", "Learn about focussing!", 1],
+                ["Integrity", "Learn about integrity!", 2],
+                ["Adapting", "Learn about adapting!", 3],
+                ["Initiative", "Learn about initiative!", 4],
+                ["Social Intelligence", "Learn about social intelligence!", 0],
+                ["Communicating", "Learn about communicating!", 1],
+                ["Feeling", "Learn about feeling!", 2],
+                ["Collaboration", "Learn about collaboration!", 3],
+                ["Leading", "Learn about leading!", 4],
+                ["Innovation", "Learn about innovation!", 0],
+                ["Curiosity", "Learn about curiosity!", 1], 
+                ["Creativity", "Learn about creativity!", 2],
+                ["Sense Making", "Learn about sense making!", 3],
+                ["Critical Thinking", "Learn about critical thinking!", 4]
+            ],
+            displayArray:[]
         }
     }
 
@@ -76,6 +95,26 @@ export default class Home extends Component {
                 </TouchableOpacity>
             ),
         });
+        
+        var dummyArray = this.state.cardInfo
+        displayArray = []
+        var looping=true
+        var count=0
+        while(looping){
+            var item = dummyArray[Math.floor(Math.random() * dummyArray.length)];
+            if(displayArray.includes(item)==false){
+                count+=1;
+                displayArray.push(item)
+            }
+            if(count==3){
+                break;
+            }
+        }
+        console.log(count)
+        this.setState({displayArray:displayArray})
+
+
+
     //    this.getFirebaseData()
         
     }
@@ -92,43 +131,66 @@ export default class Home extends Component {
     //     this.setState({ cardInfo: cardInfo, loading:false })
     // }
 
-    // handleCardPress = (title, id) =>{
-    //     var destination = this.state.cardNavigationDestination[title]
-    //     this.props.navigation.navigate(destination, {navProp:id})
-    // }
+    handleCardPress = (title, id) =>{
+        var destination = this.state.cardNavigationDestination[title]
+        var cardArray = this.state.cardInfo
+        var newCardDisplay = []
+        var curCardDisplay = this.state.displayArray
+        var i=0
+        console.log(curCardDisplay[i])
+        while(i<=2){
+            if(curCardDisplay[i][0]==title){
+                i++;
+                continue;
+            }
+            newCardDisplay.push(curCardDisplay[i])
+            i++
+        }
+        while(true){
+            var item = cardArray[Math.floor(Math.random() * cardArray.length)];
+            if(newCardDisplay.includes(item)){
+                continue;
+            }
+            newCardDisplay.push(item)
+            break;
+        }
+        this.props.navigation.navigate(destination, {navProp:id})
+        this.setState({displayArray:newCardDisplay})
+
+    }
+
 
     render() {
         return (
             <View style={{ flex: 4}}>
                 <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
-                    {/* <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("RecordReflection")}>
-                        <Text style={styles.buttonText}>Record a Reflection</Text>
-                    </TouchableOpacity> */}
-                    <Entypo name="new-message" size={96} color="black" onPress={() => this.props.navigation.navigate("RecordReflection")}/>
+                    <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("RecordReflection")}>
+                        <Text style={styles.buttonText2}>Record a Reflection</Text>
+                    </TouchableOpacity>
+                    {/* <Entypo name="new-message" size={96} color="black" onPress={() => this.props.navigation.navigate("RecordReflection")}/> */}
                 </View>
-                {/* <View style={{ flex: 1, paddingBottom: 40}}>
-                    {this.state.loading ? <Text>Just loading brother</Text> :
+                <View style={{ flex: 1, paddingBottom: 40}}>
                         <ScrollView horizontal>
-                            {this.state.cardInfo.map((value, index) => (
+                            {this.state.displayArray.map((value, index) => (
                                 <TouchableOpacity key={index} style={this.state.cardStyles[value[0]]} onPress={() => this.handleCardPress(value[0],value[2])}>
                                     <Text style={styles.buttonText}>{value[0]}</Text>
                                     <Text style={styles.buttonText}>{value[1]}</Text>
                                 </TouchableOpacity>
                             ))}
                         </ScrollView>
-                    }
-                </View> */}
+                </View>
             </View>
         );
     };
-
 }
 const styles = StyleSheet.create({
     button: {
-        padding: 20,
-        backgroundColor: "blue",
+        padding:26,
+        backgroundColor: "white",
         borderRadius: 4,
-        margin: 20
+        borderColor:"black",
+        borderWidth:5,
+        alignSelf:"center"
     },
     card1: {
         padding: 20,
@@ -155,6 +217,11 @@ const styles = StyleSheet.create({
         fontSize: 18,
         paddingLeft: 20,
         color: "white"
+    },
+    buttonText2: {
+        fontSize: 18,
+        fontWeight:"bold",
+        color: "black"
     },
     cardTitle:{
         
