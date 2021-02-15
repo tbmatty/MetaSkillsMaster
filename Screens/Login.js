@@ -1,45 +1,85 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { render } from 'react-dom';
-import { View, Text, Button, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Keyboard } from 'react-native';
 import * as firebase from "firebase";
 
-export default class Login extends Component {
-    constructor(props) {
-        super(props);
+export default function Login(props) {
 
-        this.state={
-            email : "",
-            password : "",
-        }
-    }
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [userIsTyping, setUserIsTyping] = useState(false)
 
-    handleSignIn = () =>{
-        firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
+    const handleSignIn = () => {
+        firebase.auth().signInWithEmailAndPassword(email, password);
         console.log(firebase.auth().currentUser);
     }
 
-    
 
-    render() {
-        return (
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Text>Sign up page</Text>
-                <TextInput
-                    style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-                    placeholder = "Email"
-                    onChangeText={email => this.setState({email})}
-                    value={this.state.email}
-                />
-                <TextInput
-                    style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-                    placeholder = "Password"
-                    onChangeText={password => this.setState({password})}
-                    value={this.state.password}
-                />
-                <Button title="Login" onPress={this.handleSignIn} />
-                <Button title="Sign Up!" onPress={() => this.props.navigation.navigate('SignUp')} />
+    const _keyboardDidShow = () => {
+        setUserIsTyping(true)
+    }
+
+    const _keyboardDidHide = () => {
+        console.log("Fired")
+        setUserIsTyping(false)
+    };
+
+    useEffect(() => {
+        Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+        Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
+
+        //Clean up function
+
+        return () => {
+            Keyboard.removeListener("keyboardDidShow", _keyboardDidShow),
+                Keyboard.removeListener("keyboardDidHide", _keyboardDidHide)
+        }
+    }, []);
+
+
+
+    return (
+        <View style={{ flex: 5 }}>
+            <View style={{ flex: 1 }}>
+                <Text style={{ textAlign: "center", paddingTop: 50, fontSize: 38 }}>Welcome!</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+                <View style={{ padding: 20 }}>
+                    <TextInput
+                        style={{ height: 50, borderColor: 'gray', borderWidth: 1, paddingLeft: 10 }}
+                        placeholder="Email"
+                        onChangeText={email => setEmail(email)}
+                        value={email}
+                    />
+                </View>
+                <View style={{ padding: 20 }}>
+                    <TextInput
+                        style={{ height: 50, borderColor: 'gray', borderWidth: 1, paddingLeft: 10 }}
+                        placeholder="Password"
+                        onChangeText={password => setPassword(password)}
+                        value={password}
+                    />
+                </View>
 
             </View>
-        );
-    };
-}
+            <View style={{ flex: 1 }}>
+            </View>
+            {userIsTyping ? null :
+                <View style={{ flex: 2 }}>
+
+                    <TouchableOpacity style={{ flex: 1 }} onPress={() => handleSignIn()}>
+                        <View style={{ flex: 1, backgroundColor: "#3f83ba" }}>
+                            <Text style={{ textAlign: "center", paddingTop: 50, fontSize: 32, color: "white" }}>LOG IN</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ flex: 1 }} onPress={() => props.navigation.navigate('SignUp')}>
+                        <View style={{ flex: 1, backgroundColor: "#b504a0" }}>
+                            <Text style={{ textAlign: "center", paddingTop: 50, fontSize: 32, color: "white" }}>SIGN UP</Text>
+                        </View>
+                    </TouchableOpacity>
+
+                </View>
+            }
+        </View>
+    );
+};

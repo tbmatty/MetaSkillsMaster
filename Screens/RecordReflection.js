@@ -224,7 +224,6 @@ export default function RecordReflection(props) {
             reader.readAsDataURL(blob);
             reader.onloadend = () => {
                 let base64 = reader.result;
-                console.log(base64)
             };
             var storage = firebase.storage();
             var storageRef = storage.ref();
@@ -312,6 +311,20 @@ export default function RecordReflection(props) {
             highScoreSelfM = doc.data().SelfManagement;
             highScoreSocial = doc.data().SocialAwareness;
         })
+
+        if(highScoreConsec==undefined){
+            highScoreConsec=0
+        }
+        if(highScoreInnov==undefined){
+            highScoreInnov=0
+        }
+        if(highScoreSelfM==undefined){
+            highScoreSelfM=0
+        }
+        if(highScoreSocial==undefined){
+            highScoreSocial=0
+        }
+
 
         if (colourArray[0] >= 1) {
             highScoreSelfM++;
@@ -497,7 +510,7 @@ export default function RecordReflection(props) {
         const uri = recording.getURI()
         setRecordingURI(uri)
         setRecording(new Audio.Recording())
-
+        setIsPlaybackAvailable(true)
         // clearInterval(timer);
     }
 
@@ -649,22 +662,26 @@ export default function RecordReflection(props) {
         
         if(isRecording===true){
             console.log("YEAH PROBLEMO")
-            
         }
         if(isLoaded===true){
             console.log("RECORDING PROBLEMO")
             await playbackObject.stopAndUnloadAsync()
         }
-        try{
-            stopRecording()
-        }catch(e){
-            console.log(e)
-        }
-        try{
-            await playbackObject.unloadAsync()
-        }catch(e){
-            console.log(e)
-        }
+        var stopRecordingPromise = stopRecording()
+        stopRecordingPromise.then(function(){
+            console.log("Promise resolved")
+            setMicColour("grey")
+        }).catch(function(){
+            console.log("Promise rejected")
+        })
+        
+        var stopPlaybackPromise = playbackObject.unloadAsync();
+        stopPlaybackPromise.then(function(){
+            console.log("Promise resolved")
+        }).catch(function(){
+            console.log("Promise rejected")
+        })
+        
         props.navigation.goBack()
     }
 
@@ -673,11 +690,19 @@ export default function RecordReflection(props) {
         console.log(skillSelection)
         console.log(textEntry)
         console.log(recording)
-        // if (skillSelection.length===0) {
-        //     Alert.alert("Make sure to associate a skill with your reflection")
-        // } else if (textEntry.length === 0 && recording===undefined) {
-        //     Alert.alert("Please enter either a text or recording entry to capture your reflection")
-        // } else {
+       
+        var stopRecordingPromise = stopRecording()
+        stopRecordingPromise.then(function(){
+            console.log("Promise resolved")
+            setMicColour("grey")
+        }).catch(function(){
+            console.log("Promise rejected")
+        })
+        // try{
+        //     stopRecording()
+        //     setMicColour("grey")
+        // }catch(e){
+        //     console.log(e)
         // }
         setDialogVisible(true)
 

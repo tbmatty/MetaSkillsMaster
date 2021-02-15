@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { render } from 'react-dom';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import * as firebase from "firebase";
@@ -6,66 +6,62 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { format, startOfWeek } from 'date-fns';
 
 
-export default class Profile extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            date: new Date(),
-            mode: 'time',
-            show: false,
-            loading: true,
-            weekMonthYear: "week",
-            consecutive: 0,
-            consecutiveAllTime: 0,
-            weekStats: [], //Array for every skill at each i
-            monthStats: [], //Array for every skill at each i
-            yearStats: [], //Array for every skill at each i
-            threeWeekly: [],
-            threeMonthly: [],
-            threeYearly: [],
-            weekCount: 0,
-            monthlyCount: 0,
-            yearlyCount:0,
-            reflectionStatsWeekly: [],   //For pie chart
-            reflectionStatsMonthly: [],  //for pie chart
-            reflectionStatsYearly: [],   //for pie chart
-            mostRecordedWeekly: "",
-            mostRecordedMonthly: "",
-            mostRecordedYearly: "",
-            weeklyPlural: true,
-            skillCategories: {
-                0: "Self Management",
-                1: "Focussing",
-                2: "Integrity",
-                3: "Adapting",
-                4: "Initiative",
-                5: "Social Intelligence",
-                6: "Communicating",
-                7: "Feeling",
-                8: "Collaborating",
-                9: "Leading",
-                10: "Innovation",
-                11: "Curiosity",
-                12: "Creativity",
-                13: "Sense Making",
-                14: "Critical Thinking"
-            },
-            displayData: [],
-            color: ['#4677D6', '#FF5D60', '#FFC530']
-        }
+export default function Profile(props) {
+
+    const [uid, setUID] = useState()
+    const [date, setDate] = useState(new Date())
+    const mode = 'time'
+    const [show, setShow] = useState(false)
+    const [consecutive, setConsecutive] = useState(0)
+    const [consecutiveAllTime, setConsecutiveAllTime] = useState(0)
+    const [weekStats, setWeekStats] = useState([])//Array for every skill at each i
+    const [monthStats, setMonthStats] = useState([])//Array for every skill at each i
+    const [yearStats, setYearStats] = useState([])//Array for every skill at each i
+    const [weekCount, setWeekCount] = useState(0)//Number of reflections for the week
+    const [monthlyCount, setMonthlyCount] = useState(0)//Number of reflections for the month
+    const [yearlyCount, setYearlyCount] = useState(0)//Number of reflections for the year
+    const [reflectionStatsWeekly, setReflectionStatsWeekly] = useState([])//For pie chart
+    const [reflectionStatsMonthly, setReflectionStatsMonthly] = useState([])//For pie chart
+    const [reflectionStatsYearly, setReflectionStatsYearly] = useState([])//For pie chart
+    const skillCategories = {
+        0: "Self Management",
+        1: "Focussing",
+        2: "Integrity",
+        3: "Adapting",
+        4: "Initiative",
+        5: "Social Intelligence",
+        6: "Communicating",
+        7: "Feeling",
+        8: "Collaborating",
+        9: "Leading",
+        10: "Innovation",
+        11: "Curiosity",
+        12: "Creativity",
+        13: "Sense Making",
+        14: "Critical Thinking"
     }
-
-    componentDidMount() {
-        this.getFirebaseDataAsync()
-    }
+    const color = ['#4677D6', '#FF5D60', '#FFC530']
 
 
-    getFirebaseDataAsync = async () => {
-        var statArray
-        var reflectionStatsWeekly
+
+    useEffect(() => {
+        getFirebaseDataAsync()
+        var uid = firebase.auth().currentUser.uid
+
+        let unsubscribe = firebase.firestore().collection('Stats').doc(uid).collection('Weeks').onSnapshot(function (snapshot) {
+            getFirebaseDataAsync()
+        });
+
+
+    }, [])
+
+
+    const getFirebaseDataAsync = async () => {
+        var statArray = new Array(15).fill(0)
+        var reflectionStatsWeekly = new Array(3).fill(0)
         var reflectionStatsMonthly = new Array(3).fill(0)
         var reflectionStatsYearly = new Array(3).fill(0)
-        var weekStats
+        var weekStats = new Array(15).fill(0)
         var monthStats = new Array(15).fill(0)
         var yearStats = new Array(15).fill(0)
         var uid = firebase.auth().currentUser.uid
@@ -73,10 +69,9 @@ export default class Profile extends Component {
         var thisMonth = thisWeek.slice(3, 5)
         var thisYear = thisWeek.slice(6, 10)
         var i
-        var weekCount
+        var weekCount = 0
         var monthlyCount = 0
         var yearlyCount = 0
-
         let firebaseRef = await firebase.firestore().collection("Stats").doc(uid).collection("Weeks").get().then(snapshot => {
             snapshot.forEach(doc => {
                 statArray = doc.data().statArray
@@ -121,24 +116,24 @@ export default class Profile extends Component {
         })
 
 
-        this.setState({
-            weekStats: weekStats,
-            monthStats: monthStats,
-            yearStats: yearStats,
-            reflectionStatsWeekly: reflectionStatsWeekly,
-            reflectionStatsMonthly: reflectionStatsMonthly,
-            reflectionStatsYearly: reflectionStatsYearly,
-            consecutive: consecutive,
-            consecutiveAllTime: consecutiveAllTime,
-            weekCount:weekCount,
-            monthlyCount:monthlyCount,
-            yearlyCount:yearlyCount
-        })
-        console.log(reflectionStatsWeekly)
+
+
+        setWeekStats(weekStats)
+        setMonthStats(monthStats)
+        setYearStats(yearStats)
+        setReflectionStatsWeekly(reflectionStatsWeekly)
+        setReflectionStatsMonthly(reflectionStatsMonthly)
+        setReflectionStatsYearly(reflectionStatsYearly)
+        setConsecutive(consecutive)
+        setConsecutiveAllTime(consecutiveAllTime)
+        setWeekCount(weekCount)
+        setMonthlyCount(monthlyCount)
+        setYearlyCount(yearlyCount)
+        console.log("yearStats: "+yearStats)
 
     }
 
-    getAllIndexes = (arr, val) => {
+    const getAllIndexes = (arr, val) => {
         var indexes = [], i = -1;
         while ((i = arr.indexOf(val, i + 1)) != -1) {
             indexes.push(i);
@@ -146,19 +141,17 @@ export default class Profile extends Component {
         return indexes;
     }
 
-    arrayAllMaxIndexes = (array) => {
-        return this.getAllIndexes(array, Math.max.apply(null, array));
+    const arrayAllMaxIndexes = (array) => {
+        return getAllIndexes(array, Math.max.apply(null, array));
     }
 
 
 
-    onChange = (event, selectedDate) => {
+    const onChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
 
-        this.setState({
-            show: Platform.OS === 'ios',
-            date: currentDate
-        })
+        setShow(Platform.OS === 'ios')
+        setDate(currentDate)
         var dateStr = JSON.stringify(currentDate)
         var hour = dateStr.slice(12, 14)
         var minute = dateStr.slice(15, 17)
@@ -176,62 +169,57 @@ export default class Profile extends Component {
     };
 
 
-    showDatePicker = () => {
-        this.setState({
-            show: true,
-        })
+    const showDatePicker = () => {
+        setShow(true)
     };
 
-    hideDatePicker = () => {
-        this.setState({
-            show: false,
-        })
+    const hideDatePicker = () => {
+        setShow(false)
     }
 
-    render() {
-        return (
-            <View style={{ flex: 5 }}>
-                <View style={{ flex: 1 }}>
-                    <Text style={styles.titleText}>Hey You!</Text>
-                </View>
-                <View style={{ flex: 4 }}>
-                    <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("Stats", {
-                                                                                                                    pieDataWeekly:this.state.reflectionStatsWeekly,
-                                                                                                                    pieDataMonthly:this.state.reflectionStatsMonthly,
-                                                                                                                    pieDataYearly:this.state.reflectionStatsYearly,
-                                                                                                                    detailedWeeklyStats:this.state.weekStats,
-                                                                                                                    detailedMonthlyStats:this.state.monthStats,
-                                                                                                                    detailedYearlyStats:this.state.yearStats,
-                                                                                                                    weeklyCount:this.state.weekCount,
-                                                                                                                    monthlyCount:this.state.monthlyCount,
-                                                                                                                    yearlyCount:this.state.yearlyCount
-                                                                                                                    })}>
-                        <Text style={styles.buttonText}>Your Stats</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("Trophies")}>
-                        <Text style={styles.buttonText}>Your Trophies</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => this.showDatePicker()} style={styles.button}>
-                        <Text style={styles.buttonText}>Set notification time</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={() => firebase.auth().signOut()}>
-                        <Text style={styles.buttonText}>Sign out</Text>
-                    </TouchableOpacity>
-
-                    {this.state.show ?
-                        <DateTimePicker
-                            testID="dateTimePicker"
-                            value={this.state.date}
-                            mode={this.state.mode}
-                            is24Hour={true}
-                            display="default"
-                            onChange={this.onChange}
-                        /> : null
-                    }
-                </View>
+    return (
+        <View style={{ flex: 5 }}>
+            <View style={{ flex: 1 }}>
+                <Text style={styles.titleText}>Hey You!</Text>
             </View>
-        );
-    };
+            <View style={{ flex: 4 }}>
+                <TouchableOpacity style={styles.button} onPress={() => props.navigation.navigate("Stats", {
+                    pieDataWeekly: reflectionStatsWeekly,
+                    pieDataMonthly: reflectionStatsMonthly,
+                    pieDataYearly: reflectionStatsYearly,
+                    detailedWeeklyStats: weekStats,
+                    detailedMonthlyStats: monthStats,
+                    detailedYearlyStats: yearStats,
+                    weeklyCount: weekCount,
+                    monthlyCount: monthlyCount,
+                    yearlyCount: yearlyCount
+                })}>
+                    <Text style={styles.buttonText}>Your Stats</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => props.navigation.navigate("Trophies")}>
+                    <Text style={styles.buttonText}>Your Trophies</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => showDatePicker()} style={styles.button}>
+                    <Text style={styles.buttonText}>Set notification time</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => firebase.auth().signOut()}>
+                    <Text style={styles.buttonText}>Sign out</Text>
+                </TouchableOpacity>
+
+                {show ?
+                    <DateTimePicker
+                        testID="dateTimePicker"
+                        value={date}
+                        mode={mode}
+                        is24Hour={true}
+                        display="default"
+                        onChange={onChange}
+                    /> : null
+                }
+            </View>
+        </View>
+    );
+
 }
 
 const styles = StyleSheet.create({
@@ -244,7 +232,7 @@ const styles = StyleSheet.create({
     titleText: {
         fontSize: 32,
         paddingTop: 20,
-        textAlign:"center"
+        textAlign: "center"
     },
     buttonText: {
         fontSize: 18,

@@ -42,6 +42,9 @@ export default function Reflections(props) {
     },[props.route.params.firebaseArray])
 
 
+    //Handle empty
+
+
     return (
         <ScrollView contentContainerStyle={{
         }}>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { render } from 'react-dom';
-import { ScrollView,View, Text, Button, StyleSheet, Alert, BackHandler } from 'react-native';
+import { ScrollView, View, Text, Button, StyleSheet, Alert, BackHandler } from 'react-native';
 import { Audio } from 'expo-av';
 import { FontAwesome, AntDesign } from '@expo/vector-icons';
 import * as firebase from "firebase";
@@ -77,12 +77,24 @@ export default function Reflection(props) {
 
     const backAction = async () => {
         try {
-            await playbackObject.unloadAsync()
+            var promiseToCatch = stopPlaying()
+            promiseToCatch.then(function () {
+                console.log("Promise resolved")
+            }).catch(function () {
+                console.log("Promise rejected")
+            })
         } catch (e) {
             console.log(e)
         }
         props.navigation.goBack()
     }
+
+
+    const stopPlaying = async() =>{
+        await playbackObject.unloadAsync()
+    }
+
+
 
     const deleteReflectionAlert = () => {
         Alert.alert("Hold on!", "Are you sure you want to delete this reflection?", [
@@ -210,31 +222,31 @@ export default function Reflection(props) {
         //     <Text style={styles.dateText}>{"You recorded this on " + firebaseData[3].slice(1, 11) + " at " + firebaseData[3].slice(12, 20) + "TAKE A PEAK: " + firebaseData[3]}</Text>
         // </ScrollView>
         <View style={{ flex: 8 }}>
-            <View style={{ flex: 1, padding:22, alignItems:'center' }}>
+            <View style={{ flex: 1, padding: 22, alignItems: 'center' }}>
                 <Text style={styles.titleText}>{firebaseData[7]}</Text>
-                <ScrollView horizontal style={{paddingRight:14}}>
-                {firebaseData[2].map((item) => (
-                    <Text
-                        style={{
-                            color: colours[item],
-                            paddingLeft: 20,
-                            fontWeight: "bold",
-                            fontSize:16
-                        }}
-                        key={item}
-                    >
-                        {skillCategories[item]}
-                    </Text>
-                ))
-                }
+                <ScrollView horizontal style={{ paddingRight: 14 }}>
+                    {firebaseData[2].map((item) => (
+                        <Text
+                            style={{
+                                color: colours[item],
+                                paddingLeft: 20,
+                                fontWeight: "bold",
+                                fontSize: 16
+                            }}
+                            key={item}
+                        >
+                            {skillCategories[item]}
+                        </Text>
+                    ))
+                    }
                 </ScrollView>
             </View>
             {audioExists ?
-                <View style={{ flex: 1, paddingTop:25 }}>
+                <View style={{ flex: 1, paddingTop: 25 }}>
                     <AntDesign name={playPause} size={52} color="black" style={{ alignSelf: 'center' }} onPress={() => handlePlayPause(firebaseData[4])} />
                 </View>
                 : null}
-            <View style={{ flex: 6, alignItems:'center' }}>
+            <View style={{ flex: 6, alignItems: 'center' }}>
                 <ScrollView>
                     <Text style={styles.bodyText}>{firebaseData[1]}</Text>
                 </ScrollView>

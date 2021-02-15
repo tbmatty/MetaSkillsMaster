@@ -31,6 +31,7 @@ import Reflection from './Screens/Reflection.js';
 import Trophy from './Screens/Trophy.js';
 import { format, startOfWeek } from 'date-fns';
 import { LogBox } from 'react-native';
+import detailedStats from './Screens/detailedStats.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDwn_LuSa2_c2yfNFLrF4bSUo8nKWPqlXQ",
@@ -252,11 +253,7 @@ function App() {
           component={MyTabs}
           options={({ navigation }) => ({
             title: 'MetaSkillsMaster',
-            headerRight: () => (
-              <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-                <AntDesign name="user" size={32} color="black" paddingRight="50" />
-              </TouchableOpacity>
-            ),
+            
           })}
         />
         
@@ -270,6 +267,7 @@ function App() {
         <Stack.Screen name="Trophies" component={Trophies} options={{ title: 'Achievements' }} />
         <Stack.Screen name="Trophy" component={Trophy} options={{ title: 'A Trophy!' }} />
         <Stack.Screen name="Stats" component={Stats} options={{ title: 'Your Stats' }} />
+        <Stack.Screen name="detailedStats" component={detailedStats} options={{ title: 'Detailed View' }} />
 
         {/* <MyTabs /> */}
       </Stack.Navigator>

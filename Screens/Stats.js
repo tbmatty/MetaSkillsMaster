@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import * as firebase from "firebase";
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import { format, startOfWeek } from 'date-fns';
 import { PieChart } from "react-native-svg-charts";
 
@@ -30,6 +30,9 @@ export default class Stats extends Component {
                 13: "Sense Making",
                 14: "Critical Thinking"
             },
+            sadFace1: false,
+            sadFace2: false,
+            sadFace3: false,
             displayData: [],
             color: ['#4677D6', '#FF5D60', '#FFC530']
         }
@@ -37,276 +40,155 @@ export default class Stats extends Component {
 
     componentDidMount() {
         console.log(this.props.route.params)
-    }
-
-
-    // getFirebaseDataAsync = async () => {
-    //     var statArray
-    //     var reflectionStatsWeekly
-    //     var reflectionStatsMonthly = new Array(3).fill(0)
-    //     var reflectionStatsYearly = new Array(3).fill(0)
-    //     var weekStats
-    //     var monthStats = new Array(15).fill(0)
-    //     var yearStats = new Array(15).fill(0)
-    //     var uid = firebase.auth().currentUser.uid
-    //     var thisWeek = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "dd-MM-yyyy")
-    //     var thisMonth = thisWeek.slice(3, 5)
-    //     var i
-    //     let firebaseRef = await firebase.firestore().collection("Stats").doc(uid).collection("Weeks").get().then(snapshot => {
-    //         snapshot.forEach(doc => {
-    //             statArray = doc.data().statArray
-    //             if (doc.data().date === thisWeek) {
-    //                 weekStats = statArray
-    //                 reflectionStatsWeekly = doc.data().reflectionStatArray
-    //             }
-    //             if (doc.data().date.slice(3, 5) === thisMonth) {
-    //                 i = 0
-    //                 while (i < doc.data().statArray.length) {
-    //                     monthStats[i] += doc.data().statArray[i]
-    //                     if (i < 3) {
-    //                         reflectionStatsMonthly[i] += doc.data().reflectionStatArray[i]
-    //                     }
-    //                     i++
-    //                 }
-    //             }
-    //             i = 0
-    //             while (i < doc.data().statArray.length) {
-    //                 yearStats[i] += doc.data().statArray[i];
-    //                 if (i < 3) {
-    //                     reflectionStatsYearly[i] += doc.data().reflectionStatArray[i]
-    //                 }
-    //                 i++;
-    //             }
-    //         })
-    //     })
-
-    //     var consecutive
-    //     let getConsec = await firebase.firestore().collection("Users").doc(uid).get().then(doc => {
-    //         consecutive = doc.data().ConsecutiveDays;
-    //     })
-
-    //     var consecutiveAllTime
-    //     let getAllTimeConsec = await firebase.firestore().collection("BadgeProgress").doc(uid).get().then(doc => {
-    //         consecutiveAllTime = doc.data().Consistency;
-    //     })
-
-
-    //     this.setState({
-    //         weekStats: weekStats,
-    //         monthStats: monthStats,
-    //         yearStats: yearStats,
-    //         reflectionStatsWeekly: reflectionStatsWeekly,
-    //         reflectionStatsMonthly: reflectionStatsMonthly,
-    //         reflectionStatsYearly: reflectionStatsYearly,
-    //         displayData: reflectionStatsWeekly,
-    //         consecutive: consecutive,
-    //         consecutiveAllTime: consecutiveAllTime
-    //     })
-
-
-
-    //     var threeWeekly = []
-    //     console.log(reflectionStatsWeekly)
-    //     console.log(reflectionStatsMonthly)
-    //     console.log(reflectionStatsYearly)
-
-
-    //     var threeWeekly = [0, 0, 0]
-    //     i = 0
-    //     while (i < weekStats.length) {
-    //         if (i < 5) {
-    //             threeWeekly[0] += weekStats[i]
-    //         } else if (i > 5 && i < 10) {
-    //             threeWeekly[1] += weekStats[i]
-    //         } else {
-    //             threeWeekly[2] += weekStats[i]
-    //         }
-    //         i++
-    //     }
-
-    //     var threeMonthly = [0, 0, 0]
-    //     i = 0
-    //     while (i < yearStats.length) {
-    //         if (i < 5) {
-    //             threeMonthly[0] += monthStats[i]
-    //         } else if (i > 5 && i < 10) {
-    //             threeMonthly[1] += monthStats[i]
-    //         } else {
-    //             threeMonthly[2] += monthStats[i]
-    //         }
-    //         i++
-    //     }
-
-    //     var threeYearly = [0, 0, 0]
-    //     i = 0
-    //     while (i < yearStats.length) {
-    //         if (i < 5) {
-    //             threeYearly[0] += yearStats[i]
-    //         } else if (i > 5 && i < 10) {
-    //             threeYearly[1] += yearStats[i]
-    //         } else {
-    //             threeYearly[2] += yearStats[i]
-    //         }
-    //         i++
-    //     }
-
-    //     this.setState({
-    //         threeWeekly: threeWeekly,
-    //         threeMonthly: threeMonthly,
-    //         threeYearly: threeYearly
-    //     })
-
-    //     var maxes = []
-    //     maxes = this.arrayAllMaxIndexes(weekStats)
-    //     console.log(this.state.skillCategories[maxes])
-    //     i = 0
-    //     var weeklyRecorded = ""
-    //     while (i < maxes.length) {
-    //         weeklyRecorded += this.state.skillCategories[maxes[i]]
-    //         weeklyRecorded += ", "
-    //         i++
-    //     }
-    //     this.setState({
-    //         mostRecordedWeekly: weeklyRecorded,
-    //         loading: false
-    //     })
-
-    // }
-    // getAllIndexes = (arr, val) => {
-    //     var indexes = [], i = -1;
-    //     while ((i = arr.indexOf(val, i + 1)) != -1) {
-    //         indexes.push(i);
-    //     }
-    //     return indexes;
-    // }
-
-    // arrayAllMaxIndexes = (array) => {
-    //     return this.getAllIndexes(array, Math.max.apply(null, array));
-    // }
-
-    handleCalendarPress = () => {
-        var toggle = this.state.weekMonthYear
-        switch (toggle) {
-            case "week":
-                this.setState({ weekMonthYear: "month", displayData: this.state.reflectionStatsMonthly })
-                break;
-            case "month":
-                this.setState({ weekMonthYear: "year", displayData: this.state.reflectionStatsYearly })
-                break;
-            case "year":
-                this.setState({ weekMonthYear: "week", displayData: this.state.reflectionStatsWeekly })
-                break;
+        if (this.props.route.params.weeklyCount === 0) {
+            console.log("EH")
+            this.setState({ sadFace1: true })
+        } else {
+            this.setState({ sadFace1: false })
         }
+        if (this.props.route.params.monthlyCount === 0) {
+            this.setState({ sadFace2: true })
+        } else {
+            this.setState({ sadFace2: false })
+        }
+        if (this.props.route.params.yearlyCount === 0) {
+            this.setState({ sadFace3: true })
+        } else {
+            this.setState({ sadFace3: false })
+        }
+        console.log(this.state.sadFace1)
     }
+
+
 
     render() {
         return (
             <View style={{ flex: 3 }}>
-                <View style={styles.container}>
-                    <View style={{ flex: 7 }}>
-                        <View style={styles.titleSpace}>
-                            <Text style={styles.titleText}>
-                                Your Weekly Stats
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => this.props.navigation.navigate("detailedStats", { pieData: this.props.route.params.pieDataWeekly, detailedStats: this.props.route.params.detailedWeeklyStats, reflectionCount:this.props.route.params.weeklyCount })} >
+                    <View style={styles.container}>
+                        <View style={{ flex: 7 }}>
+                            <View style={styles.titleSpace}>
+                                <Text style={styles.titleText}>
+                                    Your Weekly Stats
                             </Text>
-                        </View>
-                        <View style={styles.contentContainer}>
-                            <View style={styles.pieChartContainer}>
-                                <PieChart
-                                    style={styles.pie}
-                                    data={this.props.route.params.pieDataWeekly
-                                        .filter((value) => value >= 0)
-                                        .map((value, index) => ({
-                                            value,
-                                            svg: {
-                                                fill: this.state.color[index],
-                                                onPress: () => console.log('press', index),
-                                            },
-                                            key: `pie-${index}`,
-                                        }))}
-                                />
                             </View>
-                            <View style={styles.reflectionTextContainer}>
-                                <Text style={styles.reflectionText}>Reflections:</Text>
-                                <View style={styles.numTextContainer}>
-                                    <Text style={{ textAlign: "center", paddingTop: 18, fontSize: 38 }}>{this.props.route.params.weeklyCount}</Text>
+                            <View style={styles.contentContainer}>
+                                <View style={styles.pieChartContainer}>
+                                    {this.state.sadFace1 ?
+                                        <View style={{ alignItems: "center", justifyContent: "center", flex: 3 }}>
+                                            <Entypo name="emoji-sad" size={65} color="black" />
+                                        </View> :
+                                        <PieChart
+                                            style={styles.pie}
+                                            data={this.props.route.params.pieDataWeekly
+                                                .filter((value) => value >= 0)
+                                                .map((value, index) => ({
+                                                    value,
+                                                    svg: {
+                                                        fill: this.state.color[index],
+                                                        onPress: () => console.log('press', index),
+                                                    },
+                                                    key: `pie-${index}`,
+                                                }))}
+                                        />
+                                    }
                                 </View>
-                            </View>
+                                <View style={styles.reflectionTextContainer}>
+                                    <Text style={styles.reflectionText}>Reflections:</Text>
+                                    <View style={styles.numTextContainer}>
+                                        <Text style={{ textAlign: "center", paddingTop: 18, fontSize: 38 }}>{this.props.route.params.weeklyCount}</Text>
+                                    </View>
+                                </View>
 
+                            </View>
                         </View>
                     </View>
-                </View>
-                <View style={styles.container}>
-                    <View style={{ flex: 7 }}>
-                        <View style={styles.titleSpace}>
-                            <Text style={styles.titleText}>
-                                Your Monthly Stats
+                </TouchableOpacity>
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => this.props.navigation.navigate("detailedStats", { pieData: this.props.route.params.pieDataMonthly, detailedStats: this.props.route.params.detailedMonthlyStats, reflectionCount:this.props.route.params.monthlyCount })} >
+                    <View style={styles.container}>
+                        <View style={{ flex: 7 }}>
+                            <View style={styles.titleSpace}>
+                                <Text style={styles.titleText}>
+                                    Your Monthly Stats
                             </Text>
-                        </View>
-                        <View style={styles.contentContainer}>
-                            <View style={styles.pieChartContainer}>
-                                <PieChart
-                                    style={styles.pie}
-                                    data={this.props.route.params.pieDataMonthly
-                                        .filter((value) => value >= 0)
-                                        .map((value, index) => ({
-                                            value,
-                                            svg: {
-                                                fill: this.state.color[index],
-                                                onPress: () => console.log('press', index),
-                                            },
-                                            key: `pie-${index}`,
-                                        }))}
-                                />
                             </View>
-                            <View style={styles.reflectionTextContainer}>
-                                <Text style={styles.reflectionText}>Reflections:</Text>
-                                <View style={styles.numTextContainer}>
-                                    <Text style={{ textAlign: "center", paddingTop: 18, fontSize: 38 }}>{this.props.route.params.monthlyCount}</Text>
+                            <View style={styles.contentContainer}>
+                                <View style={styles.pieChartContainer}>
+                                    {this.state.sadFace1 ?
+                                        <View style={{ alignItems: "center", justifyContent: "center", flex: 3 }}>
+                                            <Entypo name="emoji-sad" size={65} color="black" />
+                                        </View> :
+                                        <PieChart
+                                            style={styles.pie}
+                                            data={this.props.route.params.pieDataMonthly
+                                                .filter((value) => value >= 0)
+                                                .map((value, index) => ({
+                                                    value,
+                                                    svg: {
+                                                        fill: this.state.color[index],
+                                                        onPress: () => console.log('press', index),
+                                                    },
+                                                    key: `pie-${index}`,
+                                                }))}
+                                        />
+                                    }
                                 </View>
-                            </View>
+                                <View style={styles.reflectionTextContainer}>
+                                    <Text style={styles.reflectionText}>Reflections:</Text>
+                                    <View style={styles.numTextContainer}>
+                                        <Text style={{ textAlign: "center", paddingTop: 18, fontSize: 38 }}>{this.props.route.params.monthlyCount}</Text>
+                                    </View>
+                                </View>
 
+                            </View>
                         </View>
                     </View>
-                </View>
-                <View style={styles.container}>
-                    <View style={{ flex: 7 }}>
-                        <View style={styles.titleSpace}>
-                            <Text style={styles.titleText}>
-                                Your Yearly Stats
+                </TouchableOpacity>
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => this.props.navigation.navigate("detailedStats", { pieData: this.props.route.params.pieDataYearly, detailedStats: this.props.route.params.detailedYearlyStats, reflectionCount:this.props.route.params.yearlyCount })} >
+                    <View style={styles.container}>
+                        <View style={{ flex: 7 }}>
+                            <View style={styles.titleSpace}>
+                                <Text style={styles.titleText}>
+                                    Your Yearly Stats
                             </Text>
-                        </View>
-                        <View style={styles.contentContainer}>
-                            <View style={styles.pieChartContainer}>
-                                <PieChart
-                                    style={styles.pie}
-                                    data={this.props.route.params.pieDataYearly
-                                        .filter((value) => value >= 0)
-                                        .map((value, index) => ({
-                                            value,
-                                            svg: {
-                                                fill: this.state.color[index],
-                                                onPress: () => console.log('press', index),
-                                            },
-                                            key: `pie-${index}`,
-                                        }))}
-                                />
                             </View>
-                            <View style={styles.reflectionTextContainer}>
-                                <Text style={styles.reflectionText}>Reflections:</Text>
-                                <View style={styles.numTextContainer}>
-                                    <Text style={{ textAlign: "center", paddingTop: 18, fontSize: 38 }}>{this.props.route.params.yearlyCount}</Text>
+                            <View style={styles.contentContainer}>
+                                <View style={styles.pieChartContainer}>
+                                    {this.state.sadFace1 ?
+                                        <View style={{ alignItems: "center", justifyContent: "center", flex: 3 }}>
+                                            <Entypo name="emoji-sad" size={65} color="black" />
+                                        </View> :
+                                        <PieChart
+                                            style={styles.pie}
+                                            data={this.props.route.params.pieDataYearly
+                                                .filter((value) => value >= 0)
+                                                .map((value, index) => ({
+                                                    value,
+                                                    svg: {
+                                                        fill: this.state.color[index],
+                                                        onPress: () => console.log('press', index),
+                                                    },
+                                                    key: `pie-${index}`,
+                                                }))}
+                                        />
+                                    }
                                 </View>
-                            </View>
+                                <View style={styles.reflectionTextContainer}>
+                                    <Text style={styles.reflectionText}>Reflections:</Text>
+                                    <View style={styles.numTextContainer}>
+                                        <Text style={{ textAlign: "center", paddingTop: 18, fontSize: 38 }}>{this.props.route.params.yearlyCount}</Text>
+                                    </View>
+                                </View>
 
+                            </View>
                         </View>
                     </View>
-                </View>
+                </TouchableOpacity>
             </View>
-
-
         );
     };
 }
+
 const styles = StyleSheet.create({
     midText: {
         fontSize: 20,

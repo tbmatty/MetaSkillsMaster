@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import { render } from 'react-dom';
 import { ScrollView, Text, Button, TouchableOpacity, View, StyleSheet } from 'react-native';
 import * as firebase from 'firebase'
 import { AntDesign } from '@expo/vector-icons';
-
+import { Entypo } from '@expo/vector-icons';
 
 export default function MonthSelector(props) {
 
@@ -24,8 +24,20 @@ export default function MonthSelector(props) {
     const [monthsAndYears, setMonthsAndYears] = useState([])
     const [firebaseArray, setFirebaseArray] = useState([])
     const [user, setUser] = useState(firebase.auth().currentUser)
+    const [sadFace, setSadFace] = useState(true)
 
-
+    const initialState = {sadFacex: true};
+    
+    function reducer(state, action) {
+        switch (action.type) {
+          case 'sad':
+            return {sadFacex: true};
+          case 'happy':
+            return {sadFacex: false};
+          default:
+            throw new Error();
+        }
+      }
 
     useEffect(() => {
         getFirebaseData()
@@ -34,9 +46,10 @@ export default function MonthSelector(props) {
         //
         //
         let unsubscribe = firebase.firestore().collection('Recordings').doc(user.uid).collection('Recordings').onSnapshot(function (snapshot) {
+            setSadFace(false)
             getFirebaseData()
         });
-
+        
 
 
     }, [])
@@ -45,7 +58,7 @@ export default function MonthSelector(props) {
 
     const getFirebaseData = async () => {
         console.log("FIre")
-
+        console.log(monthsAndYears.length)
         var uid = firebase.auth().currentUser.uid
         var arrayToSet = []
         var monthYearArray = []
@@ -72,6 +85,13 @@ export default function MonthSelector(props) {
         }
 
         setMonthsAndYears(arrayWithKeys)
+        if (monthsAndYears.length > 0) {
+            //set sad face
+            console.log("CONSOLE LOG")
+            setSadFace(false)
+        }else{
+            setSadFace(true)
+        }
         setFirebaseArray(arrayToSet)
     }
 
@@ -103,18 +123,26 @@ export default function MonthSelector(props) {
 
 
     return (
+        <View style={{flex:1}}>
+            {!monthsAndYears.length ?
+                <View style={{alignItems:"center",justifyContent:"center", flex:1}}>
+                    <Entypo name="emoji-flirt" size={38} color="black" />
+                    <Text style={{paddingVertical:20}}>You have no reflections... yet!</Text>
+                </View>
+                :
+                <ScrollView contentContainerStyle={{
+                }}>
+                    <Text style={styles.titleText}>View your recordings across {monthsAndYears.length} month{monthsAndYears.length > 1 ? "s" : ""}</Text>
 
-        <ScrollView contentContainerStyle={{
-        }}>
-            <Text style={styles.titleText}>View your recordings across {monthsAndYears.length} month{monthsAndYears.length > 1 ? "s" : ""}</Text>
-
-            {monthsAndYears.map((item) => (
-                <TouchableOpacity style={styles.button} key={item[0]} onPress={() => handleButtonPress(item[1])}>
-                    <Text style={styles.buttonText}>{monthIntMap[item[1].slice(0, 2)] + " " + item[1].slice(3,)}</Text>
-                </TouchableOpacity>
-            ))
+                    {monthsAndYears.map((item) => (
+                        <TouchableOpacity style={styles.button} key={item[0]} onPress={() => handleButtonPress(item[1])}>
+                            <Text style={styles.buttonText}>{monthIntMap[item[1].slice(0, 2)] + " " + item[1].slice(3,)}</Text>
+                        </TouchableOpacity>
+                    ))
+                    }
+                </ScrollView>
             }
-        </ScrollView>
+        </View>
     );
 
 
