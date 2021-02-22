@@ -43,10 +43,16 @@ export default class SplashScreen extends Component {
                     .then((docSnapshot) => {
                         if (!docSnapshot.exists) {
                             console.log("HELLO")
+                            var userName = "User"+JSON.stringify(Math.floor(100000 + Math.random() * 900000))
                             usersRef.set({
                                 email: user.email,
                                 notificationTime: -1,
-                                notificationTimeMinutes: -1
+                                notificationTimeMinutes: -1,
+                                xp: 0,
+                                ConsecutiveDays: 0,
+                                name: userName,
+                                LeaderboardUsers: [],
+                                LeaderboardWeek: "",
                             }) // create the document
                         } else {
                             console.log("HEY")
@@ -79,6 +85,7 @@ export default class SplashScreen extends Component {
                 //this.props.navigation.navigate("Home");
             }
         });
+
     }
 
 

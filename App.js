@@ -32,6 +32,7 @@ import Trophy from './Screens/Trophy.js';
 import { format, startOfWeek } from 'date-fns';
 import { LogBox } from 'react-native';
 import detailedStats from './Screens/detailedStats.js';
+import Leaderboard from './Screens/Leaderboard.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDwn_LuSa2_c2yfNFLrF4bSUo8nKWPqlXQ",
@@ -268,7 +269,7 @@ function App() {
         <Stack.Screen name="Trophy" component={Trophy} options={{ title: 'A Trophy!' }} />
         <Stack.Screen name="Stats" component={Stats} options={{ title: 'Your Stats' }} />
         <Stack.Screen name="detailedStats" component={detailedStats} options={{ title: 'Detailed View' }} />
-
+        <Stack.Screen name="Leaderboard" component={Leaderboard} options={{title: 'Leaderboard'}}/>
         {/* <MyTabs /> */}
       </Stack.Navigator>
 

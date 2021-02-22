@@ -199,6 +199,9 @@ export default function Profile(props) {
                 <TouchableOpacity style={styles.button} onPress={() => props.navigation.navigate("Trophies")}>
                     <Text style={styles.buttonText}>Your Trophies</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => props.navigation.navigate("Leaderboard")}>
+                    <Text style={styles.buttonText}>Leaderboard</Text>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={() => showDatePicker()} style={styles.button}>
                     <Text style={styles.buttonText}>Set notification time</Text>
                 </TouchableOpacity>

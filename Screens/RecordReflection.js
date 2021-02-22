@@ -195,25 +195,37 @@ export default function RecordReflection(props) {
 
         var date = format(new Date(), "dd-MM-yyyy-kk:mm:ss");
         var uid = firebase.auth().currentUser.uid;
-
+        var today = date.slice(0,10)
 
         // console.log(file)
         let userDoc = firebase.firestore().collection("Users").doc(uid)
+        var userXP = 0
         var lastDate
-        var concurrentDays
+        var concurrentDays = 0
         let getUserDoc = await userDoc.get().then(doc => {
             lastDate = doc.data().lastDate,
                 concurrentDays = doc.data().ConsecutiveDays,
+                userXP = doc.data().xp
                 console.log(doc.data().ConsecutiveDays)
         })
-        console.log("Concurrent days: " + JSON.stringify(concurrentDays))
-        if (lastDate != date.slice(0, 10)) {
+        //Only increase consecutive day count if the last date was not today or if the consecutive day count is at 0
+        if (lastDate != today || concurrentDays===0) {
+            console.log("NAH BUDDEH")
             concurrentDays++
             await userDoc.set({
                 lastDate: date.slice(0, 10),
-                ConsecutiveDays: concurrentDays
+                ConsecutiveDays: concurrentDays,
             }, { merge: true })
         }
+
+
+        userXP += 10+concurrentDays
+        await userDoc.set({
+            xp: userXP
+        }, { merge: true })
+
+
+
 
         var firebaseURI = ""
 
