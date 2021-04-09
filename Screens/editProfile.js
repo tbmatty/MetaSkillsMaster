@@ -25,6 +25,8 @@ export default function editProfile(props) {
 
     useEffect(() => {
 
+        //Async function defined here so that the await keyword can be used
+        //Gets user data from firebase
         async function getUserData() {
             var uid = firebase.auth().currentUser.uid
             var userInfo = []
@@ -38,10 +40,9 @@ export default function editProfile(props) {
         }
 
 
-        console.log(userProfilePicURI)
         getUserData()
 
-
+        //Listeners for keyboard events
         Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
         Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
 
@@ -55,23 +56,25 @@ export default function editProfile(props) {
     }, [])
 
 
+    //If the keyboard shows, update state to hide elements
     const _keyboardDidShow = () => {
         setUserIsTyping(true)
     }
 
+    //If the keyboard is deactivated/hidden, update state to show elements
     const _keyboardDidHide = () => {
         setUserIsTyping(false)
     };
 
-
+    //Called when the user presses edit profile picture button
+    //Stores local uri of the image in state, used when uploading to firebase
     const handlePickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [4, 3],
             quality: 0.1,
         });
-        console.log(result);
 
         if (!result.cancelled) {
             setImagePicked(result.uri)
@@ -79,20 +82,28 @@ export default function editProfile(props) {
     }
 
 
-
+    //Handler for user description text entry
+    //Updates state
     const handleUserDescriptionChange = (textEntry) => {
         setUserDescription(textEntry)
     }
 
+    //Handler for username text entry
+    //Updates state
     const handleUsernameChange = (textEntry) => {
         setUserName(textEntry)
     }
 
+    //Handles cancel button
+    //Illusion of control in the case the user makes changes and doesn't want to save them - they can navigate back and it'll be fine anyway
     const handleCancel = () => {
         props.navigation.goBack()
     }
 
+    //Method for updating firebase document
     const handleSubmit = async() => {
+       
+        //Checking for valid input
         if(userDescription.length>200){
             Alert.alert("Description field must not exceed 200 characters")
             return;
@@ -101,11 +112,13 @@ export default function editProfile(props) {
             Alert.alert("User name field must not exceed 20 characters")
             return;
         }
-       
+        
         var uid = firebase.auth().currentUser.uid
         var firebaseURI = userProfilePicURI
         var date = format(new Date(), "dd-MM-yyyy-kk:mm:ss");
 
+        //Upload to firebase cloud storage bucket
+        //Check image has been picked
         if(imagePicked!=null){
             var response = await fetch(imagePicked);
             var blob = await response.blob();
@@ -119,15 +132,16 @@ export default function editProfile(props) {
             var userRef = storageRef.child(uid);
             var dateRef = userRef.child(date);
             await dateRef.put(blob).then(function (snapshot) {
-                console.log("U CANT EVEN FINISH IT");
+
             });
 
             await dateRef.getDownloadURL().then((url) => firebaseURI = url)
 
-            console.log("Firebase URI: " + firebaseURI)
         }
-        var uid = firebase.auth().currentUser.uid
-        console.log(firebaseURI)
+
+        //Update user document
+        //Checks if new image has been picked
+        //{merge:true} to not rewrite the document and remove other fields
         if(imagePicked!=null){
             let userDocRef = firebase.firestore().collection("Users").doc(uid).set({
                 name: userName,
@@ -141,6 +155,7 @@ export default function editProfile(props) {
             }, { merge: true })
         }
         
+        //Avoids multiple identical screens being nested
         props.navigation.dispatch(StackActions.pop(2));
 
 

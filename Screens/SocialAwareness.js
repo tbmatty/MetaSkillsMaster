@@ -6,16 +6,6 @@ import sectionListGetItemLayout from 'react-native-section-list-get-item-layout'
 export default class SocialAwareness extends Component {
     constructor(props) {
         super(props);
-        this.getItemLayout = sectionListGetItemLayout({
-            // The height of the row with rowData at the given sectionIndex and rowIndex
-            getItemHeight: (rowData, sectionIndex, rowIndex) => sectionIndex === 0 ? 100 : 50,
-
-            // These four properties are optional
-            // getSeparatorHeight: () => 1 / PixelRatio.get(), // The height of your separators
-            // getSectionHeaderHeight: () => 20, // The height of your section headers
-            // getSectionFooterHeight: () => 10, // The height of your section footers
-            // listHeaderHeight: 40, // The height of your list header
-        })
         this.state = {
             data: [
                 {
@@ -53,41 +43,14 @@ export default class SocialAwareness extends Component {
         }
     }
 
-    componentDidMount = () => {
-        setTimeout(() => {
-            if (this.sectionListRef) {
-                this.sectionListRef.scrollToLocation({
-                    animated: true,
-                    itemIndex: 0,
-                    sectionIndex: this.props.route.params.navProp,
-                    viewPosition: 0
-                });
-            }
-        }, 150);
-    }
+    
 
 
 
-    test = () => {
-        var object = {
-            itemIndex: 0,
-            sectionIndex: 4
-        }
-        this.sectionListRef.scrollToLocation(object)
-    }
 
     render() {
         return (
-            // <SafeAreaView style={styles.container}>
-            //     <SectionList
-            //         ref={ref => this.sectionListRef = ref}
-            //         sections={this.state.data}
-            //         getItemLayout={this.getItemLayout}
-            //         keyExtractor={(item, index) => item + index}
-            //         renderItem={({ item }) => <Text style={styles.bodyText}>{item}</Text>}
-            //         renderSectionHeader={({ section: { title } }) => <Text style={this.state.textstyles[title]}>{title}</Text>}
-            //     />
-            // </SafeAreaView>
+           
             <ScrollView style={styles.container}>
                 <Text style={styles.titleText}>Social Intelligence</Text>
                 <Text style={styles.bodyText}>Digital technology has allowed society to connect globally in new ways and will continue to make it easier to do so. It is also widely anticipated that existing sectoral and occupational boundaries will blur, so the need to have skills to connect and collaborate with people from diverse backgrounds is critical. To make a positive change in the world, we recognise that we can do this more effectively with others, making use of different perspectives to reach the best possible outcome. {"\n"}{"\n"}Tap to learn more about the four sub-skills of social intelligence:</Text>

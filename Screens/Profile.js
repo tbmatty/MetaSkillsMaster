@@ -124,7 +124,6 @@ export default function Profile(props) {
             setWeekCount(weekCount)
             setMonthlyCount(monthlyCount)
             setYearlyCount(yearlyCount)
-            console.log("yearStats: " + yearStats)
         }
 
         async function getNewProfilePic(){
@@ -216,8 +215,7 @@ export default function Profile(props) {
         var dateStr = JSON.stringify(currentDate)
         var hour = dateStr.slice(12, 14)
         var minute = dateStr.slice(15, 17)
-        console.log(hour)
-        console.log(minute)
+   
         var user = firebase.auth().currentUser
 
 

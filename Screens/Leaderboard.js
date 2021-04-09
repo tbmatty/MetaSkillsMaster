@@ -22,6 +22,7 @@ export default class Leaderboard extends Component {
     }
 
     //Only called from getAllUserData
+    //Selects a 15 slice from the array when the user is close to the bottom
     selectSliceFromArrayCloseToBottom = (index) => {
         var stateArray = this.state.userDataArray
         var arrayWithUser = []
@@ -38,7 +39,8 @@ export default class Leaderboard extends Component {
 
     }
 
-
+    //Only called from getAllUserData
+    //Selects a 15 slice from the array with user at pos 0
     selectSliceFromArrayStraightDown = (index) => {
         var stateArray = this.state.userDataArray
         var arrayWithUser = []
@@ -50,8 +52,9 @@ export default class Leaderboard extends Component {
         this.updateFirebase(columnForFirebase)
     }
 
+    //Update user document to include the users in their leaderboard
+    //Update date
     updateFirebase = (LeaderboardUsers) => {
-        console.log(LeaderboardUsers)
         var uid = firebase.auth().currentUser.uid
         var date = format(new Date(), "dd-MM-yyyy");
         let userRef = firebase.firestore().collection("Users").doc(uid)
@@ -62,27 +65,29 @@ export default class Leaderboard extends Component {
         this.setState({ isLoading: false })
     }
 
+    //Calls decideDataGather
     componentDidMount = async () => {
         this.setState({ isLoading: true })
         await this.decideDataGather()
     }
 
+    //Chooses whether or not to re-rank all users, or just those in the user's weekly leader board group
     decideDataGather = async () => {
+        //
+        //Checks if the user document contains empty fields for the leader board data
+        //
         var uid = firebase.auth().currentUser.uid
         var LeaderboardUsers = []
-        //dd-MM-yyyy
         var LeaderboardWeek = ""
         let userRef = firebase.firestore().collection("Users").doc(uid)
         await userRef.get().then(doc => {
             LeaderboardUsers = doc.data().LeaderboardUsers
-            console.log(doc.data().LeaderboardUsers)
             LeaderboardWeek = doc.data().LeaderboardWeek
         })
 
         var date = format(new Date(), "dd-MM-yyyy");
         if (LeaderboardUsers.length == 0) {
             this.getAllUserData()
-            console.log("Get all user data called arr length 0")
             return;
         }
         if (LeaderboardWeek == "") {
@@ -94,29 +99,22 @@ export default class Leaderboard extends Component {
         var splitUpWeek = LeaderboardWeek.split("-")
 
         var dateFromFirebase = new Date(splitUpWeek[2], splitUpWeek[1] - 1, splitUpWeek[0])
-        console.log(dateFromFirebase)
+
+        //Decides data gather here
         if (isThisWeek(dateFromFirebase)) {
-            //Get only select Data
-            console.log("Get select users: " + LeaderboardUsers)
             this.getSelectUserData(LeaderboardUsers)
         } else {
             this.getAllUserData()
-            console.log("Get all users")
         }
     }
 
+    //Gets all  user data and sorts by XP
     getAllUserData = async () => {
         var userDataArray = [] // [[userID, userName, xp], ...]
-        var i = 0
-        var userPositionInArray = 0
         var uid = firebase.auth().currentUser.uid
         let userRef = await firebase.firestore().collection("Users").get().then(snapshot => {
             snapshot.forEach(doc => {
                 userDataArray.push([doc.id, doc.data().name, doc.data().xp])
-                if (doc.id === uid) {
-                    userPositionInArray = i
-                }
-                i++;
             })
         })
 
@@ -139,7 +137,7 @@ export default class Leaderboard extends Component {
             userDataArray: userDataArray,
         })
 
-        userPositionInArray = this.state.userGlobalPos
+        var userPositionInArray = this.state.userGlobalPos
 
         var displayArray = []
         var userDistanceFromBottom = userDataArray.length - userPositionInArray
@@ -158,6 +156,7 @@ export default class Leaderboard extends Component {
         this.setState({ isLoading: false })
     }
 
+    
     getSelectUserData = async (LeaderboardUsers) => {
         var i = 0
         var whatYouWant = []
@@ -167,7 +166,6 @@ export default class Leaderboard extends Component {
                 whatYouWant.push([doc.id, doc.data().name, doc.data().xp])
             })
         }
-        console.log(whatYouWant)
         whatYouWant.sort(function (a, b) {
             return b[2] - a[2]
         })

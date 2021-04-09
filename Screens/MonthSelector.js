@@ -40,13 +40,10 @@ export default function MonthSelector(props) {
     }
 
     useEffect(() => {
-        //await getFirebaseData()
 
 
         async function getFirebaseData() {
 
-            console.log("FIre")
-            console.log(monthsAndYears.length)
             var uid = firebase.auth().currentUser.uid
             var arrayToSet = []
             var monthYearArray = []
@@ -75,7 +72,6 @@ export default function MonthSelector(props) {
             setMonthsAndYears(arrayWithKeys)
             if (monthsAndYears.length > 0) {
                 //set sad face
-                console.log("CONSOLE LOG")
                 setSadFace(false)
             } else {
                 setSadFace(true)
@@ -84,23 +80,18 @@ export default function MonthSelector(props) {
         }
 
         getFirebaseData()
-        // How to listen for changes to firebase doc
-        //
-        //
+       
         let unsubscribe = firebase.firestore().collection('Recordings').doc(user.uid).collection('Recordings').onSnapshot(function (snapshot) {
             setSadFace(false)
             getFirebaseData()
         });
 
-        console.log(monthsAndYears)
 
     }, [])
 
 
 
     const getFirebaseData = async () => {
-        console.log("FIre")
-        console.log(monthsAndYears.length)
         var uid = firebase.auth().currentUser.uid
         var arrayToSet = []
         var monthYearArray = []
@@ -129,7 +120,6 @@ export default function MonthSelector(props) {
         setMonthsAndYears(arrayWithKeys)
         if (monthsAndYears.length > 0) {
             //set sad face
-            console.log("CONSOLE LOG")
             setSadFace(false)
         } else {
             setSadFace(true)
@@ -139,8 +129,7 @@ export default function MonthSelector(props) {
 
 
     const handleButtonPress = (monthYear) => {
-        console.log(monthYear)
-        console.log("yooo we out here")
+
         var copyFrom = firebaseArray;
         var i = 0;
         var copyTo = []
@@ -148,12 +137,10 @@ export default function MonthSelector(props) {
             if (copyFrom[i][0] === monthYear) {
                 copyTo.push([i, copyFrom[i]]);
             }
-            console.log(copyFrom[i][0] === monthYear);
             i++;
 
         }
-        // console.log("We're breaking up, its not me its you")
-        // console.log(copyTo)
+
         props.navigation.navigate("Reflections", { firebaseArray: copyTo, monthYear: monthYear });
     }
 

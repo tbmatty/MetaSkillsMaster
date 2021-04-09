@@ -109,12 +109,9 @@ export default function Reflection(props) {
     }
 
     const deleteReflection = async () => {
-        console.log(firebaseData)
         let uid = await firebase.auth().currentUser.uid
-        console.log(uid)
         let firebaseRef = firebase.firestore().collection("Recordings").doc(uid).collection("Recordings").doc(firebaseData[3])
         firebaseRef.delete()
-        //Could potentially go back, need listener for prop in Reflections.js
         try {
             await playbackObject.unloadAsync()
         } catch (e) {
@@ -130,38 +127,23 @@ export default function Reflection(props) {
 
     const _onPlaybackStatusUpdate = playbackStatus => {
         if (!playbackStatus.isLoaded) {
-            // Update your UI for the unloaded state
             if (playbackStatus.error) {
                 console.log(`Encountered a fatal error during playback: ${playbackStatus.error}`);
-                // Send Expo team the error on Slack or the forums so we can help you debug!
             }
         } else {
-            // Update your UI for the loaded state
-
-            if (playbackStatus.isPlaying) {
-                // Update your UI for the playing state
-            } else {
-                // Update your UI for the paused state
-            }
-
-            if (playbackStatus.isBuffering) {
-                // Update your UI for the buffering state
-            }
+            
 
             if (playbackStatus.didJustFinish) {
-                // The player has just finished playing and will stop. Maybe you want to play something else?
+                // The player has just finished playing and will stop.
                 playbackObject.unloadAsync()
                 setIsLoaded(false)
                 setPlayPause("playcircleo")
                 setIsLoaded(false)
             }
-            // etc
         }
     };
 
     // Load the playbackObject and obtain the reference.
-
-
     const playRecording = async (uri) => {
         if (isLoaded === false) {
             await playbackObject.loadAsync({ uri: uri }, { shouldPlay: true })
@@ -190,37 +172,10 @@ export default function Reflection(props) {
         }
     }
 
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
+    
 
 
     return (
-        // <ScrollView>
-        //     <Text style={styles.titleText}>{firebaseData[7]}</Text>
-        // {firebaseData[2].map((item) => (
-        //     <Text
-        //         style={{
-        //             color: colours[item],
-        //             paddingLeft: 20,
-        //             fontWeight: "bold"
-        //         }}
-        //         key={item}
-        //     >
-        //         {skillCategories[item]}
-        //     </Text>
-        //     ))
-        //     }
-        //     <Text style={styles.bodyText}>{firebaseData[1]}</Text>
-        //     {audioExists? <AntDesign name={playPause} size={52} color="black" style={{ alignSelf: 'center' }} onPress={() => handlePlayPause(firebaseData[4])} /> : null}
-        //     <Text style={styles.dateText}>{"You recorded this on " + firebaseData[3].slice(1, 11) + " at " + firebaseData[3].slice(12, 20) + "TAKE A PEAK: " + firebaseData[3]}</Text>
-        // </ScrollView>
         <View style={{ flex: 8 }}>
             <View style={{ flex: 1, padding: 22, alignItems: 'center' }}>
                 <Text style={styles.titleText}>{firebaseData[7]}</Text>

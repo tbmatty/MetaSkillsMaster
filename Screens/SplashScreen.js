@@ -24,10 +24,7 @@ export default class SplashScreen extends Component {
 
 
         firebase.auth().onAuthStateChanged((user) => {
-            // console.log(user);
             if (!user) {
-                // this.setState({ user });
-                //signedOut = true;
                 this.props.navigation.dispatch(
                     CommonActions.reset({
                         index: 1,
@@ -36,13 +33,11 @@ export default class SplashScreen extends Component {
                         ],
                     })
                 );
-                //this.props.navigation.navigate("Login");
             } else {
                 const usersRef = firebase.firestore().collection('Users').doc(user.uid)
                 usersRef.get()
                     .then((docSnapshot) => {
                         if (!docSnapshot.exists) {
-                            console.log("HELLO")
                             var userName = "User"+JSON.stringify(Math.floor(100000 + Math.random() * 900000))
                             usersRef.set({
                                 email: user.email,
@@ -76,7 +71,6 @@ export default class SplashScreen extends Component {
                 badgesRef.get()
                     .then((docSnapshot) => {
                         if (!docSnapshot.exists) {
-                            console.log("HELLO")
                             badgesRef.set({
                                 Consistency: 0,
                                 Innovation: 0,
@@ -93,9 +87,7 @@ export default class SplashScreen extends Component {
                         ],
                     })
                 );
-                // this.setState({ user: null });
-                //signedOut = false;
-                //this.props.navigation.navigate("Home");
+               
             }
         });
 

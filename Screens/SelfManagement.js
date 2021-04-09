@@ -49,38 +49,11 @@ export default function SelfManagement(props) {
         ]
     )
 
-    const getItemLayout = sectionListGetItemLayout({
-        // The height of the row with rowData at the given sectionIndex and rowIndex
-        getItemHeight: (rowData, sectionIndex, rowIndex) => sectionIndex === 0 ? 100 : 50,
-
-        // These four properties are optional
-        // getSeparatorHeight: () => 1 / PixelRatio.get(), // The height of your separators
-        // getSectionHeaderHeight: () => 20, // The height of your section headers
-        // getSectionFooterHeight: () => 10, // The height of your section footers
-        // listHeaderHeight: 40, // The height of your list header
-    })
-
-    useEffect(() => {
-        // var object = {
-        //     itemIndex: 0,
-        //     sectionIndex: 4
-        // }
-        // sectionListRef.scrollToLocation(object)
-
-    })
+   
 
 
     return (
-        // <SafeAreaView style={styles.container}>
-        //     <SectionList
-        //         ref={ref => sectionListRef = ref}
-        //         sections={data}
-        //         getItemLayout={getItemLayout}
-        //         keyExtractor={(item, index) => item + index}
-        //         renderItem={({ item }) => <Text style={styles.bodyText}>{item}</Text>}
-        //         renderSectionHeader={({ section: { title } }) => <Text style={textstyles[title]}>{title}</Text>}
-        //     />
-        // </SafeAreaView>
+       
         <View style={styles.container}>
             <Text style={styles.titleText}>Self Management</Text>
             <Text style={styles.bodyText}>Self management is required to cope with ongoing change in life and to support wellbeing, growth and ultimately performance and productivity. {"\n"}{"\n"}Tap to learn more about the four sub-skills of self management:</Text>

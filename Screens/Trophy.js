@@ -46,12 +46,12 @@ export default class Trophy extends Component {
                 3:"The Social Awareness Novice begins to reflect on the travels they have with their merry band. They see how much there is to give and gain, and begin to deepen their understanding.",
                 4:"The Social Awareness Adept and their merry band have travelled far and wide, made possible only by each other. The adept learns of a village in trouble and leads their merry band onwards, confident in the ability of their amazing leader.",
                 5:"The Social Awareness Master and their merry band have now conquered all the land, and brought peace and prosperity with them. The Master is revered among all, the leader they didn't need, but the leader they deserved.",
-                6:"The Innovation Novice ....",
-                7:"The Innovation Adept...",
-                8:"The Innovation Master...",
-                9:"The Consistency Novice...",
-                10:"The Consistency Adept...",
-                11:"The Consistency Master"
+                6:"The Innovation Novice one day noticed that their porridge didn't have to be so flavourless all the time and became the first person ever to add some sugar to their porridge, much to the delight of other porridge having people.",
+                7:"The Innovation Adept, renowned for their innovation in the field of porridge eating the world over begins to refine their craft",
+                8:"The Innovation Master enters the room, preparing to give what would be one of the most defining speeches in human history. There is a secret the Innovation Master has to share, and the room waits with baited breath. The Innovation Master announces, for the first time in human history, that ground cinnamon goes well with porridge.",
+                9:"The Consistency Novice is building a home, one which they can live in for the rest of their life.",
+                10:"The Consistency Adept looks over the progress so far, feeling accomplished at what they have built, but yet there is more to go.",
+                11:"The Consistency Master has finished building their home, content in their sacrifice to this grand monument. Congratulations on making it to a 100 day streak! Wow!"
             },
             colour:{
                 0: '#4677D6',

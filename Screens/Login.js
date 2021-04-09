@@ -15,7 +15,6 @@ export default function Login(props) {
         } catch (e) {
             Alert.alert("Incorrect Login Details: " + e)
         }
-        console.log(firebase.auth().currentUser);
     }
 
 
@@ -24,7 +23,6 @@ export default function Login(props) {
     }
 
     const _keyboardDidHide = () => {
-        console.log("Fired")
         setUserIsTyping(false)
     };
 

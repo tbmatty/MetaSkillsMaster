@@ -33,7 +33,7 @@ export default class detailedStats extends Component {
 
     componentDidMount = () => {
         if (this.props.route.params.reflectionCount === 0) {
-            //set sad face
+            //A sad face is used in place of a pie chart when the user doesn't have any reflections
             this.setState({ sadFace: true })
         }
     }

@@ -11,10 +11,7 @@ import { Entypo, AntDesign } from '@expo/vector-icons';
 import Dialog from "react-native-dialog";
 import { HeaderBackButton } from '@react-navigation/stack';
 
-// NEEDS:
-//      -Clean Up (Move submit to header top right, save icon)
-//      -Slider bar for playback
-//      -CSS (Improvements always available, currently bearable)
+
 
 
 export default function RecordReflection(props) {
@@ -40,6 +37,7 @@ export default function RecordReflection(props) {
         { "id": "13", "name": "Sense Making" },
         { "id": "14", "name": "Critical Thinking" },
     ])
+    //Numerical value used to represent skills in the back end of the application
     const [skills, setSkills] = useState([["0", "Self Management"],
     ["1", "Focussing"],
     ["2", "Integrity"],
@@ -144,18 +142,11 @@ export default function RecordReflection(props) {
     const [recording, setRecording] = useState(new Audio.Recording())
     const [timer, startTimer] = useState()
     const [textLength, setTextLength] = useState(true)
-    // const [response, setResponse] = useState()
-    // const [blob, setBlob] = useState()
-    //const [reader, setReader] = useState()
-    //let recording = new Audio.Recording()
 
 
     const handleSubmit = () => {
-        console.log(title.length)
-        console.log(recording)
-        console.log(timerTime)
+        
         if (skillSelection.length === 0) {
-            console.log("NOOOOOOOOOOOOOOOOO")
             setDialogVisible(false)
             Alert.alert("Pick a skill.", "You have not associated any skills with your reflection! Skills can be added by pressing the Add Skills button")
         } else if (textEntry === '' && recording === undefined) {
@@ -167,8 +158,12 @@ export default function RecordReflection(props) {
 
     }
 
+
+    //Uploads the reflection to firebase
+    //Uploads the audio to firebase cloud storage
+    //Updates badge progress for firebase
+
     const handleUpload = async () => {
-        // console.log(skillSelection)
 
         setDialogVisible(false);
         setIsUploading(true);
@@ -180,7 +175,8 @@ export default function RecordReflection(props) {
 
 
 
-
+        //Gets skills the user has selected, only takes [j][0] as [j][1] includes the text description of the skill
+        //Skills are handled as numbers, see skills const
         var items
         var array = []
         var skillsSelected = skillSelection
@@ -190,14 +186,13 @@ export default function RecordReflection(props) {
             j++
         }
 
-        console.log(array)
+    
 
-
+        //Date formatted this way to have unique IDs for the documents
         var date = format(new Date(), "dd-MM-yyyy-kk:mm:ss");
         var uid = firebase.auth().currentUser.uid;
         var today = date.slice(0, 10)
 
-        // console.log(file)
         let userDoc = firebase.firestore().collection("Users").doc(uid)
         var userXP = 0
         var lastDate
@@ -206,11 +201,10 @@ export default function RecordReflection(props) {
             lastDate = doc.data().lastDate,
                 concurrentDays = doc.data().ConsecutiveDays,
                 userXP = doc.data().xp
-            console.log(doc.data().ConsecutiveDays)
         })
+
         //Only increase consecutive day count if the last date was not today or if the consecutive day count is at 0
         if (lastDate != today || concurrentDays === 0) {
-            console.log("NAH BUDDEH")
             concurrentDays++
             await userDoc.set({
                 lastDate: date.slice(0, 10),
@@ -218,7 +212,7 @@ export default function RecordReflection(props) {
             }, { merge: true })
         }
 
-
+        //user XP calulation
         userXP += 10 + concurrentDays
         await userDoc.set({
             xp: userXP
@@ -227,8 +221,9 @@ export default function RecordReflection(props) {
 
 
 
+        //local variable used here as state variable didn't work
         var firebaseURI = ""
-
+        //upload audio to firebase cloud storage
         if (timerTime > 0) {
             var response = await fetch(recordingURI);
             var blob = await response.blob();
@@ -242,14 +237,11 @@ export default function RecordReflection(props) {
             var userRef = storageRef.child(uid);
             var dateRef = userRef.child(date);
             await dateRef.put(blob).then(function (snapshot) {
-                console.log("U CANT EVEN FINISH IT");
             });
 
             await dateRef.getDownloadURL().then((url) => firebaseURI = url)
 
             setUploadURI(firebaseURI)
-            console.log("Firebase URI: " + firebaseURI)
-            console.log("upload URI: " + uploadURI)
         }
 
 
@@ -258,12 +250,15 @@ export default function RecordReflection(props) {
 
 
 
+        //Calculate what colours to use when representing the reflection in Reflections.js
+        //Also add to statistics array
         var colourArray = [0, 0, 0]
         var reflectionStatArray = [0, 0, 0]
         var i = 0;
         var intval
         while (i < array.length) {
             intval = parseInt(array[i])
+            //numerical representation of skills
             if (intval < 5) {
                 colourArray[0]++
                 reflectionStatArray[0] = 1
@@ -280,6 +275,7 @@ export default function RecordReflection(props) {
         var colour
         var textColour
 
+        //Set colour for representation in Reflection.js
         if (colourArray[0] > 0 && colourArray[1] > 0 && colourArray[2] > 0) {
             //silver
             colour = "#C0C0C0"
@@ -312,6 +308,7 @@ export default function RecordReflection(props) {
 
 
 
+        //Update user badge progress
         let badgesRef = firebase.firestore().collection("BadgeProgress").doc(uid)
         var highScoreConsec
         var highScoreInnov
@@ -381,7 +378,7 @@ export default function RecordReflection(props) {
 
 
 
-
+        //Get user stats for this week, update as appropriate
         var statArrayFromFirebase
         var reflectionStatArrayFromFirebase
         const statRef = firebase.firestore().collection("Stats").doc(uid).collection("Weeks").doc(formatWeekStart)
@@ -422,6 +419,7 @@ export default function RecordReflection(props) {
         })
 
 
+        //Set recording document
         let setVal = await firebase.firestore().collection("Recordings").doc(uid).collection("Recordings").doc(JSON.stringify(date)).set({
             textEntry: textEntry,
             categories: array,
@@ -444,7 +442,6 @@ export default function RecordReflection(props) {
     const handleRecordingPress = async () => {
         console.log("Registering")
         if (isRecording === false) {
-            //setRecording(null)
             setIsRecording(true);
             setIsPlaybackAvailable(false);
             setMicColour('red');
@@ -466,7 +463,6 @@ export default function RecordReflection(props) {
                 playsInSilentModeIOS: true,
             });
             console.log('Starting recording..');
-            //const recording = new Audio.Recording();
             await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
             await recording.startAsync();
 
@@ -474,8 +470,7 @@ export default function RecordReflection(props) {
             setTimerOn(true);
             setTimerStart(Date.now() - 0)
             setIsRecording(true)
-            console.log(timerStart)
-            console.log(Date.now() - timerStart)
+            
 
 
             setRecording(recording);
@@ -486,12 +481,10 @@ export default function RecordReflection(props) {
     }
 
     useEffect(() => {
-        console.log("timer")
         var time = 0
         if (timerOn) {
             startTimer(setInterval(() => {
-                // setTimerTime(new Date() - timerStart);
-                time += 10 // Don't know why but this works
+                time += 10 
                 setTimerTime(time)
             }, 10))
         }
@@ -521,38 +514,23 @@ export default function RecordReflection(props) {
         setRecordingURI(uri)
         setRecording(new Audio.Recording())
         setIsPlaybackAvailable(true)
-        // clearInterval(timer);
     }
 
 
     const _onPlaybackStatusUpdate = (playbackStatus) => {
         if (!playbackStatus.isLoaded) {
-            // Update your UI for the unloaded state
             if (playbackStatus.error) {
                 console.log(`Encountered a fatal error during playback: ${playbackStatus.error}`);
-                // Send Expo team the error on Slack or the forums so we can help you debug!
             }
         } else {
-            // Update your UI for the loaded state
-
-            if (playbackStatus.isPlaying) {
-                // Update your UI for the playing state
-            } else {
-                // Update your UI for the paused state
-            }
-
-            if (playbackStatus.isBuffering) {
-                // Update your UI for the buffering state
-            }
 
             if (playbackStatus.didJustFinish) {
-                // The player has just finished playing and will stop. Maybe you want to play something else?
+                // The player has just finished playing and will stop.
                 playbackObject.unloadAsync()
                 setIsLoaded(false)
                 setPlayPause("playcircleo")
                 setIsPlaying(false)
             }
-            // etc
         }
     };
 
@@ -601,7 +579,6 @@ export default function RecordReflection(props) {
     const handleSkillPicked = (item) => {
         var skillsAlreadyPicked = skillSelection
         if (skillsAlreadyPicked == []) {
-            console.log("yup")
             setSkillSelection([item])
         } else {
             skillsAlreadyPicked.push(item)
@@ -617,7 +594,6 @@ export default function RecordReflection(props) {
             headerShown: true
         });
         setSkills(removeFromSkillList)
-        //set cancelskills to cancelskills ?
         setIsPickingSkill(false)
     }
 
@@ -648,7 +624,6 @@ export default function RecordReflection(props) {
     }
 
     const clearSkillPicks = () => {
-        console.log(skills)
         var skillsCancelled = [["0", "Self Management"],
         ["1", "Focussing"],
         ["2", "Integrity"],
@@ -683,16 +658,10 @@ export default function RecordReflection(props) {
     };
 
     const handleGoBack = async () => {
-        console.log(isRecording)
-        console.log(isLoaded)
-        console.log("is Typing: " + userIsTyping)
-        //recording.getStatusAsync()
+       
 
-        if (isRecording === true) {
-            console.log("YEAH PROBLEMO")
-        }
+        
         if (isLoaded === true) {
-            console.log("RECORDING PROBLEMO")
             await playbackObject.stopAndUnloadAsync()
         }
         var stopRecordingPromise = stopRecording()
@@ -714,11 +683,8 @@ export default function RecordReflection(props) {
     }
 
     const handleSave = () => {
-        // //Check at least 1 skill picked
-        console.log(skillSelection)
-        console.log(textEntry)
-        console.log(recording)
-
+        // Check at least 1 skill picked
+     
         var stopRecordingPromise = stopRecording()
         stopRecordingPromise.then(function () {
             console.log("Promise resolved")
@@ -726,12 +692,7 @@ export default function RecordReflection(props) {
         }).catch(function () {
             console.log("Promise rejected")
         })
-        // try{
-        //     stopRecording()
-        //     setMicColour("grey")
-        // }catch(e){
-        //     console.log(e)
-        // }
+
         setDialogVisible(true)
 
     }
@@ -745,7 +706,6 @@ export default function RecordReflection(props) {
     }
 
     const _keyboardDidHide = () => {
-        console.log("Fired")
         setUserIsTyping(false)
     };
 
@@ -777,32 +737,18 @@ export default function RecordReflection(props) {
 
     useEffect(() => {
         setTextLength(textEntry.length)
-        console.log(textLength)
     }, [textEntry])
 
     useEffect(() => {
-        // action on update of movies
         console.log("isRecording: " + isRecording)
-        // setIsRecording(prevState => {
-        //     // Object.assign would also work
-        //     return {...prevState, ...isRecording};
-        //   });
-
     }, [isRecording]);
 
 
 
-    const handleDialogYes = () => {
-        console.log(textLength)
-        console.log(recording)
-        console.log(skillSelection)
-    }
+   
 
 
-    // let centiseconds = ("0" + (Math.floor(timerTime / 10) % 100)).slice(-2);
-    // let seconds = ("0" + (Math.floor(timerTime / 1000) % 60)).slice(-2);
-    // let minutes = ("0" + (Math.floor(timerTime / 60000) % 60)).slice(-2);
-    // let hours = ("0" + Math.floor(timerTime / 3600000)).slice(-2);
+    
     let hours = Math.floor(timerTime / 1000 / 60 / 60);
     let minutes = Math.floor((timerTime / 1000 / 60 / 60 - hours) * 60);
     let seconds = Math.floor(((timerTime / 1000 / 60 / 60 - hours) * 60 - minutes) * 60);

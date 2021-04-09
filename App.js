@@ -10,7 +10,6 @@ import * as Permissions from 'expo-permissions';
 import * as Notifications from 'expo-notifications';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-// import registerForPushNotificationsAsync from "./Screens/Home.js/registerForPushNotificationsAsync"
 import Home from "./Screens/Home.js";
 import Skills from "./Screens/Skills.js";
 import SignUp from "./Screens/SignUp.js";
@@ -160,8 +159,6 @@ function App() {
       }
     })
   }
-  ////
-  ///
 
 
   useEffect(() => {
@@ -170,7 +167,6 @@ function App() {
       return;
     }
     let getval = firebase.firestore().collection('Users').doc(user.uid).get().then(doc => {
-      console.log(doc.data().notificationTime)
       setUserDesiredTime(doc.data().notificationTime)
       setUserDesiredTimeMinutes(doc.data().notificationTimeMinutes)
     })
@@ -180,7 +176,6 @@ function App() {
       cancelAndSchedule()
     });
 
-    console.log(userDesiredTime)
     if (userDesiredTime === null || userDesiredTime === -1) {
       Notifications.cancelAllScheduledNotificationsAsync()
       return
@@ -190,7 +185,6 @@ function App() {
 
   }, []);
 
-  //concurrentDate
 
 
   function MyTabs() {
@@ -210,14 +204,10 @@ function App() {
               iconName = "user"
             }
 
-            // You can return any component that you like here!
             return <Entypo name={iconName} size={size} color={color} />
           },
         })}
-        // tabBarOptions={{
-        //   activeTintColor: 'black',
-        //   inactiveTintColor: 'gray',
-        // }}
+     
       >
         <Tab.Screen name="Reflect" component={Home} />
         <Tab.Screen name="Skills" component={Skills} options={{ title: "Skills" }} />

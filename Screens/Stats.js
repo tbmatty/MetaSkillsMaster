@@ -39,7 +39,6 @@ export default class Stats extends Component {
     }
 
     componentDidMount() {
-        console.log(this.props.route.params)
         
         var sadFace1
         var sadFace2
@@ -47,7 +46,6 @@ export default class Stats extends Component {
 
 
         if (this.props.route.params.weeklyCount === 0) {
-            console.log("EH")
             sadFace1 = true
         } else {
             sadFace1 = false

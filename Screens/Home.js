@@ -49,7 +49,6 @@ export default class Home extends Component {
                 "Sense Making" : "Innovation",
                 "Critical Thinking" : "Innovation"
             },
-            //             cardInfo.push([doc.data().Title, doc.data().Body, doc.data().id])
             cardInfo :[
                 ["Focussing", "Learn about focussing!", 1],
                 ["Integrity", "Learn about integrity!", 2],
@@ -71,28 +70,10 @@ export default class Home extends Component {
 
 
 
-    //General workflow for file upload
-    handleUpload = async () => {
-        var storage = firebase.storage();
-        var storageRef = storage.ref();
-        var testRef = storageRef.child('test/test.txt');
-        var testMessage = 'testing123';
-        testRef.putString(testMessage).then(function (snapshot) {
-            console.log("U CANT EVEN FINISH IT");
-        });
-    }
 
 
+    //Gets 3 random skill cards to display
     componentDidMount = () => {
-
-        this.props.navigation.setOptions({
-            headerRight: () => (
-                <TouchableOpacity onPress={() => this.props.navigation.navigate("Profile")}>
-                    <AntDesign name="save" size={32} color="black" paddingRight="50" />
-                </TouchableOpacity>
-            ),
-        });
-        
         var dummyArray = this.state.cardInfo
         displayArray = []
         var looping=true
@@ -107,34 +88,19 @@ export default class Home extends Component {
                 break;
             }
         }
-        console.log(count)
         this.setState({displayArray:displayArray})
-
-
-
-    //    this.getFirebaseData()
         
     }
 
-    // getFirebaseData = async() =>{
-    //     var cardInfo = []
-    //     let firebaseRef = firebase.firestore().collection("CardInfo")
-    //     await firebaseRef.get().then(snapshot => {
-    //         snapshot.forEach(doc => {
-    //             cardInfo.push([doc.data().Title, doc.data().Body, doc.data().id])
-    //             console.log(doc.data().Title, doc.data().Body)
-    //         })
-    //     })
-    //     this.setState({ cardInfo: cardInfo, loading:false })
-    // }
 
+    //Handles navigating to the specific skill screen of the card pressed
+    //Replaces the card pressed with a new one, from random
     handleCardPress = (title, id) =>{
         var destination = this.state.cardNavigationDestination[title]
         var cardArray = this.state.cardInfo
         var newCardDisplay = []
         var curCardDisplay = this.state.displayArray
         var i=0
-        console.log(curCardDisplay[i])
         while(i<=2){
             if(curCardDisplay[i][0]==title){
                 i++;
@@ -161,10 +127,9 @@ export default class Home extends Component {
         return (
             <View style={{ flex: 4}}>
                 <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
-                    {/* <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("RecordReflection")}>
+                    <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("RecordReflection")}>
                         <Text style={styles.buttonText2}>Record a Reflection</Text>
-                    </TouchableOpacity> */}
-                    <Entypo name="new-message" size={96} color="black" onPress={() => this.props.navigation.navigate("RecordReflection")}/>
+                    </TouchableOpacity>
                 </View>
                 <View style={{ flex: 1, paddingBottom: 40}}>
                         <ScrollView horizontal>

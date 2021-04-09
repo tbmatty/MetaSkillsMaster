@@ -11,7 +11,6 @@ export default function SignUp(props) {
     const [userIsTyping, setUserIsTyping] = useState(false)
 
     const handleSignUp = () => {
-        console.log("Yelo");
         try {
             firebase.auth().createUserWithEmailAndPassword(email, password)
         } catch (e) {
@@ -33,7 +32,6 @@ export default function SignUp(props) {
     }
 
     const _keyboardDidHide = () => {
-        console.log("Fired")
         setUserIsTyping(false)
     };
 

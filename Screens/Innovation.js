@@ -7,6 +7,7 @@ export default class Innovation extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            //data used for passing information to the specificSkill.js screen
             data: [
                 {
                     title: 'Innovation',
@@ -44,29 +45,10 @@ export default class Innovation extends Component {
     }
 
 
-    componentDidMount = () =>{
-        setTimeout(() => {
-            if (this.sectionListRef) {
-              this.sectionListRef.scrollToLocation({
-                  animated: true,
-                  itemIndex: 0,
-                  sectionIndex: this.props.route.params.navProp,
-                  viewPosition: 0
-              });
-            }
-          }, 150);
-    }
 
     render() {
         return (
             <View style={styles.container}>
-                {/* <SectionList
-                    ref={ref => this.sectionListRef = ref}
-                    sections={this.state.data}
-                    keyExtractor={(item, index) => item + index}
-                    renderItem={({ item }) => <Text style={styles.bodyText}>{item}</Text>}
-                    renderSectionHeader={({ section: { title } }) => <Text style={this.state.textstyles[title]}>{title}</Text>}
-                /> */}
                 <Text style={styles.titleText}>Innovation</Text>
                 <Text style={styles.bodyText}>Innovation can be demonstrated at a range of levels; from individuals having curious, open, creative mindsets that support their own learning, to businesses developing and making use of new technology to strengthen the Scottish economy, to international organisations solving global challenges. {"\n"} {"\n"} Tap to learn more about the four sub-skills of innovation:</Text>
                 <TouchableOpacity style={styles.button} onPress={()=>this.props.navigation.navigate("specificSkill", {skill: "Curiosity"})}>

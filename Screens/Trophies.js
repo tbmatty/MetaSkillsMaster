@@ -35,7 +35,6 @@ export default class Trophies extends Component {
             Consistency = doc.data().Consistency;
         })
 
-        console.log(Innovation)
         this.setState({
             selfManagement: selfManagement,
             socialAwareness: socialAwareness,
@@ -164,16 +163,16 @@ export default class Trophies extends Component {
 
 const styles = StyleSheet.create({
     selfMangementRow: {
-        flexDirection: 'row', flex: 3, paddingVertical: 20, //backgroundColor:"#4677D6"
+        flexDirection: 'row', flex: 3, paddingVertical: 20, 
     },
     socialAwarenessRow: {
-        flexDirection: 'row', flex: 3, paddingVertical: 20, //backgroundColor: "#FF5D60"
+        flexDirection: 'row', flex: 3, paddingVertical: 20, 
     },
     InnovationRow: {
-        flexDirection: 'row', flex: 3, paddingVertical: 20, // backgroundColor: "#FFC530"
+        flexDirection: 'row', flex: 3, paddingVertical: 20, 
     },
     ConsistencyRow: {
-        flexDirection: 'row', flex: 3, paddingVertical: 20, // backgroundColor: "green"
+        flexDirection: 'row', flex: 3, paddingVertical: 20, 
     },
     blueColumn: {
         flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: "#4677D6", borderRadius: 40, margin: 25

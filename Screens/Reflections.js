@@ -30,19 +30,7 @@ export default function Reflections(props) {
     }
 
 
-    
-    // useEffect(() => {
-    //     setFirebaseArray()
-
-
-    // }, [])
-
-    useEffect(()=>{
-        console.log("AYO")
-    },[props.route.params.firebaseArray])
-
-
-    //Handle empty
+   
 
 
     return (
