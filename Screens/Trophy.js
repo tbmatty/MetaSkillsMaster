@@ -77,7 +77,15 @@ export default class Trophy extends Component {
     }
 
 
-
+    componentDidMount = () =>{
+        this.props.navigation.setOptions({
+            headerStyle: {
+                backgroundColor: this.state.colour[this.props.route.params.id]
+              },
+            title: this.state.title[this.props.route.params.id],
+            headerTitleStyle: { color: this.state.contentColour[this.state.colour[this.props.route.params.id]] }
+        })
+    }
 
     render() {
         const id = this.props.route.params.id

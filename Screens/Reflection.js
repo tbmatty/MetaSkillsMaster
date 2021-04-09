@@ -252,7 +252,6 @@ export default function Reflection(props) {
                 </ScrollView>
                 <Text>{"You recorded this on " + firebaseData[3].slice(1, 11) + " at " + firebaseData[3].slice(12, 20)}</Text>
             </View>
-
         </View>
 
 

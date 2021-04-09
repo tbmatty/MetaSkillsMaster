@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import { SafeAreaView, Text, StyleSheet, SectionList, Button } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native';
 
 
 export default class Innovation extends Component {
@@ -59,15 +59,29 @@ export default class Innovation extends Component {
 
     render() {
         return (
-            <SafeAreaView style={styles.container}>
-                <SectionList
+            <View style={styles.container}>
+                {/* <SectionList
                     ref={ref => this.sectionListRef = ref}
                     sections={this.state.data}
                     keyExtractor={(item, index) => item + index}
                     renderItem={({ item }) => <Text style={styles.bodyText}>{item}</Text>}
                     renderSectionHeader={({ section: { title } }) => <Text style={this.state.textstyles[title]}>{title}</Text>}
-                />
-            </SafeAreaView>
+                /> */}
+                <Text style={styles.titleText}>Innovation</Text>
+                <Text style={styles.bodyText}>Innovation can be demonstrated at a range of levels; from individuals having curious, open, creative mindsets that support their own learning, to businesses developing and making use of new technology to strengthen the Scottish economy, to international organisations solving global challenges. {"\n"} {"\n"} Tap to learn more about the four sub-skills of innovation:</Text>
+                <TouchableOpacity style={styles.button} onPress={()=>this.props.navigation.navigate("specificSkill", {skill: "Curiosity"})}>
+                    <Text style={styles.buttonText}>Curiosity</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={()=>this.props.navigation.navigate("specificSkill", {skill: "Creativity"})}>
+                    <Text style={styles.buttonText}>Creativity</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={()=>this.props.navigation.navigate("specificSkill", {skill: "Sense Making"})}>
+                    <Text style={styles.buttonText}>Sense Making</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={()=>this.props.navigation.navigate("specificSkill", {skill: "Critical Thinking"})}>
+                    <Text style={styles.buttonText}>Critical Thinking</Text>
+                </TouchableOpacity>
+            </View>
         );
     };
 }
@@ -75,7 +89,7 @@ export default class Innovation extends Component {
 const styles = StyleSheet.create({
     titleText: {
         padding: 8,
-        fontSize: 32,
+        fontSize: 40,
         textAlign: 'left',
         fontWeight: 'bold',
         color: 'black',
@@ -89,12 +103,23 @@ const styles = StyleSheet.create({
     },
     bodyText: {
         paddingLeft: 16,
-        fontSize: 16,
+        fontSize: 20,
         textAlign: 'left',
         color: 'black',
     },
     container: {
         backgroundColor: '#FFC530',
         flex: 1,
+    },
+    button: {
+        padding: 20,
+        backgroundColor: "#212121",
+        borderRadius: 4,
+        margin: 20
+    },
+    buttonText:{
+        color:'yellow',
+        fontSize:24
     }
+
 })

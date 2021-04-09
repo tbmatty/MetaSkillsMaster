@@ -26,22 +26,64 @@ export default function MonthSelector(props) {
     const [user, setUser] = useState(firebase.auth().currentUser)
     const [sadFace, setSadFace] = useState(true)
 
-    const initialState = {sadFacex: true};
-    
+    const initialState = { sadFacex: true };
+
     function reducer(state, action) {
         switch (action.type) {
-          case 'sad':
-            return {sadFacex: true};
-          case 'happy':
-            return {sadFacex: false};
-          default:
-            throw new Error();
+            case 'sad':
+                return { sadFacex: true };
+            case 'happy':
+                return { sadFacex: false };
+            default:
+                throw new Error();
         }
-      }
+    }
 
     useEffect(() => {
-        getFirebaseData()
+        //await getFirebaseData()
 
+
+        async function getFirebaseData() {
+
+            console.log("FIre")
+            console.log(monthsAndYears.length)
+            var uid = firebase.auth().currentUser.uid
+            var arrayToSet = []
+            var monthYearArray = []
+            var i = 0;
+
+            var monthYear
+            let firebaseRef = await firebase.firestore().collection("Recordings").doc(uid).collection("Recordings").get().then(snapshot => {
+                snapshot.forEach(doc => {
+                    monthYear = doc.data().date.slice(4, 11);
+                    if (monthYearArray.indexOf(monthYear) === -1) {
+                        monthYearArray.push(monthYear);
+                        i++;
+                    }
+                    arrayToSet.push([monthYear, doc.data().textEntry, doc.data().categories, doc.data().date, doc.data().uri, doc.data().colour, doc.data().textColour, doc.data().title])
+                })
+            })
+
+
+            var arrayWithKeys = []
+            i = 0;
+            while (i < monthYearArray.length) {
+                arrayWithKeys.push([i, monthYearArray[i]])
+                i++
+            }
+
+            setMonthsAndYears(arrayWithKeys)
+            if (monthsAndYears.length > 0) {
+                //set sad face
+                console.log("CONSOLE LOG")
+                setSadFace(false)
+            } else {
+                setSadFace(true)
+            }
+            setFirebaseArray(arrayToSet)
+        }
+
+        getFirebaseData()
         // How to listen for changes to firebase doc
         //
         //
@@ -49,8 +91,8 @@ export default function MonthSelector(props) {
             setSadFace(false)
             getFirebaseData()
         });
-        
 
+        console.log(monthsAndYears)
 
     }, [])
 
@@ -89,7 +131,7 @@ export default function MonthSelector(props) {
             //set sad face
             console.log("CONSOLE LOG")
             setSadFace(false)
-        }else{
+        } else {
             setSadFace(true)
         }
         setFirebaseArray(arrayToSet)
@@ -123,11 +165,11 @@ export default function MonthSelector(props) {
 
 
     return (
-        <View style={{flex:1}}>
+        <View style={{ flex: 1 }}>
             {!monthsAndYears.length ?
-                <View style={{alignItems:"center",justifyContent:"center", flex:1}}>
+                <View style={{ alignItems: "center", justifyContent: "center", flex: 1 }}>
                     <Entypo name="emoji-flirt" size={38} color="black" />
-                    <Text style={{paddingVertical:20}}>You have no reflections... yet!</Text>
+                    <Text style={{ paddingVertical: 20 }}>You have no reflections... yet!</Text>
                 </View>
                 :
                 <ScrollView contentContainerStyle={{

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { render } from 'react-dom';
-import { View, Text, TouchableOpacity, TextInput, Keyboard } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Keyboard, Alert } from 'react-native';
 import * as firebase from "firebase";
 
 export default function SignUp(props) {
@@ -12,14 +12,18 @@ export default function SignUp(props) {
 
     const handleSignUp = () => {
         console.log("Yelo");
-        firebase.auth().createUserWithEmailAndPassword(email, password)
+        try {
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+        } catch (e) {
+            Alert.alert("Error: " + e)
+        }
     }
 
     const signUpPress = () => {
         if (password == password2 && password != "") {
             handleSignUp();
         } else {
-            //Handle incorrect passwords
+            Alert.alert("Passwords don't match")
             console.log("Passwords dont match");
         }
     }
@@ -62,6 +66,7 @@ export default function SignUp(props) {
                 </View>
                 <View style={{ padding: 20 }}>
                     <TextInput
+                        secureTextEntry={true}
                         style={{ height: 50, borderColor: 'gray', borderWidth: 1, paddingLeft: 10 }}
                         placeholder="Password"
                         onChangeText={password => setPassword(password)}
@@ -70,6 +75,7 @@ export default function SignUp(props) {
                 </View>
                 <View style={{ padding: 20 }}>
                     <TextInput
+                        secureTextEntry={true}
                         style={{ height: 50, borderColor: 'gray', borderWidth: 1, paddingLeft: 10 }}
                         placeholder="Password"
                         onChangeText={password => setPassword2(password)}

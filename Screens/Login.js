@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { render } from 'react-dom';
-import { View, Text, TouchableOpacity, TextInput, Keyboard } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Keyboard, Alert } from 'react-native';
 import * as firebase from "firebase";
 
 export default function Login(props) {
@@ -10,7 +10,11 @@ export default function Login(props) {
     const [userIsTyping, setUserIsTyping] = useState(false)
 
     const handleSignIn = () => {
-        firebase.auth().signInWithEmailAndPassword(email, password);
+        try {
+            firebase.auth().signInWithEmailAndPassword(email, password);
+        } catch (e) {
+            Alert.alert("Incorrect Login Details: " + e)
+        }
         console.log(firebase.auth().currentUser);
     }
 
@@ -54,6 +58,7 @@ export default function Login(props) {
                 </View>
                 <View style={{ padding: 20 }}>
                     <TextInput
+                        secureTextEntry={true}
                         style={{ height: 50, borderColor: 'gray', borderWidth: 1, paddingLeft: 10 }}
                         placeholder="Password"
                         onChangeText={password => setPassword(password)}

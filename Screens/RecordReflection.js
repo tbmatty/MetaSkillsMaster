@@ -157,12 +157,12 @@ export default function RecordReflection(props) {
         if (skillSelection.length === 0) {
             console.log("NOOOOOOOOOOOOOOOOO")
             setDialogVisible(false)
-            Alert.alert("Pick a skill.")
+            Alert.alert("Pick a skill.", "You have not associated any skills with your reflection! Skills can be added by pressing the Add Skills button")
         } else if (textEntry === '' && recording === undefined) {
             setDialogVisible(false)
-            Alert.alert("You've not reflected on anything there, pal")
+            Alert.alert("Oops!", "You must enter a text or audio recording for your reflection. What have you learned today?")
         } else if (title.length === 0) {
-            Alert.alert("Empty title")
+            Alert.alert("Empty title", "Don't be afraid to get creative! :)")
         } else { handleUpload() }
 
     }
@@ -195,7 +195,7 @@ export default function RecordReflection(props) {
 
         var date = format(new Date(), "dd-MM-yyyy-kk:mm:ss");
         var uid = firebase.auth().currentUser.uid;
-        var today = date.slice(0,10)
+        var today = date.slice(0, 10)
 
         // console.log(file)
         let userDoc = firebase.firestore().collection("Users").doc(uid)
@@ -206,10 +206,10 @@ export default function RecordReflection(props) {
             lastDate = doc.data().lastDate,
                 concurrentDays = doc.data().ConsecutiveDays,
                 userXP = doc.data().xp
-                console.log(doc.data().ConsecutiveDays)
+            console.log(doc.data().ConsecutiveDays)
         })
         //Only increase consecutive day count if the last date was not today or if the consecutive day count is at 0
-        if (lastDate != today || concurrentDays===0) {
+        if (lastDate != today || concurrentDays === 0) {
             console.log("NAH BUDDEH")
             concurrentDays++
             await userDoc.set({
@@ -219,7 +219,7 @@ export default function RecordReflection(props) {
         }
 
 
-        userXP += 10+concurrentDays
+        userXP += 10 + concurrentDays
         await userDoc.set({
             xp: userXP
         }, { merge: true })
@@ -324,17 +324,17 @@ export default function RecordReflection(props) {
             highScoreSocial = doc.data().SocialAwareness;
         })
 
-        if(highScoreConsec==undefined){
-            highScoreConsec=0
+        if (highScoreConsec == undefined) {
+            highScoreConsec = 0
         }
-        if(highScoreInnov==undefined){
-            highScoreInnov=0
+        if (highScoreInnov == undefined) {
+            highScoreInnov = 0
         }
-        if(highScoreSelfM==undefined){
-            highScoreSelfM=0
+        if (highScoreSelfM == undefined) {
+            highScoreSelfM = 0
         }
-        if(highScoreSocial==undefined){
-            highScoreSocial=0
+        if (highScoreSocial == undefined) {
+            highScoreSocial = 0
         }
 
 
@@ -397,14 +397,14 @@ export default function RecordReflection(props) {
                     date: formatWeekStart,
                     statArray: statArray,
                     reflectionStatArray: reflectionStatArray,
-                    reflectionCount:1
+                    reflectionCount: 1
                 })
             } else {
                 statArrayFromFirebase = docSnapshot.data().statArray
                 reflectionStatArrayFromFirebase = docSnapshot.data().reflectionStatArray
                 var reflectionCount = docSnapshot.data().reflectionCount
                 index = 0
-                var newReflectionCount = reflectionCount+1
+                var newReflectionCount = reflectionCount + 1
                 while (index < array.length) {
                     statArrayFromFirebase[parseInt(array[index])]++;
                     index++
@@ -416,7 +416,7 @@ export default function RecordReflection(props) {
                     date: formatWeekStart,
                     statArray: statArrayFromFirebase,
                     reflectionStatArray: newRefStatArray,
-                    reflectionCount:newReflectionCount
+                    reflectionCount: newReflectionCount
                 })
             }
         })
@@ -470,15 +470,13 @@ export default function RecordReflection(props) {
             await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
             await recording.startAsync();
 
+            //Start timer
             setTimerOn(true);
             setTimerStart(Date.now() - 0)
             setIsRecording(true)
             console.log(timerStart)
             console.log(Date.now() - timerStart)
 
-            // startTimer(setInterval(() => {
-            //     setTimerTime(Date.now() - timerStart);
-            // }, 10)) 
 
             setRecording(recording);
             console.log('Recording started');
@@ -559,7 +557,7 @@ export default function RecordReflection(props) {
     };
 
 
-    const [playbackObject,setPlaybackObject] = useState(new Audio.Sound())
+    const [playbackObject, setPlaybackObject] = useState(new Audio.Sound())
 
 
     const playRecording = async () => {
@@ -623,6 +621,24 @@ export default function RecordReflection(props) {
         setIsPickingSkill(false)
     }
 
+    const removeOneSkill = (item) => {
+        var skillsAlreadyPicked = skillSelection
+        var indexOfItemToDelete = skillsAlreadyPicked.indexOf(item)
+        skillsAlreadyPicked.splice(indexOfItemToDelete,1)
+        setSkillSelection(skillsAlreadyPicked)
+        var newSkillsToPickFrom = []
+        cancelSkills.forEach(function (each) {
+            if(skillsAlreadyPicked.indexOf(each) == -1){
+                newSkillsToPickFrom.push(each)
+            }
+        })
+        setSkills(newSkillsToPickFrom)
+    }
+
+
+
+
+
     const saveSkillPicks = () => {
         setIsPickingSkill(false)
         props.navigation.setOptions({
@@ -654,8 +670,8 @@ export default function RecordReflection(props) {
     }
 
     const backAction = () => {
-    
-        Alert.alert("Hold on!", "Are you sure you want to go back? You will lose your progress recording this reflection.", [
+
+        Alert.alert("Hold on!", "Are you sure you want to exit? You will lose your progress recording this reflection.", [
             {
                 text: "Cancel",
                 onPress: () => null,
@@ -666,34 +682,34 @@ export default function RecordReflection(props) {
         return true;
     };
 
-    const handleGoBack = async() =>{
+    const handleGoBack = async () => {
         console.log(isRecording)
         console.log(isLoaded)
-        console.log("is Typing: "+userIsTyping)
+        console.log("is Typing: " + userIsTyping)
         //recording.getStatusAsync()
-        
-        if(isRecording===true){
+
+        if (isRecording === true) {
             console.log("YEAH PROBLEMO")
         }
-        if(isLoaded===true){
+        if (isLoaded === true) {
             console.log("RECORDING PROBLEMO")
             await playbackObject.stopAndUnloadAsync()
         }
         var stopRecordingPromise = stopRecording()
-        stopRecordingPromise.then(function(){
+        stopRecordingPromise.then(function () {
             console.log("Promise resolved")
             setMicColour("grey")
-        }).catch(function(){
+        }).catch(function () {
             console.log("Promise rejected")
         })
-        
+
         var stopPlaybackPromise = playbackObject.unloadAsync();
-        stopPlaybackPromise.then(function(){
+        stopPlaybackPromise.then(function () {
             console.log("Promise resolved")
-        }).catch(function(){
+        }).catch(function () {
             console.log("Promise rejected")
         })
-        
+
         props.navigation.goBack()
     }
 
@@ -702,12 +718,12 @@ export default function RecordReflection(props) {
         console.log(skillSelection)
         console.log(textEntry)
         console.log(recording)
-       
+
         var stopRecordingPromise = stopRecording()
-        stopRecordingPromise.then(function(){
+        stopRecordingPromise.then(function () {
             console.log("Promise resolved")
             setMicColour("grey")
-        }).catch(function(){
+        }).catch(function () {
             console.log("Promise rejected")
         })
         // try{
@@ -742,7 +758,7 @@ export default function RecordReflection(props) {
         props.navigation.setOptions({
             headerRight: () => (
                 <TouchableOpacity onPress={() => handleSave()}>
-                    <AntDesign name="save" size={32} color="black" paddingRight="50" />
+                    <AntDesign name="save" size={52} color="#26ffba" paddingRight="50" />
                 </TouchableOpacity>),
             headerLeft: () => (
                 <HeaderBackButton onPress={() => backAction()} />
@@ -766,12 +782,12 @@ export default function RecordReflection(props) {
 
     useEffect(() => {
         // action on update of movies
-        console.log("isRecording: "+isRecording)
+        console.log("isRecording: " + isRecording)
         // setIsRecording(prevState => {
         //     // Object.assign would also work
         //     return {...prevState, ...isRecording};
         //   });
-          
+
     }, [isRecording]);
 
 
@@ -793,9 +809,10 @@ export default function RecordReflection(props) {
     return (
         <View style={{ flex: 6 }}>
             {isUploading ?
-                <View style={{ flex: 6 }}>
+                <View style={{ flex: 6, justifyContent:"center", alignContent:"center"}}>
                     {isFinishedUploading ?
-                        <AntDesign name="checkcircleo" size={34} color="green" /> :
+                        <AntDesign name="checkcircleo" size={34} color="green" style={{textAlign:"center"}} />
+                         :
                         <ActivityIndicator size="large" color="blue" />
                     }
                 </View>
@@ -835,7 +852,7 @@ export default function RecordReflection(props) {
                                     <View style={{ flex: 1 }}>
                                         <ScrollView horizontal>
                                             {skillSelection.map((item) => (
-                                                <TouchableOpacity key={item[0]} style={tagColours[item[0]]}>
+                                                <TouchableOpacity key={item[0]} style={tagColours[item[0]]} onPress={()=>removeOneSkill(item)}>
                                                     <Text style={{ color: buttonTextColour[item[0]] }} >{item[1]}</Text>
                                                 </TouchableOpacity>
                                             ))
@@ -926,7 +943,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         padding: 8,
         marginTop: 18,
-        paddingHorizontal:14
+        paddingHorizontal: 14
     },
     item: {
         backgroundColor: '#f9c2ff',

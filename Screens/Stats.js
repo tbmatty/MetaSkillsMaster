@@ -40,23 +40,34 @@ export default class Stats extends Component {
 
     componentDidMount() {
         console.log(this.props.route.params)
+        
+        var sadFace1
+        var sadFace2
+        var sadFace3
+
+
         if (this.props.route.params.weeklyCount === 0) {
             console.log("EH")
-            this.setState({ sadFace1: true })
+            sadFace1 = true
         } else {
-            this.setState({ sadFace1: false })
+            sadFace1 = false
         }
         if (this.props.route.params.monthlyCount === 0) {
-            this.setState({ sadFace2: true })
+            sadFace2 = true
         } else {
-            this.setState({ sadFace2: false })
+            sadFace2 = false
         }
         if (this.props.route.params.yearlyCount === 0) {
-            this.setState({ sadFace3: true })
+            sadFace3 = true
         } else {
-            this.setState({ sadFace3: false })
+            sadFace3 = false
         }
-        console.log(this.state.sadFace1)
+
+        this.setState({
+            sadFace1:sadFace1,
+            sadFace2:sadFace2,
+            sadFace3:sadFace3
+        })
     }
 
 
@@ -114,7 +125,7 @@ export default class Stats extends Component {
                             </View>
                             <View style={styles.contentContainer}>
                                 <View style={styles.pieChartContainer}>
-                                    {this.state.sadFace1 ?
+                                    {this.state.sadFace2 ?
                                         <View style={{ alignItems: "center", justifyContent: "center", flex: 3 }}>
                                             <Entypo name="emoji-sad" size={65} color="black" />
                                         </View> :
@@ -154,7 +165,7 @@ export default class Stats extends Component {
                             </View>
                             <View style={styles.contentContainer}>
                                 <View style={styles.pieChartContainer}>
-                                    {this.state.sadFace1 ?
+                                    {this.state.sadFace3 ?
                                         <View style={{ alignItems: "center", justifyContent: "center", flex: 3 }}>
                                             <Entypo name="emoji-sad" size={65} color="black" />
                                         </View> :

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, Text, Button, Image, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { AntDesign } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
 import { createAppContainer } from "@react-navigation/native"
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Constants from 'expo-constants';
@@ -33,6 +33,10 @@ import { format, startOfWeek } from 'date-fns';
 import { LogBox } from 'react-native';
 import detailedStats from './Screens/detailedStats.js';
 import Leaderboard from './Screens/Leaderboard.js';
+import editProfile from './Screens/editProfile.js';
+import Settings from './Screens/Settings.js';
+import specificSkill from './Screens/specificSkill.js'
+import UserProfile from './Screens/UserProfile.js'
 
 const firebaseConfig = {
   apiKey: "AIzaSyDwn_LuSa2_c2yfNFLrF4bSUo8nKWPqlXQ",
@@ -88,19 +92,16 @@ function App() {
 
 
   useEffect(() => {
-    console.log("hello")
     registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
     let isMounted = true; // note this flag denote mount status
 
     // This listener is fired whenever a notification is received while the app is foregrounded
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      console.log("fired")
       console.log(notification);
     });
 
     // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log("fired")
       console.log(response);
     });
 
@@ -159,8 +160,8 @@ function App() {
       }
     })
   }
-////
-///
+  ////
+  ///
 
 
   useEffect(() => {
@@ -180,7 +181,8 @@ function App() {
     });
 
     console.log(userDesiredTime)
-    if (userDesiredTime === -1) {
+    if (userDesiredTime === null || userDesiredTime === -1) {
+      Notifications.cancelAllScheduledNotificationsAsync()
       return
     } else {
       cancelAndSchedule()
@@ -189,53 +191,35 @@ function App() {
   }, []);
 
   //concurrentDate
-  useEffect(() => {
-    var user = firebase.auth().currentUser;
-    if (!user) {
-      return;
-    }
-    var yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    var yesterdayFormat = format(yesterday, "dd-MM-yyyy")
-
-    var today = new Date()
-    today = format(today, "dd-MM-yyyy")
-
-    let isMounted=true
-
-
-
-    getUserLastDateAsync().then(lastDate => {
-      if (isMounted) {
-        if (yesterdayFormat != lastDate && lastDate != today) {
-          let setdoc = firebase.firestore().collection("Users").doc(user.uid).set({
-            ConsecutiveDays: 0,
-          }, { merge: true })
-        }
-      }
-    })
-
-    return () => { isMounted = false };
-  }, [])
-
-  async function getUserLastDateAsync() {
-    var lastDate
-    var user = await firebase.auth().currentUser;
-    let getdoc = await firebase.firestore().collection("Users").doc(user.uid).get().then(doc => {
-      lastDate = doc.data().lastDate
-      console.log("firebase date: " + lastDate)
-    })
-    return lastDate
-  }
-
-
-
 
 
   function MyTabs() {
     return (
-      <Tab.Navigator>
-        <Tab.Screen name="Reflect" component={Home} options={{ title: 'Reflect!' }} />
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+
+            if (route.name === 'Reflect') {
+              iconName = "home"
+            } else if (route.name === 'Skills') {
+              iconName = "graduation-cap"
+            } else if (route.name === "MonthSelector") {
+              iconName = "book"
+            } else if (route.name === "Profile") {
+              iconName = "user"
+            }
+
+            // You can return any component that you like here!
+            return <Entypo name={iconName} size={size} color={color} />
+          },
+        })}
+        // tabBarOptions={{
+        //   activeTintColor: 'black',
+        //   inactiveTintColor: 'gray',
+        // }}
+      >
+        <Tab.Screen name="Reflect" component={Home} />
         <Tab.Screen name="Skills" component={Skills} options={{ title: "Skills" }} />
         <Tab.Screen name="MonthSelector" component={MonthSelector} options={{ title: 'Reflections' }} />
         <Tab.Screen name="Profile" component={Profile} options={{ title: 'Me!' }} />
@@ -254,12 +238,12 @@ function App() {
           component={MyTabs}
           options={({ navigation }) => ({
             title: 'MetaSkillsMaster',
-            
+
           })}
         />
-        
+
         <Stack.Screen name="Profile" component={Profile} options={{ title: 'Profile' }} />
-        <Stack.Screen name="RecordReflection" component={RecordReflection} options={{ title: 'Record a reflection!' }} />
+        <Stack.Screen name="RecordReflection" component={RecordReflection} options={{ title: 'BRB, Reflecting...' }} />
         <Stack.Screen name="SelfManagement" component={SelfManagement} options={{ title: 'Self Management', headerStyle: { backgroundColor: '#4677D6', }, headerTitleStyle: { color: 'white' } }} />
         <Stack.Screen name="SocialAwareness" component={SocialAwareness} options={{ title: 'Social Intelligence', headerStyle: { backgroundColor: '#FF5D60', }, headerTitleStyle: { color: 'white' } }} />
         <Stack.Screen name="Innovation" component={Innovation} options={{ title: 'Innovation', headerStyle: { backgroundColor: '#FFC530', }, headerTitleStyle: { color: 'black' } }} />
@@ -269,7 +253,12 @@ function App() {
         <Stack.Screen name="Trophy" component={Trophy} options={{ title: 'A Trophy!' }} />
         <Stack.Screen name="Stats" component={Stats} options={{ title: 'Your Stats' }} />
         <Stack.Screen name="detailedStats" component={detailedStats} options={{ title: 'Detailed View' }} />
-        <Stack.Screen name="Leaderboard" component={Leaderboard} options={{title: 'Leaderboard'}}/>
+        <Stack.Screen name="Leaderboard" component={Leaderboard} options={{ title: 'Leaderboard' }} />
+        <Stack.Screen name="editProfile" component={editProfile} options={{ title: 'Edit Profile' }} />
+        <Stack.Screen name="Settings" component={Settings} options={{ title: 'Settings' }} />
+        <Stack.Screen name="specificSkill" component={specificSkill} options={{ title: 'Skill' }} />
+        <Stack.Screen name="UserProfile" component={UserProfile} options={{ title: 'User Profile' }} />
+
         {/* <MyTabs /> */}
       </Stack.Navigator>
 

@@ -51,17 +51,14 @@ export default class Home extends Component {
             },
             //             cardInfo.push([doc.data().Title, doc.data().Body, doc.data().id])
             cardInfo :[
-                ["Self Management", "Learn about self management!", 0],
                 ["Focussing", "Learn about focussing!", 1],
                 ["Integrity", "Learn about integrity!", 2],
                 ["Adapting", "Learn about adapting!", 3],
                 ["Initiative", "Learn about initiative!", 4],
-                ["Social Intelligence", "Learn about social intelligence!", 0],
                 ["Communicating", "Learn about communicating!", 1],
                 ["Feeling", "Learn about feeling!", 2],
                 ["Collaboration", "Learn about collaboration!", 3],
                 ["Leading", "Learn about leading!", 4],
-                ["Innovation", "Learn about innovation!", 0],
                 ["Curiosity", "Learn about curiosity!", 1], 
                 ["Creativity", "Learn about creativity!", 2],
                 ["Sense Making", "Learn about sense making!", 3],
@@ -154,7 +151,7 @@ export default class Home extends Component {
             newCardDisplay.push(item)
             break;
         }
-        this.props.navigation.navigate(destination, {navProp:id})
+        this.props.navigation.navigate("specificSkill", {skill:title})
         this.setState({displayArray:newCardDisplay})
 
     }
@@ -164,10 +161,10 @@ export default class Home extends Component {
         return (
             <View style={{ flex: 4}}>
                 <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
-                    <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("RecordReflection")}>
+                    {/* <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("RecordReflection")}>
                         <Text style={styles.buttonText2}>Record a Reflection</Text>
-                    </TouchableOpacity>
-                    {/* <Entypo name="new-message" size={96} color="black" onPress={() => this.props.navigation.navigate("RecordReflection")}/> */}
+                    </TouchableOpacity> */}
+                    <Entypo name="new-message" size={96} color="black" onPress={() => this.props.navigation.navigate("RecordReflection")}/>
                 </View>
                 <View style={{ flex: 1, paddingBottom: 40}}>
                         <ScrollView horizontal>

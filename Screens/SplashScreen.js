@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, ActivityIndicator } from 'react-native';
 import * as firebase from "firebase";
 import { CommonActions } from '@react-navigation/native';
 import { NotificationTimeoutError } from 'expo-notifications';
+import { format } from 'date-fns';
 
 
 
@@ -37,7 +38,6 @@ export default class SplashScreen extends Component {
                 );
                 //this.props.navigation.navigate("Login");
             } else {
-
                 const usersRef = firebase.firestore().collection('Users').doc(user.uid)
                 usersRef.get()
                     .then((docSnapshot) => {
@@ -46,16 +46,29 @@ export default class SplashScreen extends Component {
                             var userName = "User"+JSON.stringify(Math.floor(100000 + Math.random() * 900000))
                             usersRef.set({
                                 email: user.email,
-                                notificationTime: -1,
-                                notificationTimeMinutes: -1,
+                                notificationTime: 17,
+                                notificationTimeMinutes: 30,
                                 xp: 0,
                                 ConsecutiveDays: 0,
                                 name: userName,
                                 LeaderboardUsers: [],
                                 LeaderboardWeek: "",
+                                profilePicURI: "https://www.ragroup.co.uk/wp-content/uploads/2018/11/placeholder-profile-sq.jpg",
+                                description: "Soon to be reflecting genius..."
                             }) // create the document
                         } else {
-                            console.log("HEY")
+                            //Update Consecutive Days
+                            var usersLastDate = docSnapshot.data().lastDate
+                            var yesterday = new Date();
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            var yesterdayFormat = format(yesterday, "dd-MM-yyyy")
+                            var today = new Date()
+                            today = format(today, "dd-MM-yyyy")
+                            if(usersLastDate != yesterdayFormat && usersLastDate != today){
+                                usersRef.set({
+                                    ConsecutiveDays: 0
+                                },{merge:true})
+                            }
                         }
                     });
 
@@ -94,7 +107,7 @@ export default class SplashScreen extends Component {
     render() {
         return (
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Text>Loading</Text>
+                <ActivityIndicator  size="large" color="blue" />
             </View>
         )
     }
